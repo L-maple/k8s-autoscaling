@@ -4,10 +4,7 @@ metadata:
   name: csi-lvm-storageclass
 provisioner: lvmplugin.csi.alibabacloud.com
 parameters:
-  vgname: vgdata
-  fsType: ext4
-  pvType: localdisk
-  lvmType: linear
-  nodeAffinity: "false"
+  vgName: vgdata
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
+allowVolumeExpansion: true
