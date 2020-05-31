@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-lvm-storageclass
+provisioner: lvmplugin.csi.alibabacloud.com
+parameters:
+  vgname: vgdata
+  fsType: ext4
+  pvType: localdisk
+  lvmType: linear
+  nodeAffinity: "false"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
