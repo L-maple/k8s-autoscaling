@@ -66,7 +66,7 @@ Prometheus, Grafana和Alertmanager dashboards可以通过kubectl port-forward快
 `kubectl --namespace monitoring port-forward svc/alertmanager-main 9093`
 然后可以通过 http://localhost:9093来访问。
 
-
+---
 
 #### Step3: setup csi-related resources
 
