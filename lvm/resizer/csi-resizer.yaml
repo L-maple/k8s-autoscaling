@@ -10,7 +10,7 @@ spec:
     app: csi-lvm-resizer
   ports:
     - name: dummy
-      port: 12345
+      port: 12346
 ---
 kind: StatefulSet
 apiVersion: apps/v1
