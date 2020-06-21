@@ -114,9 +114,7 @@ func setPodMapInfoForStatefulSet(podMap map[string]*podInfo, clientSet *kubernet
 
 func printPodInfo(podMap map[string]*podInfo) {
 	for podName, podInfo := range podMap {
-		fmt.Println(podName)
-		fmt.Println(podInfo.BossName)
-		fmt.Println(podInfo.BossType)
+		fmt.Println(podName, " => ", podInfo.BossName, ",Type: ", podInfo.BossType)
 	}
 }
 

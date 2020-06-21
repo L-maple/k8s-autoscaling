@@ -11,10 +11,6 @@ spec:
   maxReplicas: 5
   metrics:
   - type: Resource
-    resource:
-      name: memory
-      targetAverageUtilization: 60
-  - type: Resource
     resource: 
       name: cpu
       targetAverageUtilization: 30

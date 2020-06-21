@@ -1,0 +1,20 @@
+kind: ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: sample-app
+  namespace: default
+  labels:
+    app: sample-app
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: sample-app
+    namespaceSelector:
+      matchNames:
+      - default
+      - monitoring
+  endpoints:
+  - targetPort: 8080
+    interval: 10s
+    honorLabels: true

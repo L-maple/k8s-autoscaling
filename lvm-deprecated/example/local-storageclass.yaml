@@ -5,6 +5,7 @@ metadata:
 provisioner: lvmplugin.csi.alibabacloud.com
 parameters:
   vgName: vgdata
+  fsType: ext4
 reclaimPolicy: Delete
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true

@@ -1,0 +1,62 @@
+apiVersion: v1
+items:
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      labels:
+        app: ubuntu
+      name: ubuntu
+      namespace: default
+    spec:
+      serviceName: "datanode"
+      selector:
+        matchLabels:
+          app: ubuntu
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            app: ubuntu
+          annotations:
+            storage.io/storage: "enable"
+#            storage.io/label: fast
+            storage.io/read: "10"
+            storage.io/write: "20"
+            storage.io/docker: "ubuntu"
+            storage.io/size : "10"
+        spec:
+          containers:
+            - image: ubuntu
+              imagePullPolicy: IfNotPresent
+              name: ubuntu
+              command:
+                - sleep
+                - "3600"
+              volumeMounts:
+                - name: lvm-volume
+                  mountPath: /data
+      volumeClaimTemplates:
+        - metadata:
+            name: lvm-volume
+          spec:
+            accessModes: [ "ReadWriteOnce" ]
+            storageClassName: csi-lvm
+            resources:
+              requests:
+                storage: 100Mi
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: ubuntu
+      name: datanode
+      namespace: default
+    spec:
+      ports:
+        - port: 80
+          protocol: TCP
+      selector:
+        app: datanode
+      clusterIP: None
+kind: List
+metadata: {}
