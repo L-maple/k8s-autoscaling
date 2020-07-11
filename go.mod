@@ -1,5 +1,3 @@
-module github.com/k8s_setup
+module github.com/L-maple/k8s-autoscaling
 
 go 1.13
-
-require k8s.io/client-go v0.17.0 // indirect
