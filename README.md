@@ -44,7 +44,7 @@ cd ../..
 
 #### Step3: setup custom-metrics
 ```
-cd k8s-prometheus-custom-metrics-adapter/deploy/manifests/
+cd custom-metrics-adapter/deploy/manifests/
 k apply -f .
 cd ../../..
 ```
