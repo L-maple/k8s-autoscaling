@@ -33,9 +33,25 @@ After that, the K8s is set up. Run `kubectl get po` to test that.
 
 ---
 
+#### Step2: setup kube-prometheus
+```
+cd my-kube-prometheus/manifests
+kubectl apply -f .
+kuebctl apply -f .
+cd ../..
+```
 
 
-#### Step2: setup Kube-prometheus
+#### Step3: setup custom-metrics
+```
+cd k8s-prometheus-custom-metrics-adapter/deploy/manifests/
+k apply -f .
+cd ../../..
+```
+
+---
+
+#### Step4: setup Kube-prometheus
 
 ```shell
  k apply -f my-kube-prometheus/manifests/
