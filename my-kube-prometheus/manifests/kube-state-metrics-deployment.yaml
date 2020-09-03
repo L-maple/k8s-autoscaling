@@ -55,7 +55,7 @@ spec:
         - --port=8081
         - --telemetry-host=127.0.0.1
         - --telemetry-port=8082
-        image: aliuchangjie/kube-state-metrics:v1.9.2
+        image: aliuchangjie/kube-state-metrics:latest
         name: kube-state-metrics
         resources:
           limits:
