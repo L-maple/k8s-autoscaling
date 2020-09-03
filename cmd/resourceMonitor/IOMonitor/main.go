@@ -23,6 +23,8 @@ import (
 
 
 var (
+	prometheusUrl string
+
 	readsMetricsGaugeValues  map[string]float64       // store deploys' readsIO values
 	writesMetricsGaugeValues map[string]float64       // store deploys' writesIO values
 	clientSet  *kubernetes.Clientset
@@ -96,7 +98,7 @@ func parseBody(body string) map[string]string {
 
 func getPodsFsWritesIO() (map[string]string, error) {
 	httpCli := goz.NewClient()
-	resp, err := httpCli.Get("http://localhost:9090/api/v1/query", goz.Options{
+	resp, err := httpCli.Get(prometheusUrl + "/api/v1/query", goz.Options{
 		Query: map[string]interface{} {
 			"query": `sum(rate(container_fs_writes_bytes_total{image!=""}[1m])) by (pod, namespace)`,
 		},
@@ -112,7 +114,7 @@ func getPodsFsWritesIO() (map[string]string, error) {
 
 func getPodsFsReadsIO() (map[string]string, error) {
 	httpCli := goz.NewClient()
-	resp, err := httpCli.Get("http://localhost:9090/api/v1/query", goz.Options{
+	resp, err := httpCli.Get(prometheusUrl + "/api/v1/query", goz.Options{
 		Query: map[string]interface{} {
 			"query": `sum(rate(container_fs_reads_bytes_total{image!=""}[1m])) by (pod, namespace)`,
 		},
@@ -132,6 +134,8 @@ func init() {
 	deployReadGauges         = make(map[string]*prometheus.Gauge)
 	deployWriteGauges        = make(map[string]*prometheus.Gauge)
 
+	flag.StringVar(&prometheusUrl, "url", "http://localhost:9090", "the prometheus url for cadvisor metrics")
+    flag.Parse()
 	clientSet = getClientSet()
 }
 
