@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"github.com/idoubi/goz"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -134,8 +135,8 @@ func init() {
 	deployReadGauges         = make(map[string]*prometheus.Gauge)
 	deployWriteGauges        = make(map[string]*prometheus.Gauge)
 
-	flag.StringVar(&prometheusUrl, "url", "http://localhost:9090", "the prometheus url for cadvisor metrics")
-    flag.Parse()
+	flag.StringVar(&prometheusUrl, "purl", "http://localhost:9090", "the prometheus url for cadvisor metrics")
+
 	clientSet = getClientSet()
 }
 
@@ -171,11 +172,11 @@ func deployIOMetricsUpdater() {
 
 				podsWritesIO, err := getPodsFsWritesIO()
 				if err != nil {
-					continue
+					log.Fatal(err)
 				}
 				podsReadsIO,  err := getPodsFsReadsIO()
 				if err != nil {
-					continue
+					log.Fatal(err)
 				}
 				for _, pod := range pods {
 					if podsWritesIO[pod] != "" {
@@ -260,6 +261,9 @@ func deployIOMetricsRegister() {
 }
 
 func main() {
+	flag.Parse()
+
+	fmt.Println(prometheusUrl)
 	go deployIOMetricsRegister()
 
 	go deployIOMetricsUpdater()
