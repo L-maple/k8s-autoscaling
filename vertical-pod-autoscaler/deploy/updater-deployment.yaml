@@ -26,14 +26,14 @@ spec:
         runAsUser: 65534 # nobody
       containers:
         - name: updater
-          image: k8s.gcr.io/autoscaling/vpa-updater:0.9.0
+          image: aliuchangjie/vpa-updater:0.9.0
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: 200m
-              memory: 1000Mi
+              cpu: 100m
+              memory: 100Mi
             requests:
               cpu: 50m
-              memory: 500Mi
+              memory: 50Mi
           ports:
             - containerPort: 8080
