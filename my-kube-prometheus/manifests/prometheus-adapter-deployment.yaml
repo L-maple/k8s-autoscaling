@@ -17,6 +17,7 @@ spec:
       labels:
         name: prometheus-adapter
     spec:
+      hostNetwork: true
       containers:
       - args:
         - --cert-dir=/var/run/serving-cert
