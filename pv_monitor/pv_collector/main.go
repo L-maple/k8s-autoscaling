@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"strings"
+	"time"
 )
 
 /*
@@ -52,13 +56,67 @@ func (c *command) execute(cmdstr string) (string, error) {
 
 type pvparser struct{}
 
-func main() {
-	cmd := command{}
+func (pp *pvparser) GetVgName(lvstr string) (string, error) {
+	if lvstr == "" {
+		return "", errors.New("GetVgName: lvstr is invalid")
+	}
+	lvinfo := strings.Split(lvstr, ":")
+	fmt.Println("vginfo: ", lvinfo)
+	return lvinfo[1], nil
+}
 
-	if result, err := cmd.execute("lvdisplay"); err == nil {
-		fmt.Println(result)
-	} else {
-		fmt.Println(err)
-		return
+func (pp *pvparser) GetPvPath(lvstr string) (string, error) {
+	if lvstr == "" {
+		return "", errors.New("GetPvPath: lvstr is invalid")
+	}
+	lvinfo := strings.Split(lvstr, ":")
+
+	return lvinfo[0], nil
+}
+
+func (pp *pvparser) GetPvName(lvstr string) (string, error) {
+	path, err := pp.GetPvPath(lvstr)
+	if err != nil {
+		return "", err
+	}
+	paths := strings.Split(path, "/")
+	return paths[len(paths)-1], nil
+}
+
+var (
+	sleepTime int
+)
+
+func init() {
+	flag.IntVar(&sleepTime, "s", 15, "collector interval")
+}
+
+func main() {
+	flag.Parse()
+
+	cmd := command{}
+	parser := pvparser{}
+
+	for {
+		if result, err := cmd.execute("lvdisplay -c"); err == nil {
+			lvs := strings.Split(result, "\n")
+			for i := 0; i < len(lvs); i++ {
+				fmt.Println(lvs[i])
+				// infos := strings.Split(lvs[i], ":")
+				pvname, err := parser.GetPvName(lvs[i])
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				vgname, err := parser.GetVgName(lvs[i])
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				fmt.Println(pvname, vgname)
+			}
+		}
+
+		time.Sleep(time.Duration(sleepTime) * time.Second)
 	}
 }

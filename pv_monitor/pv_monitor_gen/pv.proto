@@ -17,17 +17,18 @@ message PvNames {
 /*
  * PvInfos records all the pv infos the specific machine has.
  */
-message LvInfos {
+message PvInfos {
   int32            pv_number   = 1;
-  repeated LvInfo  pv_info     = 2;
+  repeated PvInfo  pv_info     = 2;
 }
 
-message LvInfo {
-    string pv_name             = 1;
-    string vg_name             = 2;
-    string total_pe_number     = 3;
-    string allocated_pe_number = 4;
-    string kb_per_sec_read     = 5;
-    string kb_per_sec_write    = 6;
-    string io_per_sec          = 7;
+message PvInfo {
+    /* lvdisplay -c */
+    string pv_name                = 1;
+    string vg_name                = 2;
+    /* df | grep pv_name */
+    int64  allocated_bytes        = 3;
+    int64  free_bytes             = 4; 
+    string bytes_per_sec_read     = 5;
+    string bytes_per_sec_write    = 6;
 }
