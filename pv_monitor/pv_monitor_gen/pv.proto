@@ -17,12 +17,12 @@ message PvNames {
 /*
  * PvInfos records all the pv infos the specific machine has.
  */
-message PvInfos {
+message LvInfos {
   int32            pv_number   = 1;
-  repeated PvInfo  pv_info     = 2;
+  repeated LvInfo  pv_info     = 2;
 }
 
-message PvInfo {
+message LvInfo {
     string pv_name             = 1;
     string vg_name             = 2;
     string total_pe_number     = 3;
