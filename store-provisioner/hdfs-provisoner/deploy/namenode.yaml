@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nwpu-namenode
+spec:
+  serviceName: "nwpu-namenode"
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nwpu-namenode
+  template:
+    metadata:
+      labels:
+        name: nwpu-namenode
+    spec:
+      containers:
+      - name: nwpu-namenode
+        image: jinbozi/hdfs:0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9000
+          - containerPort: 50070
+        volumeMounts:
+          - name: hdfs
+            mountPath: /hadoop/hdfs
+        env:
+          - name: HADOOP_NODE_TYPE
+            value: namenode
+          - name: HDFS_MASTER_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: nwpu-hdfs-conf
+                key: HDFS_MASTER_SERVICE
+          - name: HDFS_REP
+            valueFrom:
+              configMapKeyRef:
+                name: nwpu-hdfs-conf
+                key: HDFS_REP
+  volumeClaimTemplates:
+  - metadata:
+      name: hdfs
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
