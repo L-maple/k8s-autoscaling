@@ -1,5 +1,5 @@
 # Build the docker image of HDFS
-You can get the image from the DockerHub directly.
+You can get the image from the DockerHub directly.<br/>
 If you want to build by yourself, you can refer to below command. But you should download the package of Hadoop2.9.0 and JDK1.8 from their official website, and named the package as `hadoop-2.9.0.tar.gz` and `jdk-8u11-linux-x64.tar.gz`.
 ```shell
 cd docker-build
@@ -22,7 +22,7 @@ You can enter into container by `kubectl exec -it -n monitoring pod/hdfs-datanod
 kubectl scale sts hdfs-datanode --replicas=4
 ```
 
-# Verift the HPA
+# Verify the HPA
 
 Enter into container and put file to cluster.(The target value have been set as 3GiB, so we must fill at least 4GiB file.)
 ```
@@ -42,9 +42,9 @@ Or visit the http://localhost:32007/
 # Prometheus Export
 
 You can use my custom Java prometheus export to get system directory size.([link](./docker-build/prometheus_export/))
-> java -cp .:lib/* DirectorySizeExport [port] [path] [dir]
-> port: the expose port to prometheus metrics, default value is 10318
-> path: the path of du command, default value is /bin/du
-> dir: the directory that you want to monitor its size, default value is /
+> java -cp .:lib/* DirectorySizeExport [port] [path] [dir]<br/>
+> port: the expose port to prometheus metrics, default value is 10318<br/>
+> path: the path of du command, default value is /bin/du<br/>
+> dir: the directory that you want to monitor its size, default value is /<br/>
 > You must fill the previous argument if you want to custom the after argument.
 
