@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<configuration>
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>file:///custom/hdfs_dir/namenode</value>
+        <description>NameNode directory for namespace and transaction logs storage.</description>
+    </property>
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:///custom/hdfs_dir/datanode</value>
+        <description>DataNode directory</description>
+    </property>
+    <property>
+        <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+        <value>false</value>
+    </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>@HDFS_REP@</value>
+    </property>
+</configuration>
+
