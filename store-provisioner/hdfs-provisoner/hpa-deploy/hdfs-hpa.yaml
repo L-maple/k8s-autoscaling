@@ -30,5 +30,15 @@ spec:
       target:
         type: Utilization
         averageUtilization: 50
-  
+behavior:
+  scaledown:
+    # stabilizationWindowSeconds: 300
+    selectPolicy: Disabled   # 禁止缩容
+  scaleUp:
+    stabilizationWindowSeconds: 60
+    policies:
+    - type: Pods
+      value: 1
+      periodSeconds: 60
+    selectPolicy: Max
 
