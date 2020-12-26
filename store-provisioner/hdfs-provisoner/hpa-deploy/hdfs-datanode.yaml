@@ -23,6 +23,13 @@ spec:
           - containerPort: 50070
           - name: pexport
             containerPort: 10318
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "1"
         volumeMounts:
           - name: hdfs
             mountPath: /custom/hdfs_dir
