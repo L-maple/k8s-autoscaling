@@ -29,8 +29,12 @@ metadata:
   labels:
     name: hdfs-datanode
 spec:
+  type: NodePort
   selector:
     name: hdfs-datanode
   ports:
   - name: pexport
     port: 10318
+    targetPort: 10318
+    nodePort: 30318
+
