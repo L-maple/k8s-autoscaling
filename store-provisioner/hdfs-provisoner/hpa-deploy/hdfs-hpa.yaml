@@ -14,10 +14,10 @@ spec:
   - type: Pods
     pods:
       metric:
-        name: directory_size
+        name: disk_utilization
       target: 
         type: AverageValue
-        averageValue: 800000
+        averageValue: 80
   - type: Resource
     resource:
       name: cpu

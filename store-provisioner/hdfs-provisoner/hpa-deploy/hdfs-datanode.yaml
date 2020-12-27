@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hdfs-datanode
-        image: jinbozi/hdfs:0.3
+        image: jinbozi/hdfs:0.4
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 9000
