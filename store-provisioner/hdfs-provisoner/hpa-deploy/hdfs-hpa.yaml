@@ -17,7 +17,7 @@ spec:
         name: disk_utilization
       target: 
         type: AverageValue
-        averageValue: 0.8
+        averageValue: 0.5
   - type: Resource
     resource:
       name: cpu
@@ -39,6 +39,6 @@ spec:
       policies:
       - type: Pods
         value: 1
-        periodSeconds: 60
+        periodSeconds: 30
       selectPolicy: Max
 
