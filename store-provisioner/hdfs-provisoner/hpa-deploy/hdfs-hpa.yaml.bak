@@ -1,0 +1,17 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hdfs-datanode
+  namespace: monitoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: hdfs-datanode
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Pods
+    pods:
+      metricName: directory_size
+      targetAverageValue: 90000

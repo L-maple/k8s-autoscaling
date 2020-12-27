@@ -25,11 +25,11 @@ spec:
             containerPort: 10318
         resources:
           requests:
-            memory: "1000Mi"
-            cpu: "500m"
+            memory: "800Mi"
+            cpu: "200m"
           limits:
             memory: "2000Mi"
-            cpu: "1000m"
+            cpu: "500m"
         volumeMounts:
           - name: hdfs
             mountPath: /custom/hdfs_dir
