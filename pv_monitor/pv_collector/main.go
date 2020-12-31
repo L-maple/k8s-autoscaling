@@ -1,14 +1,15 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
-	"strings"
 	"time"
+	"os"
+	"strings"
+	"strconv"
 )
 
 /*
@@ -25,7 +26,7 @@ func (c *command) execute(cmdstr string) (string, error) {
 	 */
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Println("execute: cmd.StdoutPipe error")
+		log.Println("execute: cmd.StdoutPipe error: ", err)
 		return "", err
 	}
 
@@ -33,7 +34,7 @@ func (c *command) execute(cmdstr string) (string, error) {
 	 * Execute the command
 	 */
 	if err := cmd.Start(); err != nil {
-		log.Println("execute: cmd.Start error")
+		log.Println("execute: cmd.Start error: ", err)
 		return "", err
 	}
 
@@ -42,45 +43,16 @@ func (c *command) execute(cmdstr string) (string, error) {
 	 */
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
-		log.Println("execute: ioutil.ReadAll error")
+		log.Println("execute: ioutil.ReadAll error: ", err)
 		return "", err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		log.Println("execute: execute: cmd.Wait error")
+		log.Println("execute: execute: cmd.Wait error: ", err)
 		return "", err
 	}
 
 	return string(bytes), nil
-}
-
-type pvparser struct{}
-
-func (pp *pvparser) GetVgName(lvstr string) (string, error) {
-	if lvstr == "" {
-		return "", errors.New("GetVgName: lvstr is invalid")
-	}
-	lvinfo := strings.Split(lvstr, ":")
-	fmt.Println("vginfo: ", lvinfo)
-	return lvinfo[1], nil
-}
-
-func (pp *pvparser) GetPvPath(lvstr string) (string, error) {
-	if lvstr == "" {
-		return "", errors.New("GetPvPath: lvstr is invalid")
-	}
-	lvinfo := strings.Split(lvstr, ":")
-
-	return lvinfo[0], nil
-}
-
-func (pp *pvparser) GetPvName(lvstr string) (string, error) {
-	path, err := pp.GetPvPath(lvstr)
-	if err != nil {
-		return "", err
-	}
-	paths := strings.Split(path, "/")
-	return paths[len(paths)-1], nil
 }
 
 var (
@@ -95,28 +67,61 @@ func main() {
 	flag.Parse()
 
 	cmd := command{}
-	parser := pvparser{}
 
 	for {
-		if result, err := cmd.execute("lvdisplay -c"); err == nil {
-			lvs := strings.Split(result, "\n")
-			for i := 0; i < len(lvs); i++ {
-				fmt.Println(lvs[i])
-				// infos := strings.Split(lvs[i], ":")
-				pvname, err := parser.GetPvName(lvs[i])
-				if err != nil {
-					fmt.Println(err)
-				}
+		tmpFileName := "targetUtilization.txt"
+		target := "/var/lib/docker"
 
-				vgname, err := parser.GetVgName(lvs[i])
-				if err != nil {
-					fmt.Println(err)
-				}
+		saveDfInfo(tmpFileName, cmd)
 
-				fmt.Println(pvname, vgname)
+		if utilizationAndTarget, err := grepFileWithTarget(target, tmpFileName, cmd); err != nil {		
+			log.Println("grepFileWithTarget error: ", err)
+			return
+		} else {
+			utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
+			slices := strings.Split(utilizationAndTarget, "%")
+			if len(slices) <= 1 {
+				log.Println("strings.Split error: ", slices)
+				return
 			}
+
+			utilization, err := strconv.Atoi(slices[0])
+			if err != nil {
+				log.Println("strconv.Atoi error: ", err)
+				return
+			} 
+			fmt.Println(target, " ", float64(utilization) / 100.0)
 		}
 
 		time.Sleep(time.Duration(sleepTime) * time.Second)
+	}
+}
+
+func grepFileWithTarget(target string, tmpFileName string, cmd command) (string, error) {
+	// 对tmpFileName文件使用grep target命令找到对应
+	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
+
+	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd); err != nil {
+		log.Println("cmd.execute utilizationAndTargetCmd error: ", err)
+		return "", err
+	} else {
+		return targetUtilization, nil
+	}
+}
+
+func saveDfInfo(tmpFileName string, cmd command) {
+	// 读取文件系统使用量信息，保存到tmpFileName中
+	targetUtilizationCmd := fmt.Sprintf("df --output=pcent,target")
+	if targetUtilizations, err := cmd.execute(targetUtilizationCmd); err != nil {
+		log.Println("cmd.execute targetUtilizationCmd error: ", err)
+		return
+	} else {
+		file, err := os.Create(tmpFileName)
+		defer file.Close()
+		if err != nil {
+			fmt.Println("os.Create error: ", err)
+			return;
+		}
+		file.WriteString(targetUtilizations)
 	}
 }
