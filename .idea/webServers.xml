@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="03eec2fd-a5d5-4f7f-b56b-9af5bbc8c168" name="centos_cloud" url="http://10.77.110.132">
+        <fileTransfer host="10.77.110.132" port="10101" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="10101" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
