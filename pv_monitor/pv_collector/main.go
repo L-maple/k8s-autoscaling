@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os/exec"
-	"time"
 	"os"
-	"strings"
+	"os/exec"
 	"strconv"
+	"strings"
+	"time"
 )
 
 /*
@@ -55,6 +55,37 @@ func (c *command) execute(cmdstr string) (string, error) {
 	return string(bytes), nil
 }
 
+func grepFileWithTarget(target string, tmpFileName string, cmd command) (string, error) {
+	// 对tmpFileName文件使用grep target命令找到对应
+	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
+
+	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd); err != nil {
+		log.Println("cmd.execute utilizationAndTargetCmd error: ", err)
+		return "", err
+	} else {
+		return targetUtilization, nil
+	}
+}
+
+func saveDfInfo(tmpFileName string, cmd command) {
+	// 读取文件系统使用量信息，保存到tmpFileName中
+	targetUtilizationCmd := fmt.Sprintf("df --output=pcent,target")
+	if targetUtilizations, err := cmd.execute(targetUtilizationCmd); err != nil {
+		log.Println("cmd.execute targetUtilizationCmd error: ", err)
+		return
+	} else {
+		file, err := os.Create(tmpFileName)
+		if err != nil{
+			log.Fatal("error: os.Create error")
+		}
+		defer file.Close()
+
+		if _, err := file.WriteString(targetUtilizations); err != nil {
+			log.Fatal(err.Error())
+		}
+	}
+}
+
 var (
 	sleepTime int
 )
@@ -97,31 +128,4 @@ func main() {
 	}
 }
 
-func grepFileWithTarget(target string, tmpFileName string, cmd command) (string, error) {
-	// 对tmpFileName文件使用grep target命令找到对应
-	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
 
-	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd); err != nil {
-		log.Println("cmd.execute utilizationAndTargetCmd error: ", err)
-		return "", err
-	} else {
-		return targetUtilization, nil
-	}
-}
-
-func saveDfInfo(tmpFileName string, cmd command) {
-	// 读取文件系统使用量信息，保存到tmpFileName中
-	targetUtilizationCmd := fmt.Sprintf("df --output=pcent,target")
-	if targetUtilizations, err := cmd.execute(targetUtilizationCmd); err != nil {
-		log.Println("cmd.execute targetUtilizationCmd error: ", err)
-		return
-	} else {
-		file, err := os.Create(tmpFileName)
-		defer file.Close()
-		if err != nil {
-			fmt.Println("os.Create error: ", err)
-			return;
-		}
-		file.WriteString(targetUtilizations)
-	}
-}

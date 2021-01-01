@@ -136,20 +136,25 @@ func main() {
 	// get k8s clientset
 	clientSet := getClientSet()
 
-	// store statefulSet's Pod info
-	stsInfo := StatefulSetInfo{}
-	stsInfo.setStatefulSetName(statefulsetName)
-
-	podClient := clientSet.CoreV1().Pods(namespaceName)
-	podCtx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	podCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	pods, err := podClient.List(podCtx, metav1.ListOptions{})
-	if err != nil {
-		panic(err)
+
+	for {
+		// store statefulSet's Pod info
+		stsInfo := StatefulSetInfo{}
+		stsInfo.setStatefulSetName(statefulsetName)
+
+		podClient := clientSet.CoreV1().Pods(namespaceName)
+		pods, err := podClient.List(podCtx, metav1.ListOptions{})
+		if err != nil {
+			panic(err)
+		}
+
+		/* Set statefulSet's podNames */
+		setStsInfo(clientSet, pods, &stsInfo)
+
+		printStsInfo(&stsInfo)
+
+		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
-
-	/* Set statefulSet's podNames */
-	setStsInfo(clientSet, pods, &stsInfo)
-
-	printStsInfo(&stsInfo)
 }
