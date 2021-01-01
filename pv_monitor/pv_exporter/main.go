@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"k8s.io/api/apps/v1beta1"
@@ -11,6 +12,7 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"path/filepath"
+	"time"
 )
 
 type StatefulSetInfo struct {
@@ -132,13 +134,17 @@ func main() {
 	stsInfo.setStatefulSetName(statefulsetName)
 
 	podClient := clientSet.CoreV1().Pods(namespaceName)
-	pods, err := podClient.List(metav1.ListOptions{})
+	podCtx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+	pods, err := podClient.List(podCtx, metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
 	statfulSetClient := clientSet.AppsV1beta1().StatefulSets(namespaceName)
-	statefulSets, err := statfulSetClient.List(metav1.ListOptions{})
+	stsCtx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+	statefulSets, err := statfulSetClient.List(stsCtx, metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
