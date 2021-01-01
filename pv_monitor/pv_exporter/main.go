@@ -69,9 +69,7 @@ func getClientSet() *kubernetes.Clientset {
  */
 func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
 	statfulSetClient := clientSet.AppsV1().StatefulSets(namespaceName)
-	stsCtx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
-	defer cancel()
-	statefulSets, err := statfulSetClient.List(stsCtx, metav1.ListOptions{})
+	statefulSets, err := statfulSetClient.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -136,16 +134,13 @@ func main() {
 	// get k8s clientset
 	clientSet := getClientSet()
 
-	podCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	for {
 		// store statefulSet's Pod info
 		stsInfo := StatefulSetInfo{}
 		stsInfo.setStatefulSetName(statefulsetName)
 
 		podClient := clientSet.CoreV1().Pods(namespaceName)
-		pods, err := podClient.List(podCtx, metav1.ListOptions{})
+		pods, err := podClient.List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			panic(err)
 		}
