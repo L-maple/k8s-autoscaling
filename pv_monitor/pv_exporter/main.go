@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"k8s.io/api/apps/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -68,7 +67,15 @@ func getClientSet() *kubernetes.Clientset {
 /*
  * Set StatefulSet's info
  */
-func setStsInfo(pods *v1.PodList, statefulSets *v1beta1.StatefulSetList, stsInfo *StatefulSetInfo) {
+func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
+	statfulSetClient := clientSet.AppsV1().StatefulSets(namespaceName)
+	stsCtx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+	statefulSets, err := statfulSetClient.List(stsCtx, metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
 	/*
 	 * Judge whether the input statefulSet exists
 	 */
@@ -141,16 +148,8 @@ func main() {
 		panic(err)
 	}
 
-	statfulSetClient := clientSet.AppsV1beta1().StatefulSets(namespaceName)
-	stsCtx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
-	defer cancel()
-	statefulSets, err := statfulSetClient.List(stsCtx, metav1.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-
 	/* Set statefulSet's podNames */
-	setStsInfo(pods, statefulSets, &stsInfo)
+	setStsInfo(clientSet, pods, &stsInfo)
 
 	printStsInfo(&stsInfo)
 }
