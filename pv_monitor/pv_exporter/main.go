@@ -14,9 +14,24 @@ import (
 	"time"
 )
 
+type PodInfo struct {
+	PVCNames             []string
+	PVNames              []string
+}
+
+func (p *PodInfo) SetPVCNames(pvcNames []string) {
+	p.PVCNames = pvcNames
+}
+
+func (p *PodInfo) SetPVNames(pvNames []string) {
+	p.PVNames = pvNames
+}
+
+
 type StatefulSetInfo struct {
-	StatefulSetName      string     // the statefulSet name
-	PodNames             []string   // the pods' name
+	StatefulSetName      string                /* the statefulSet name */
+	PodNames             []string              /* the pods' name       */
+	PodInfos             map[string]PodInfo    /* store the pod's info */
 }
 
 func (s *StatefulSetInfo) setStatefulSetName(name string) {
@@ -35,9 +50,16 @@ func (s *StatefulSetInfo) getPodNames() []string {
 	return s.PodNames
 }
 
+func (s *StatefulSetInfo) initializePodInfos() {
+	s.PodInfos = make(map[string]PodInfo)
+}
+
+func (s *StatefulSetInfo) setPodInfo(podName string, podInfo PodInfo) {
+	s.PodInfos[podName] = podInfo
+}
 
 func getClientSet() *kubernetes.Clientset {
-	// get the k8s clientset via config
+	/* get the k8s clientset via config */
 	var kubeConfig* string
 
 	if home := homedir.HomeDir(); home != "" {
@@ -88,7 +110,7 @@ func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Stat
 		}
 	}
 	if isFound == false {
-		log.Fatal("error: statefulSetName not found")
+		log.Fatal("Error: statefulSetName not found")
 	}
 
 	/*
@@ -101,9 +123,27 @@ func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Stat
 				stsInfo.appendPodName(podName)
 				break
 			}
-
 		}
 	}
+
+	/* Initialize the pvc's names */
+	setPodInfos(clientSet, pods, stsInfo)
+}
+
+
+func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
+	/* get all pods' pvc info*/
+	for _, pod := range pods.Items {
+		var pvcNames []string
+		for _,volume := range pod.Spec.Volumes {
+			pvcName := volume.PersistentVolumeClaim.ClaimName
+			pvcNames = append(pvcNames, pvcName)
+		}
+		stsInfo.PodInfos[pod.Name].SetPVCNames(pvcNames)
+	}
+
+
+	/* */
 }
 
 func printStsInfo(stsInfo *StatefulSetInfo) {
@@ -131,11 +171,11 @@ func init() {
 func main() {
 	flag.Parse()
 
-	// get k8s clientset
+	/* get k8s clientset */
 	clientSet := getClientSet()
 
 	for {
-		// store statefulSet's Pod info
+		/* store statefulSet's Pod info */
 		stsInfo := StatefulSetInfo{}
 		stsInfo.setStatefulSetName(statefulsetName)
 
