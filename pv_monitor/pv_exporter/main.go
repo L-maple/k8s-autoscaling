@@ -3,34 +3,35 @@ package main
 import (
 	"flag"
 	"fmt"
+	"k8s.io/api/apps/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+	"log"
 	"path/filepath"
 )
 
-type podInfo struct {
-	BossName      string     // the deployment or statefulSet resource name
-	BossType      string     // ordinator type: (1) "deployment" (2) "statefulset"
-	ContainerInfo []string
+type StatefulSetInfo struct {
+	StatefulSetName      string     // the statefulSet name
+	PodNames             []string   // the pods' name
 }
 
-func (p *podInfo) setBossName(bossName string) {
-	p.BossName = bossName
+func (s *StatefulSetInfo) setStatefulSetName(name string) {
+	s.StatefulSetName = name
 }
 
-func (p *podInfo) getBossName() string {
-	return p.BossName
+func (s *StatefulSetInfo) getStatefulSetName() string {
+	return s.StatefulSetName
 }
 
-func (p *podInfo) setBossType(bossType string) {
-	p.BossType = bossType
+func (s *StatefulSetInfo) appendPodName(podName string) {
+	s.PodNames = append(s.PodNames, podName)
 }
 
-func (p *podInfo) getBossType() string {
-	return p.BossType
+func (s *StatefulSetInfo) getPodNames() []string {
+	return s.PodNames
 }
 
 
@@ -62,80 +63,88 @@ func getClientSet() *kubernetes.Clientset {
 	return clientSet
 }
 
-func setPodMapInfoForDeployment(podMap map[string]*podInfo, clientSet *kubernetes.Clientset, pods *v1.PodList) {
-	deployClient := clientSet.AppsV1().Deployments("default")
-	deploys, err := deployClient.List(metav1.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	for _, pod := range pods.Items {
-		podName, podLabels := pod.Name, pod.Labels
-		for podLabelKey, podLabelValue := range podLabels {
-			for _, deploy := range deploys.Items {
-				deployName, deployLabels := deploy.Name, deploy.Spec.Selector.MatchLabels
-				if deployLabels[podLabelKey] == podLabelValue {
-					podInfoStruct := new(podInfo)
-					podInfoStruct.setBossName(deployName)
-					podInfoStruct.setBossType("deployment")
-					podMap[podName] = podInfoStruct
-					break
-				}
-			}
-		}
-	}
-}
-
-/**
-	function: set Pod's podInfo for StatefulSet
+/*
+ * Set StatefulSet's info
  */
-func setPodMapInfoForStatefulSet(podMap map[string]*podInfo, clientSet *kubernetes.Clientset, pods *v1.PodList) {
-	statfulSetClient := clientSet.AppsV1().StatefulSets("default")
-	statefulSets, err := statfulSetClient.List(metav1.ListOptions{})
-	if err != nil {
-		panic(err)
+func setStsInfo(pods *v1.PodList, statefulSets *v1beta1.StatefulSetList, stsInfo *StatefulSetInfo) {
+	/*
+	 * Judge whether the input statefulSet exists
+	 */
+	isFound := false
+	matchLabels := make(map[string]string)
+	for _, statefulSet := range statefulSets.Items {
+		stsName, stsLabels := statefulSet.Name, statefulSet.Spec.Selector.MatchLabels
+		if stsName == statefulsetName {
+			isFound = true
+			matchLabels = stsLabels
+			break
+		}
 	}
+	if isFound == false {
+		log.Fatal("error: statefulSetName not found")
+	}
+
+	/*
+	 * Search all pods' name in this statefulSetName
+	 */
 	for _, pod := range pods.Items {
 		podName, podLabels := pod.Name, pod.Labels
 		for podLabelKey, podLabelValue := range podLabels {
-			for _, statefulSet := range statefulSets.Items {
-				statefulSetName, statefulSetLabels := statefulSet.Name, statefulSet.Spec.Selector.MatchLabels
-				if statefulSetLabels[podLabelKey] == podLabelValue {
-					podInfoStruct := new(podInfo)
-					podInfoStruct.setBossName(statefulSetName)
-					podInfoStruct.setBossType("statefulset")
-					podMap[podName] = podInfoStruct
-					break
-				}
+			if matchLabels[podLabelKey] == podLabelValue {
+				stsInfo.appendPodName(podName)
+				break
 			}
+
 		}
 	}
 }
 
-func printPodInfo(podMap map[string]*podInfo) {
-	for podName, podInfo := range podMap {
-		fmt.Println(podName, " => ", podInfo.BossName, ",Type: ", podInfo.BossType)
+func printStsInfo(stsInfo *StatefulSetInfo) {
+	fmt.Println(stsInfo.getStatefulSetName())
+
+	for index, podName := range stsInfo.getPodNames() {
+		fmt.Println(index, " ", podName)
 	}
+}
+
+
+var (
+	/* input parameter */
+	intervalTime     int
+	namespaceName    string
+	statefulsetName  string
+)
+
+func init() {
+	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
+	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
+	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 }
 
 func main() {
+	flag.Parse()
+
 	// get k8s clientset
 	clientSet := getClientSet()
 
-	// map pod to deployment/statefulSet
-	podMap := make(map[string]*podInfo)
+	// store statefulSet's Pod info
+	stsInfo := StatefulSetInfo{}
+	stsInfo.setStatefulSetName(statefulsetName)
 
-	podClient := clientSet.CoreV1().Pods("default")
+	podClient := clientSet.CoreV1().Pods(namespaceName)
 	pods, err := podClient.List(metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	// pod -- Deployment
-	setPodMapInfoForDeployment(podMap, clientSet, pods)
+	statfulSetClient := clientSet.AppsV1beta1().StatefulSets(namespaceName)
+	statefulSets, err := statfulSetClient.List(metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
 
-	// pod -- statefulSet
-	setPodMapInfoForStatefulSet(podMap, clientSet, pods)
+	/* Set statefulSet's podNames */
+	setStsInfo(pods, statefulSets, &stsInfo)
 
-	printPodInfo(podMap) 
+	printStsInfo(&stsInfo)
 }
