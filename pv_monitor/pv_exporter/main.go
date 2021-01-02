@@ -231,7 +231,6 @@ var (
 	intervalTime     int
 	namespaceName    string
 	statefulsetName  string
-	inCluster        bool
 
 	/* metric name to expose */
 	diskUtilizationMetric = promauto.NewGauge(prometheus.GaugeOpts{
@@ -250,7 +249,6 @@ func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
-	flag.BoolVar(&inCluster, "incluster", false, "whether run in pod")
 }
 
 
