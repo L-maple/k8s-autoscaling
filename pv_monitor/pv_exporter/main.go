@@ -140,11 +140,14 @@ func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Stat
 
 
 func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
+	stsInfo.initializePodInfos()
+
 	/* get all pods' pvc and pv info*/
 	var podInfo PodInfo
 	for _, pod := range pods.Items {
 		var pvcNames []string
 		for _,volume := range pod.Spec.Volumes {
+			log.Println("volume name: ", volume.Name)
 			if volume.PersistentVolumeClaim == nil {
 				log.Println("Warn: volume.PersistentVolumeClaim is nil")
 				continue
