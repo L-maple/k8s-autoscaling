@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: pv_exporter_service
+  name: pv-exporter-service
   namespace: monitoring
 spec:
   type: NodePort
@@ -10,31 +10,31 @@ spec:
     targetPort: 30001
     nodePort: 31112
   selector:
-    k8s-app: pv_exporter_deployment
+    k8s-app: pv-exporter-deployment
 
 ---
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pv_exporter_deployment
+  name: pv-exporter-deployment
   namespace: monitoring
   labels:
-    k8s-app: pv_exporter_deployment
+    k8s-app: pv-exporter-deployment
 spec:
   selector:
     matchLabels:
-      k8s-app: pv_exporter
+      k8s-app: pv-exporter
   template:
     metadata:
       labels:
-        k8s-app: pv_exporter
+        k8s-app: pv-exporter
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
       containers:
-      - name: pv_exporter
+      - name: pv-exporter
         image: aliuchangjie/pv_exporter
         command: [ "/usr/bin/pv_exporter" ]
         args: ["-statefulset", "ubuntu", "-namespace", "default"]
