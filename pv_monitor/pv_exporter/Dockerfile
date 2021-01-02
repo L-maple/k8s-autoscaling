@@ -6,4 +6,4 @@ COPY . .
 RUN cp pv_exporter /usr/local/bin &&\
     cp pv_exporter /usr/bin
 
-ENTRYPOINT ["./pv_exporter"]
+ENTRYPOINT ["./pv_exporter", "-statefulset", "ubuntu"]
