@@ -300,7 +300,7 @@ func main() {
 
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset
-	if inCluster {
+	if inCluster == true {
 		clientSet = getInClusterClientSet()
 	} else {
 		clientSet = getClientSet()
