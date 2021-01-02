@@ -66,6 +66,15 @@ func (s *StatefulSetInfo) setPodInfo(podName string, podInfo PodInfo) {
 	s.PodInfos[podName] = podInfo
 }
 
+func Find(slice []string, val string) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func getClientSet() *kubernetes.Clientset {
 	/* get the k8s clientset via config */
 	var kubeConfig* string
@@ -146,10 +155,9 @@ func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Sta
 	var podInfo PodInfo
 	for _, pod := range pods.Items {
 		var pvcNames []string
+
 		for _,volume := range pod.Spec.Volumes {
-			log.Println("volume name: ", volume.Name)
 			if volume.PersistentVolumeClaim == nil {
-				log.Println("Warn: volume.PersistentVolumeClaim is nil")
 				continue
 			}
 			pvcName := volume.PersistentVolumeClaim.ClaimName
@@ -165,8 +173,10 @@ func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Sta
 		}
 		var pvNames []string
 		for _, pvc := range pvcs.Items {
-			pvName := pvc.Spec.VolumeName
-			pvNames = append(pvNames, pvName)
+			pvcName, pvName := pvc.Name, pvc.Spec.VolumeName
+			if _, found := Find(pvcNames, pvcName); found {
+				pvNames = append(pvNames, pvName)
+			}
 		}
 		podInfo.SetPVNames(pvNames)
 
