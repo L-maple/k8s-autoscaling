@@ -3,8 +3,7 @@ FROM golang:1.14.3-alpine AS build
 WORKDIR /src
 COPY . .
 
-RUN mkdir /root/.kube &&\
-    cp -R /root/.kube /root &&\
+RUN cp -R /root/.kube /root &&\
     cp pv_exporter /usr/local/bin &&\
     cp pv_exporter /usr/bin
 
