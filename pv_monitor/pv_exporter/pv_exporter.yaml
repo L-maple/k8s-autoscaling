@@ -37,7 +37,7 @@ spec:
       - name: pv_exporter
         image: aliuchangjie/pv_exporter
         command: [ "/usr/bin/pv_exporter" ]
-        args: ["-statefulset", "ubuntu", "-namespace", "default", "-incluster", "true" ]
+        args: ["-statefulset", "ubuntu", "-namespace", "default"]
         ports:
         - containerPort: 30001
           protocol: TCP
