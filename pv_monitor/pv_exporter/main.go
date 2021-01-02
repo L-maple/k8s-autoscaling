@@ -237,7 +237,8 @@ func main() {
 	flag.Parse()
 
 	/* get k8s clientset */
-	clientSet := getInClusterClientSet()
+	//clientSet := getInClusterClientSet()
+	clientSet := getClientSet()
 
 	for {
 		/* store statefulSet's Pod info */
