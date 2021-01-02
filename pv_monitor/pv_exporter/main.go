@@ -231,25 +231,46 @@ var (
 	intervalTime     int
 	namespaceName    string
 	statefulsetName  string
+	inCluster        bool
 
 	/* metric name to expose */
-	diskUtilization = promauto.NewGauge(prometheus.GaugeOpts{
+	diskUtilizationMetric = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "disk_utilization_total",
 		Help: "pv_disk_utilization_total",
 	})
+
+	/* global statefulSet's Pod info */
+	stsInfoGlobal StatefulSetInfo
+
+	/* disk utilization */
+	diskUtilizations map[string]float64
 )
 
 func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
+	flag.BoolVar(&inCluster, "incluster", false, "whether run in pod")
 }
 
-func receiveMetrics() {
 
+func setDiskUtilizationMetric() {
+	go func() {
+		if diskUtilizations == nil {
+			diskUtilizationMetric.Set(0)
+		} else {
+			diskUtilizationTotal := 0.0
+			for _, diskUtilization := range diskUtilizations {
+				diskUtilizationTotal += diskUtilization
+			}
+			diskUtilizationMetric.Set(diskUtilizationTotal)
+		}
+
+		time.Sleep(time.Duration(intervalTime) * time.Second)
+	}()
 }
 
-func recordMetrics(clientSet *kubernetes.Clientset) {
+func recordStsInfo(clientSet *kubernetes.Clientset) {
 	go func() {
 		for {
 			/* store statefulSet's Pod info */
@@ -265,6 +286,8 @@ func recordMetrics(clientSet *kubernetes.Clientset) {
 			/* Set statefulSet's podNames */
 			setStsInfo(clientSet, pods, &stsInfo)
 
+			stsInfoGlobal = stsInfo
+
 			printStsInfo(&stsInfo)
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
@@ -276,10 +299,18 @@ func main() {
 	flag.Parse()
 
 	/* get k8s clientset */
-	clientSet := getInClusterClientSet()
-	//clientSet := getClientSet()
+	var clientSet *kubernetes.Clientset
+	if inCluster {
+		clientSet = getInClusterClientSet()
+	} else {
+		clientSet = getClientSet()
+	}
 
-	recordMetrics(clientSet)
+	/* Record StatefulSet information */
+	recordStsInfo(clientSet)
+
+	/* Set disk utilization metric*/
+	setDiskUtilizationMetric()
 
 	http.Handle("/metrics", promhttp.Handler())
 	_ = http.ListenAndServe(":30001", nil)
