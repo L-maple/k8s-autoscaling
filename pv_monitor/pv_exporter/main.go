@@ -13,6 +13,12 @@ import (
 	"log"
 	"path/filepath"
 	"time"
+
+	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type PodInfo struct {
@@ -225,6 +231,12 @@ var (
 	intervalTime     int
 	namespaceName    string
 	statefulsetName  string
+
+	/* metric name to expose */
+	diskUtilization = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "disk_utilization_total",
+		Help: "pv_disk_utilization_total",
+	})
 )
 
 func init() {
@@ -233,29 +245,42 @@ func init() {
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 }
 
+func receiveMetrics() {
+
+}
+
+func recordMetrics(clientSet *kubernetes.Clientset) {
+	go func() {
+		for {
+			/* store statefulSet's Pod info */
+			stsInfo := StatefulSetInfo{}
+			stsInfo.setStatefulSetName(statefulsetName)
+
+			podClient := clientSet.CoreV1().Pods(namespaceName)
+			pods, err := podClient.List(context.TODO(), metav1.ListOptions{})
+			if err != nil {
+				panic(err)
+			}
+
+			/* Set statefulSet's podNames */
+			setStsInfo(clientSet, pods, &stsInfo)
+
+			printStsInfo(&stsInfo)
+
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+		}
+	}()
+}
+
 func main() {
 	flag.Parse()
 
 	/* get k8s clientset */
-	//clientSet := getInClusterClientSet()
-	clientSet := getClientSet()
+	clientSet := getInClusterClientSet()
+	//clientSet := getClientSet()
 
-	for {
-		/* store statefulSet's Pod info */
-		stsInfo := StatefulSetInfo{}
-		stsInfo.setStatefulSetName(statefulsetName)
+	recordMetrics(clientSet)
 
-		podClient := clientSet.CoreV1().Pods(namespaceName)
-		pods, err := podClient.List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			panic(err)
-		}
-
-		/* Set statefulSet's podNames */
-		setStsInfo(clientSet, pods, &stsInfo)
-
-		printStsInfo(&stsInfo)
-
-		time.Sleep(time.Duration(intervalTime) * time.Second)
-	}
+	http.Handle("/metrics", promhttp.Handler())
+	_ = http.ListenAndServe(":30001", nil)
 }
