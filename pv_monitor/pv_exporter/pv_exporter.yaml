@@ -53,7 +53,7 @@ subjects:
     # Reference to upper's `metadata.name`
     name: default
     # Reference to upper's `metadata.namespace`
-    namespace: default
+    namespace: monitoring
 roleRef:
   kind: ClusterRole
   name: cluster-admin
