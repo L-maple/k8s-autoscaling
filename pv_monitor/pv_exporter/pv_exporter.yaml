@@ -44,15 +44,14 @@ spec:
 
 ---
 
+# reference: https://github.com/fabric8io/fabric8/issues/6840
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: pv-exporter-rbac
 subjects:
   - kind: ServiceAccount
-    # Reference to upper's `metadata.name`
     name: default
-    # Reference to upper's `metadata.namespace`
     namespace: monitoring
 roleRef:
   kind: ClusterRole
