@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pv_exporter_deployment
+  namespace: monitoring
+  labels:
+    k8s-app: pv_exporter_deployment
+spec:
+  selector:
+    matchLabels:
+      k8s-app: pv_exporter
+  template:
+    metadata:
+      labels:
+        k8s-app: pv_exporter
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: myexporter
+          image: aliuchangjie/pv_exporter
+          ports:
+            - containerPort: 30001
+              protocol: TCP

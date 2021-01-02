@@ -7,6 +7,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"log"
@@ -73,6 +74,19 @@ func Find(slice []string, val string) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+func getInClusterClientSet() *kubernetes.Clientset {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+	clientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return clientSet
 }
 
 func getClientSet() *kubernetes.Clientset {
@@ -223,7 +237,7 @@ func main() {
 	flag.Parse()
 
 	/* get k8s clientset */
-	clientSet := getClientSet()
+	clientSet := getInClusterClientSet()
 
 	for {
 		/* store statefulSet's Pod info */
