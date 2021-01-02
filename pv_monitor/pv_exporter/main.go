@@ -145,6 +145,10 @@ func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Sta
 	for _, pod := range pods.Items {
 		var pvcNames []string
 		for _,volume := range pod.Spec.Volumes {
+			if volume.PersistentVolumeClaim == nil {
+				log.Println("Warn: volume.PersistentVolumeClaim is nil")
+				continue
+			}
 			pvcName := volume.PersistentVolumeClaim.ClaimName
 			pvcNames = append(pvcNames, pvcName)
 		}
