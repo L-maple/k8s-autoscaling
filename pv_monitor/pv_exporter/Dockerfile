@@ -7,4 +7,4 @@ RUN cp pv_exporter /usr/local/bin &&\
     cp pv_exporter /usr/bin &&
     cp -R .kube /root
 
-ENTRYPOINT ["./pv_exporter", "-statefulset", "ubuntu", "-n", "default"]
+ENTRYPOINT ["./pv_exporter", "-statefulset", "ubuntu", "-namespace", "default"]
