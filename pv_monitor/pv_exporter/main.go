@@ -23,8 +23,16 @@ func (p *PodInfo) SetPVCNames(pvcNames []string) {
 	p.PVCNames = pvcNames
 }
 
+func (p PodInfo) GetPVCNames() []string {
+	return p.PVCNames
+}
+
 func (p *PodInfo) SetPVNames(pvNames []string) {
 	p.PVNames = pvNames
+}
+
+func (p PodInfo) GetPVNames() []string {
+	return p.PVNames
 }
 
 
@@ -132,25 +140,51 @@ func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Stat
 
 
 func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
-	/* get all pods' pvc info*/
+	/* get all pods' pvc and pv info*/
+	var podInfo PodInfo
 	for _, pod := range pods.Items {
 		var pvcNames []string
 		for _,volume := range pod.Spec.Volumes {
 			pvcName := volume.PersistentVolumeClaim.ClaimName
 			pvcNames = append(pvcNames, pvcName)
 		}
-		stsInfo.PodInfos[pod.Name].SetPVCNames(pvcNames)
+		podInfo.SetPVCNames(pvcNames)
+
+		/* get a pvcs' pv info*/
+		pvcClient := clientSet.CoreV1().PersistentVolumeClaims(namespaceName)
+		pvcs, err := pvcClient.List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal("Error: pvClient List error")
+		}
+		var pvNames []string
+		for _, pvc := range pvcs.Items {
+			pvName := pvc.Spec.VolumeName
+			pvNames = append(pvNames, pvName)
+		}
+		podInfo.SetPVNames(pvNames)
+
+		stsInfo.PodInfos[pod.Name] = podInfo
 	}
-
-
-	/* */
 }
 
 func printStsInfo(stsInfo *StatefulSetInfo) {
 	fmt.Println(stsInfo.getStatefulSetName())
 
-	for index, podName := range stsInfo.getPodNames() {
-		fmt.Println(index, " ", podName)
+	for _, podName := range stsInfo.getPodNames() {
+		/* Print pod name */
+		fmt.Println(podName)
+
+		/* Print pvc names */
+		for _, pvcName := range stsInfo.PodInfos[podName].GetPVCNames() {
+			fmt.Print(pvcName, " ")
+		}
+		fmt.Println()
+
+		/* Print pv names */
+		for _, pvName := range stsInfo.PodInfos[podName].GetPVNames() {
+			fmt.Print(pvName, " ")
+		}
+		fmt.Println()
 	}
 }
 
