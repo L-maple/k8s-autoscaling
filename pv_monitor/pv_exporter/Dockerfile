@@ -4,4 +4,4 @@ WORKDIR /usr/bin
 
 COPY . .
 
-ENTRYPOINT ["./pv_exporter", "-statefulset", "ubuntu", "-namespace", "default", "-incluster", "true"]
+ENTRYPOINT ["./pv_exporter", "-statefulset", "ubuntu", "-namespace", "default"]
