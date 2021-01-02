@@ -299,8 +299,8 @@ func main() {
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset
 
-	clientSet = getInClusterClientSet()
-	//clientSet = getClientSet()
+	//clientSet = getInClusterClientSet()
+	clientSet = getClientSet()
 
 	/* Record StatefulSet information */
 	recordStsInfo(clientSet)
