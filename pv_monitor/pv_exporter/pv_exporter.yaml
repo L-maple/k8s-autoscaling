@@ -39,5 +39,5 @@ spec:
         command: [ "/usr/bin/pv_exporter" ]
         args: ["-statefulset", "ubuntu", "-namespace", "default"]
         ports:
-        - containerPort: 30001
+        - containerPort: 30001  # 用于暴露监控的指标数据
           protocol: TCP
