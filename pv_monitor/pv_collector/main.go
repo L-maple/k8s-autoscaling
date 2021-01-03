@@ -94,7 +94,7 @@ var (
 	intervalTime int
 
 	/* PVRequest address */
-	address  = "localhost:50001"
+	address  = "localhost:30002"
 
 	/* the tmp file for pv utilization*/
 	tmpFileName = "targetUtilization.txt"
