@@ -123,7 +123,11 @@ func main() {
 	for {
 		pvGrpcClient := getPVRequestClient()
 
-		resp, _ := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+		if err != nil {
+			log.Println("pvGrpcClient.RequestPVNames error: ", err)
+			return
+		}
 		targets := resp.PvNames
 		fmt.Println(targets)
 
