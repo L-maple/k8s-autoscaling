@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -11,6 +12,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"log"
+	"net"
 	"path/filepath"
 	"time"
 
@@ -19,7 +21,29 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 )
+
+type server struct {
+	pb.UnimplementedPVServiceServer
+}
+
+func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
+	var pvNames []string
+	if stsInfoGlobal.PodInfos == nil {
+		log.Println("RequestPVNames: stsInfoGlobal.PodInfos is nil.")
+		return &pb.PVResponse{PvNames: pvNames},nil
+	}
+
+	for _, podInfo := range stsInfoGlobal.PodInfos {
+		for _, pvName := range podInfo.PVNames {
+			pvNames = append(pvNames, pvName)
+		}
+	}
+
+	return &pb.PVResponse{ PvNames: pvNames }, nil
+}
 
 type PodInfo struct {
 	PVCNames             []string
@@ -232,6 +256,10 @@ var (
 	namespaceName    string
 	statefulsetName  string
 
+	/* port */
+	promPort = ":30001"
+	pvRequestPort = ":30002"
+
 	/* metric name to expose */
 	diskUtilizationMetric = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "disk_utilization_total",
@@ -293,6 +321,20 @@ func recordStsInfo(clientSet *kubernetes.Clientset) {
 	}()
 }
 
+func RegisterPVRequestServer() {
+	go func() {
+		lis, err := net.Listen("tcp", pvRequestPort)
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+		s := grpc.NewServer()
+		pb.RegisterPVServiceServer(s, &server{})
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+}
+
 func main() {
 	flag.Parse()
 
@@ -305,9 +347,11 @@ func main() {
 	/* Record StatefulSet information */
 	recordStsInfo(clientSet)
 
-	/* Set disk utilization metric*/
-	setDiskUtilizationMetric()
+	/* Register grpc server */
+	RegisterPVRequestServer()
 
+	/* Set disk utilization metric & exposed at 30001 */
+	setDiskUtilizationMetric()
 	http.Handle("/metrics", promhttp.Handler())
-	_ = http.ListenAndServe(":30001", nil)
+	_ = http.ListenAndServe(promPort, nil)
 }

@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
+	"google.golang.org/grpc"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,8 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-    //pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 )
 
 /*
@@ -89,28 +90,50 @@ func saveDfInfo(tmpFileName string, cmd command) {
 }
 
 var (
-	sleepTime int
+	/* interval time */
+	intervalTime int
+
+	/* PVRequest address */
+	address  = "localhost:50001"
+
+	/* the tmp file for pv utilization*/
+	tmpFileName = "targetUtilization.txt"
 )
 
 func init() {
-	flag.IntVar(&sleepTime, "s", 15, "collector interval")
+	flag.IntVar(&intervalTime, "s", 15, "collector interval")
+}
+
+func getPVRequestClient() pb.PVServiceClient {
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	client := pb.NewPVServiceClient(conn)
+
+	return client
 }
 
 func main() {
 	flag.Parse()
 
 	cmd := command{}
-
 	for {
-		tmpFileName := "targetUtilization.txt"
-		target := "/var/lib/docker"
+		pvGrpcClient := getPVRequestClient()
 
-		saveDfInfo(tmpFileName, cmd)
+		resp, _ := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+		targets := resp.PvNames
+		fmt.Println(targets)
 
-		if utilizationAndTarget, err := grepFileWithTarget(target, tmpFileName, cmd); err != nil {		
-			log.Println("grepFileWithTarget error: ", err)
-			return
-		} else {
+		for _, target := range targets {
+			saveDfInfo(tmpFileName, cmd)
+			utilizationAndTarget, err := grepFileWithTarget(target, tmpFileName, cmd)
+			if err != nil {
+				log.Println("grepFileWithTarget error: ", err)
+				return
+			}
 			utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
 			slices := strings.Split(utilizationAndTarget, "%")
 			if len(slices) <= 1 {
@@ -122,11 +145,10 @@ func main() {
 			if err != nil {
 				log.Println("strconv.Atoi error: ", err)
 				return
-			} 
-			fmt.Println(target, " ", float64(utilization) / 100.0)
+			}
+			fmt.Println(target, " ", float64(utilization)/100.0)
 		}
-
-		time.Sleep(time.Duration(sleepTime) * time.Second)
+		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
 }
 
