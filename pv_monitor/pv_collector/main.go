@@ -123,13 +123,12 @@ func main() {
 
 	cmd := command{}
 	counter := 0
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
-	defer cancel()
+
 	for {
 		fmt.Println("第", counter, "个请求: ")
 		pvGrpcClient := getPVRequestClient()
 
-		resp, err := pvGrpcClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
+		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
 		if err != nil {
 			log.Println("pvGrpcClient.RequestPVNames error: ", err)
 			time.Sleep(time.Duration(intervalTime) * time.Second)
