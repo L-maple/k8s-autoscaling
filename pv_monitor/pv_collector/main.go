@@ -126,10 +126,11 @@ func main() {
 		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
 		if err != nil {
 			log.Println("pvGrpcClient.RequestPVNames error: ", err)
-			return
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
 		}
 		targets := resp.PvNames
-		fmt.Println(targets)
+		fmt.Println("targets, ", targets)
 
 		for _, target := range targets {
 			saveDfInfo(tmpFileName, cmd)
