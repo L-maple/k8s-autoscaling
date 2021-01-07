@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
@@ -123,18 +122,19 @@ func main() {
 
 	cmd := command{}
 	counter := 0
-	pvGrpcClient, conn := getPVRequestClient()
-	defer conn.Close()
+	//pvGrpcClient, conn := getPVRequestClient()
+	//defer conn.Close()
 	for {
 		fmt.Println("第", counter, "个请求: ")
 
-		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
-		if err != nil {
-			log.Println("pvGrpcClient.RequestPVNames error: ", err)
-			time.Sleep(time.Duration(intervalTime) * time.Second)
-			continue
-		}
-		targets := resp.PvNames
+		//resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+		//if err != nil {
+		//	log.Println("pvGrpcClient.RequestPVNames error: ", err)
+		//	time.Sleep(time.Duration(intervalTime) * time.Second)
+		//	continue
+		//}
+		//targets := resp.PvNames
+		targets := []string{"hahah", "gooodak"}
 		fmt.Println("targets, ", targets)
 
 		for _, target := range targets {
