@@ -92,6 +92,7 @@ func saveDfInfo(tmpFileName string, cmd command) {
 var (
 	/* interval time */
 	intervalTime int
+	timeout      int
 
 	/* PVRequest address */
 	address  = "localhost:30002"
@@ -102,6 +103,7 @@ var (
 
 func init() {
 	flag.IntVar(&intervalTime, "s", 15, "collector interval")
+	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
 }
 
 func getPVRequestClient() pb.PVServiceClient {
@@ -120,10 +122,12 @@ func main() {
 	flag.Parse()
 
 	cmd := command{}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
+	defer cancel()
 	for {
 		pvGrpcClient := getPVRequestClient()
 
-		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+		resp, err := pvGrpcClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
 		if err != nil {
 			log.Println("pvGrpcClient.RequestPVNames error: ", err)
 			time.Sleep(time.Duration(intervalTime) * time.Second)
@@ -154,6 +158,7 @@ func main() {
 			fmt.Println(target, " ", float64(utilization)/100.0)
 		}
 		time.Sleep(time.Duration(intervalTime) * time.Second)
+
 	}
 }
 
