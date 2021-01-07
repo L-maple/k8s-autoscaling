@@ -1,50 +1,52 @@
 Use% Mounted on
   0% /dev
   0% /dev/shm
-  1% /run
+  2% /run
   0% /sys/fs/cgroup
- 26% /
+ 63% /
  20% /boot
- 26% /var/lib/docker/overlay2/aac8f146711a6e4f532d89f665cc870ebe7846c04a4514ab5729abdfae199c0f/merged
-  0% /var/lib/docker/containers/c607b6693fed4fa2700d6cf139a022db88727cefe56c4cf41dbefb167dcbcbb4/mounts/shm
- 26% /var/lib/docker/overlay2/a3b3fc8099cd47ce3dca4d6223d646f2850e7c700c1222d3e4100afde3867d73/merged
-  0% /var/lib/docker/containers/e637508745ada9035d528659bbcd44c87a92ad5beed49327223f3c7620343a96/mounts/shm
- 26% /var/lib/docker/overlay2/359ee2cbc0dc4052c95f7fb113b0cb7a372f33592ce21d11a5fc1e531c1400d2/merged
-  0% /var/lib/docker/containers/95fb79f01ded6544ce7cf2fb2bc111473e19b7e35cad54212fef7a6951d4e3e7/mounts/shm
- 26% /var/lib/docker/overlay2/1c255ca5d5f37d8eec2ba305575ab26883fbbd483ccbff1e689823c7fbee8bd3/merged
-  0% /var/lib/docker/containers/03538310ff509628e77aeba44d5caa0396d6e515da9672a9b507cdccdfb68b82/mounts/shm
- 26% /var/lib/docker/overlay2/db895fa40c0a4689fca21bd757903f5945e36d510fd2f1c6c8c7316c0cf953e6/merged
- 26% /var/lib/docker/overlay2/588148384d5b7d0fccf17cd96a8f124202e88e493039914b5412913ff164eebe/merged
- 26% /var/lib/docker/overlay2/4d736084e5faef8361f4863b8ca10abcb78a062424413b23cfc82c3d0c06d176/merged
- 26% /var/lib/docker/overlay2/b1eccd46aa7efdeedda53116a57adbf3ba5ae7ac746fc92a35b406d42d3f6137/merged
   1% /var/lib/kubelet/pods/db649507-ab00-45b8-b4aa-fa75b5676a9b/volumes/kubernetes.io~secret/kube-proxy-token-wmjwj
- 26% /var/lib/docker/overlay2/6bf02582dfdfbd88d2d0176ffc55db71cac81d014847019566f5b38d901003fd/merged
-  0% /var/lib/docker/containers/08ffcda6e40beb873aac9130786cca08a5ebd49e6163277b08573578a3d892b8/mounts/shm
- 26% /var/lib/docker/overlay2/8725d11f127dd298007e9a4e5a18fa75dea904bb7fcbbb76549d8cb3ba1a1d30/merged
   1% /var/lib/kubelet/pods/c2cf54a9-4ee1-4458-a19c-b06f07abbf61/volumes/kubernetes.io~secret/flannel-token-s7rkg
- 26% /var/lib/docker/overlay2/1e18dbb72ce882321a61395fe1fb9d9ad546d08d655741bf7b32de98825f9434/merged
-  0% /var/lib/docker/containers/ee9d084abd6c3ef18b007cbf2b0dfb247d17aedabd287af23de30affa871fde9/mounts/shm
- 26% /var/lib/docker/overlay2/7c334f870a7c2d73c92397079d0793faa38ebbdcf5e7452e9e6e11fef5bd73e6/merged
   1% /var/lib/kubelet/pods/8ed161eb-d209-4b33-8397-8b8097ab89e5/volumes/kubernetes.io~secret/coredns-token-tcp9c
- 26% /var/lib/docker/overlay2/949373c3a880a69b6420e58699f180c7a55b6910335878934c29249670a43102/merged
-  0% /var/lib/docker/containers/ee854b54334bba335fbbad2fc3941018cefb03205473ce754817b820b44e4621/mounts/shm
   1% /var/lib/kubelet/pods/16801cf3-e7fa-4781-a193-b4a1cd390d8f/volumes/kubernetes.io~secret/coredns-token-tcp9c
- 26% /var/lib/docker/overlay2/8b3f65696434a9762c18b799d8f33168d576f82a9395fc4115eacfa0569b990a/merged
- 26% /var/lib/docker/overlay2/166d7c0350e70e59ef7929fd0ed299cb8c6984e187394d3dc5a530122bfb2411/merged
-  0% /var/lib/docker/containers/31c0271d3576539fdb6d39f930cf338809213ce887b741324ae7b1c5a7630a3d/mounts/shm
- 26% /var/lib/docker/overlay2/0a21669b131cebb0192ea0ee0b81a29c307165fc2591931efcd8b3006927664e/merged
   1% /var/lib/kubelet/pods/1d4857aa-7c27-4f03-8a8e-c02e0db23e47/volumes/kubernetes.io~secret/node-exporter-token-454z9
- 26% /var/lib/docker/overlay2/4288df39bc4c77703603ad3a777158c87a8030e0c84c196fd930e280fec08e46/merged
-  0% /var/lib/docker/containers/f3527885fa90dfb9db1da11979cb6a31b3f50ad1cf22e3d0eff48b9abef831ea/mounts/shm
- 26% /var/lib/docker/overlay2/0a83be93899a09f5d9dc3af2139f26ffb783f8e66b87c41615a8232e6cf47529/merged
- 26% /var/lib/docker/overlay2/173efe657011d59b5ec3ad03b5a19120b3737ab733fd16c4499e76d68e6355b6/merged
   1% /var/lib/kubelet/pods/70d761d1-ddc6-46e7-b3b9-e79ebd1679f3/volumes/kubernetes.io~secret/admin-token-bzdzq
- 26% /var/lib/docker/overlay2/62de916517bffae8ffb17e777f17241179de8622326acf20c548b098a108d0cd/merged
-  0% /var/lib/docker/containers/2480499bdd92cc43d2673d108bae2ac7dcbc9affda5aff6289093f424f2eb706/mounts/shm
- 26% /var/lib/docker/overlay2/b2de6d78336dd105bc85c7ccb4074fc763e2d72d5e3fecd78a6537203d0a18db/merged
- 26% /var/lib/docker/overlay2/1174624302d7be929dc97e686c03e5009a0d3abdb4842856bc5c6f2751bef5f9/merged
   1% /var/lib/kubelet/pods/d9d17ffe-a945-40c2-85ff-69426c2b051f/volumes/kubernetes.io~secret/admin-token-bzdzq
- 26% /var/lib/docker/overlay2/fcd4448990d46e895b5622f911afbf6412c51526144830309be589cc87e683ab/merged
-  0% /var/lib/docker/containers/50ac0ab5aaba9b5cea17b4168191509f16a81d767446eb008d7da2ce5459356c/mounts/shm
- 26% /var/lib/docker/overlay2/b3f73b76bdc531060ea3e27acc5b14f52be8727c9225c1ebabfe7a25a5e89945/merged
+ 63% /var/lib/docker/overlay2/2f7336de0032cc6f3fad97349b5c7cf95e7c98a9d616731055aca47563160024/merged
+ 63% /var/lib/docker/overlay2/48ae469fe0d91243112753a9ef278c0fcd63355ed4adc818a6b27e20ffe3831e/merged
+ 63% /var/lib/docker/overlay2/28815858b585de8f226e71709b6fc3c1dc05fb28e4c14725fd31cce43516c831/merged
+ 63% /var/lib/docker/overlay2/067b3afdb032c76e11527e94540621fb30d1a34ee87f511f72e1eccfff40a750/merged
+ 63% /var/lib/docker/overlay2/007f220d780609d5685d91f3502a49395fc43bd9c66ee2fa1a508d71ee6e4541/merged
+ 63% /var/lib/docker/overlay2/c2c9d1268453f3e3d4c5e3ac58d14029b42c86ba91cf68756023d0b9dbb9f727/merged
+ 63% /var/lib/docker/overlay2/d96f27a716a9f1df62ee6591f133b178721259a1df4c8aa4027eac295bd77a5f/merged
+ 63% /var/lib/docker/overlay2/01d865c82e27219404c3129baef43156380ff7b3add8f5751909ac1660e43128/merged
+ 63% /var/lib/docker/overlay2/0b6978ed20da8ab0c59cefa4b2e105951bf8b35ac32037770fd054cf60ce489d/merged
+  0% /var/lib/docker/containers/72f3be25516d370b262b2292295f6271b0448dbe74b350d43f5eecea77b3e966/mounts/shm
+ 63% /var/lib/docker/overlay2/fd6ead05ceb4ecbc99186aff880bf8ce953618b58461c09964ce3021b5bc4789/merged
+ 63% /var/lib/docker/overlay2/479d300f6907c10dfe40cd35a2d19600e68b21bc1d791b4e26addffa64c5e6bb/merged
+  0% /var/lib/docker/containers/8972a9aef166b3c5001b457961315b79fb0e24a708bb4cdba0ade2cf2f0bd00d/mounts/shm
+  0% /var/lib/docker/containers/98f341e25b038219dba6748bc11907615647f542c610670476f65933b7ed5c23/mounts/shm
+  0% /var/lib/docker/containers/52bddf601daf71cc0c2cb8f3d82f495d9a2b3cdb832eaee938aa889090711711/mounts/shm
+  0% /var/lib/docker/containers/338879bb058128a9a6c14d2ffc6f35f1363b60877007673f4c51d3d666d4c1dd/mounts/shm
+  0% /var/lib/docker/containers/20cf6a3bbd5264e0e7db5192e36a42578497bccf25293ef6478534203fc1591a/mounts/shm
+  0% /var/lib/docker/containers/3cf4252e2ec0072726ad84be14c581daada87a5196803e6bddc2aba5520959e8/mounts/shm
+  0% /var/lib/docker/containers/4e3d47be596680b776572c21890be75328e588bf632b58c6a42401fefb619bf8/mounts/shm
+  0% /var/lib/docker/containers/a9000b6444b410f31868504944dacebc45017a0b76e5a6fac0dda3a173855222/mounts/shm
+  0% /var/lib/docker/containers/7a37be55f8135b138b86f7b490b5870a1a3918f6812fc94d3128cd408c076a96/mounts/shm
+  0% /var/lib/docker/containers/d9fb74b625b0d24fb0fe084a8829d63e1c5abf6ef6850d1c796f7e75b9d2032b/mounts/shm
+ 63% /var/lib/docker/overlay2/c2e9ed6a6e1f657988850ba853a7f33dec8693f13fe4edd047973a1022267500/merged
+ 63% /var/lib/docker/overlay2/6209e0a7fd9df9a7286f3b49fd88ff9ae4c0a07df7fdac111037e7966ae268d5/merged
+ 63% /var/lib/docker/overlay2/f59a27e30436e2dbc6709a55b2f422111d2012951dc0c04b74db6d0f64f6483e/merged
+ 63% /var/lib/docker/overlay2/553b66096366fbbeee743c7fda3201463ed716fa823ecd02ee9422863c9fc5e6/merged
+ 63% /var/lib/docker/overlay2/fb7f047f0b0c569e547b05e120dc6bdc3ee91e86590d58d3b36296f46f78bf35/merged
+ 63% /var/lib/docker/overlay2/27da95c60fb018a9ea69dedb11da023458677ae766a567a518d145f9eaf6c364/merged
+ 63% /var/lib/docker/overlay2/f78ca36a1b6bf2a9e37b2b3a6437d8513951633cce755f76ee4e1a252b413b5e/merged
+ 63% /var/lib/docker/overlay2/d3abf489cb50af2ae95f55246bf067d1619a100e867655fb705e59863d854701/merged
+ 63% /var/lib/docker/overlay2/b14cba791b2626ba9c98b28b65cc5c7633dce72bec7a483521d69a2cc4fce850/merged
+ 63% /var/lib/docker/overlay2/fd9de0bcb9db27f6937526d11df9e5e6a2e5ac7a13e2af10c202a6a1e4e632d0/merged
+ 63% /var/lib/docker/overlay2/12a13a461ecc6a1aa5b1a387865a0851c22e90f27295769936042b8f1d3d831b/merged
+ 63% /var/lib/docker/overlay2/40064ff57dfc463bcb0b2d68295d27e3f87716fc8d1afb1be2c826a17b98f438/merged
   0% /run/user/0
+ 63% /var/lib/docker/overlay2/3e422fc40d953bbca1c0fd78f74d6d17924ffdf9935b033b4a4063ebc9347df1/merged
+ 63% /var/lib/docker/overlay2/111a497ffc3034cd8ed59636947498c12329ee742bc092cabe0ad8cb37b5cfe4/merged
+ 63% /var/lib/docker/overlay2/d3a2fdbe03477c0bf5e242f9617af540292f6a93120513631d7fa3988d80e20e/merged
