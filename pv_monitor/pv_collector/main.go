@@ -122,9 +122,11 @@ func main() {
 	flag.Parse()
 
 	cmd := command{}
+	counter := 0
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
 	defer cancel()
 	for {
+		fmt.Println("第", counter, "个请求: ")
 		pvGrpcClient := getPVRequestClient()
 
 		resp, err := pvGrpcClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
@@ -158,7 +160,7 @@ func main() {
 			fmt.Println(target, " ", float64(utilization)/100.0)
 		}
 		time.Sleep(time.Duration(intervalTime) * time.Second)
-
+		counter++
 	}
 }
 
