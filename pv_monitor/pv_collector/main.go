@@ -106,16 +106,16 @@ func init() {
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
 }
 
-func getPVRequestClient() pb.PVServiceClient {
+func getPVRequestClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+
 	client := pb.NewPVServiceClient(conn)
 
-	return client
+	return client, conn
 }
 
 func main() {
@@ -123,10 +123,10 @@ func main() {
 
 	cmd := command{}
 	counter := 0
-
+	pvGrpcClient, conn := getPVRequestClient()
+	defer conn.Close()
 	for {
 		fmt.Println("第", counter, "个请求: ")
-		pvGrpcClient := getPVRequestClient()
 
 		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
 		if err != nil {
