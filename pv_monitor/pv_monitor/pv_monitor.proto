@@ -6,6 +6,7 @@ package pv_monitor;
 
 service PVService {
   rpc RequestPVNames(PVRequest) returns (PVResponse) {}
+  rpc ReplyPVNames(PVNamesRequest) returns (PVNamesResponse) {}
 }
 
 message PVRequest {
@@ -16,5 +17,11 @@ message PVResponse {
   repeated string pvNames = 1;
 }
 
+message PVNamesRequest {
+  map<string, float> pvNamesAndUtilization = 1;
+}
 
+message PVNamesResponse {
+  int32 status  = 1;
+}
 

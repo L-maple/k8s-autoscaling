@@ -142,7 +142,7 @@ func main() {
 			utilizationAndTarget, err := grepFileWithTarget(target, tmpFileName, cmd)
 			if err != nil {
 				log.Println("grepFileWithTarget error: ", err)
-				return
+				continue
 			}
 			utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
 			slices := strings.Split(utilizationAndTarget, "%")
