@@ -22,7 +22,7 @@ import (
 type Command struct{}
 
 func (c *Command) execute(cmdstr string) (string, error) {
-	cmd := exec.Command("/bin/bash", "-c", cmdstr)
+	cmd := exec.Command("/bin/bash", cmdstr)
 
 	/* Create the command pipe */
 	stdout, err := cmd.StdoutPipe()
