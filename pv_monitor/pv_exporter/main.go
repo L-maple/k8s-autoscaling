@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -66,24 +65,21 @@ func getClientSet() *kubernetes.Clientset {
 	return clientSet
 }
 
-/*
- * Set StatefulSet's info
- */
-func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
-	statfulSetClient := clientSet.AppsV1().StatefulSets(namespaceName)
-	statefulSets, err := statfulSetClient.List(context.TODO(), metav1.ListOptions{})
+/* Set StatefulSet's info */
+func setStatefulSetInfo(clientSet *kubernetes.Clientset, pods *v1.PodList,
+							nsName, statefulName string, stsInfo *StatefulSetInfo) {
+	statefulSetClient := clientSet.AppsV1().StatefulSets(nsName)
+	statefulSets, err := statefulSetClient.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	/*
-	 * Judge whether the input statefulSet exists
-	 */
+	/* Judge whether the input statefulSet exists */
 	isFound := false
 	matchLabels := make(map[string]string)
 	for _, statefulSet := range statefulSets.Items {
 		stsName, stsLabels := statefulSet.Name, statefulSet.Spec.Selector.MatchLabels
-		if stsName == statefulsetName {
+		if stsName == statefulName {
 			isFound = true
 			matchLabels = stsLabels
 			break
@@ -93,30 +89,21 @@ func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Stat
 		log.Fatal("Error: statefulSetName not found")
 	}
 
-	/*
-	 * Search all pods' name in this statefulSetName
-	 */
+	/* Search all pods' name in this statefulSetName */
 	for _, pod := range pods.Items {
-		podName, podLabels := pod.Name, pod.Labels
+		podName, podLabels, found, podInfo := pod.Name, pod.Labels, false, PodInfo{}
 		for podLabelKey, podLabelValue := range podLabels {
 			if matchLabels[podLabelKey] == podLabelValue {
-				stsInfo.appendPodName(podName)
+				found = true
 				break
 			}
 		}
-	}
+		
+		if found == false {  /* the statefulSet has this Pod*/
+			continue
+		}
 
-	/* Initialize the pvc's names */
-	setPodInfos(clientSet, pods, stsInfo)
-}
-
-
-func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
-	/* get all pods' pvc and pv info*/
-	var podInfo PodInfo
-	for _, pod := range pods.Items {
 		var pvcNames []string
-
 		for _,volume := range pod.Spec.Volumes {
 			if volume.PersistentVolumeClaim == nil {
 				continue
@@ -124,45 +111,25 @@ func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Sta
 			pvcName := volume.PersistentVolumeClaim.ClaimName
 			pvcNames = append(pvcNames, pvcName)
 		}
-		podInfo.SetPVCNames(pvcNames)
 
-		/* get a pvcs' pv info*/
-		pvcClient := clientSet.CoreV1().PersistentVolumeClaims(namespaceName)
+		/* get all pvc's pv info*/
+		var pvNames []string
+		pvcClient := clientSet.CoreV1().PersistentVolumeClaims(nsName)
 		pvcs, err := pvcClient.List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			log.Fatal("Error: pvClient List error")
 		}
-		var pvNames []string
 		for _, pvc := range pvcs.Items {
 			pvcName, pvName := pvc.Name, pvc.Spec.VolumeName
 			if _, found := Find(pvcNames, pvcName); found {
 				pvNames = append(pvNames, pvName)
 			}
 		}
-		podInfo.SetPVNames(pvNames)
 
-		stsInfo.PodInfos[pod.Name] = podInfo
-	}
-}
+		podInfo.PVCNames = pvcNames
+		podInfo.PVNames  = pvNames
 
-func printStsInfo(stsInfo *StatefulSetInfo) {
-	fmt.Println(stsInfo.getStatefulSetName())
-
-	for _, podName := range stsInfo.getPodNames() {
-		/* Print pod name */
-		fmt.Println(podName)
-
-		/* Print pvc names */
-		for _, pvcName := range stsInfo.PodInfos[podName].GetPVCNames() {
-			fmt.Print(pvcName, " ")
-		}
-		fmt.Println()
-
-		/* Print pv names */
-		for _, pvName := range stsInfo.PodInfos[podName].GetPVNames() {
-			fmt.Print(pvName, " ")
-		}
-		fmt.Println()
+		stsInfo.PodInfos[podName] = podInfo
 	}
 }
 
@@ -174,7 +141,7 @@ var (
 	statefulsetName  string
 
 	/* port */
-	promPort = ":30001"          /* For RequestPVNames grpc */
+	promPort      = ":30001"     /* For RequestPVNames grpc */
 	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
 
 	/* metric name to expose */
@@ -213,12 +180,10 @@ func setDiskUtilizationMetric() {
 	}()
 }
 
-func recordStsInfo(clientSet *kubernetes.Clientset) {
+func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 	go func() {
 		for {
-			/* store statefulSet's Pod info */
-			stsInfo := StatefulSetInfo{}
-			stsInfo.setStatefulSetName(statefulsetName)
+			stsInfo := getStatefulSetInfoObj(statefulsetName)
 
 			podClient := clientSet.CoreV1().Pods(namespaceName)
 			pods, err := podClient.List(context.TODO(), metav1.ListOptions{})
@@ -227,11 +192,10 @@ func recordStsInfo(clientSet *kubernetes.Clientset) {
 			}
 
 			/* Set statefulSet's podNames */
-			setStsInfo(clientSet, pods, &stsInfo)
+			setStatefulSetInfo(clientSet, pods, namespaceName, statefulsetName, &stsInfo)
+
 
 			stsInfoGlobal = stsInfo
-
-			printStsInfo(&stsInfo)
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 		}
@@ -261,8 +225,8 @@ func main() {
 	//clientSet = getInClusterClientSet()
 	clientSet = getClientSet()
 
-	/* Record StatefulSet information */
-	recordStsInfo(clientSet)
+	/* Initialize StatefulSet PodInfos */
+	initializeStsPodInfos(clientSet)
 
 	/* Register grpc server */
 	RegisterPVRequestServer()

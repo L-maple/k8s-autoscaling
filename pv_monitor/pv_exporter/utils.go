@@ -25,21 +25,21 @@ func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVRe
 /**************************************************/
 
 type PodInfo struct {
-	PVCName              string
-	PVName               string
+	PVCNames              []string
+	PVNames               []string
 }
 
-func (p *PodInfo)SetPVCName(PVCName string) {
-	p.PVCName = PVCName
+func (p *PodInfo)AppendPVCName(PVCName string) {
+	p.PVCNames = append(p.PVCNames, PVCName)
 }
-func (p PodInfo)GetPVCName() string {
-	return p.PVCName
+func (p PodInfo)GetPVCName() []string {
+	return p.PVCNames
 }
-func (p *PodInfo)SetPVName(PVName string) {
-	p.PVName = PVName
+func (p *PodInfo)AppendPVName(PVName string) {
+	p.PVNames = append(p.PVNames, PVName)
 }
-func (p PodInfo)GetPVName() string {
-	return p.PVName
+func (p PodInfo)GetPVName() []string {
+	return p.PVNames
 }
 
 /**************************************************/
@@ -71,6 +71,15 @@ type StatefulSetInfo struct {
 	PVInfos              map[string]PVInfo     /* podName --> PVInfo      */
 }
 
+func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
+	var stsInfo StatefulSetInfo
+
+	stsInfo.StatefulSetName = stsName
+	stsInfo.PodInfos = make(map[string]PodInfo)
+	stsInfo.PVInfos  = make(map[string]PVInfo)
+
+	return stsInfo
+}
 func (s *StatefulSetInfo) GetStatefulSetName() string {
 	return s.StatefulSetName
 }
