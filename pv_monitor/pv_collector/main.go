@@ -159,10 +159,8 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 		log.Println("pvServiceClient.PVInfosRequest error: ", err)
 		return
 	}
-	if resp.Status == 0 {
-		log.Println("resp.Status is 0")
-		return
-	}
+
+	log.Println("resp.Status is ", resp.Status)
 }
 
 func init() {
