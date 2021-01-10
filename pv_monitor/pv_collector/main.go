@@ -109,7 +109,8 @@ func getPVServiceClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	return client, conn
 }
 
-func handlePVMetrics(target string, cmd Command) {
+func handlePVMetrics(target string) {
+	cmd := Command{}
 	saveDfInfo(dfInfoFileName, cmd)
 	utilizationAndTarget, err := grepFileWithTarget(target, dfInfoFileName, cmd)
 	if err != nil {
@@ -163,6 +164,12 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	log.Println("resp.Status is ", resp.Status)
 }
 
+func handlePVMetricsWithScripts(target string) {
+	cmd := Command{}
+
+	cmd.execute("./disk_utilization.sh " + target)
+}
+
 func init() {
 	flag.IntVar(&intervalTime, "s", 15, "collector interval")
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
@@ -179,9 +186,10 @@ func main() {
 		if err != nil {
 			log.Fatal("getTargetsFromGrpc error: ", err)
 		}
-		cmd := Command{}
+
 		for _, target := range targets {
-			handlePVMetrics(target, cmd)
+			// handlePVMetrics(target)
+			handlePVMetricsWithScripts(target)
 		}
 
 		var pvInfos map[string]*pb.PVInfo
