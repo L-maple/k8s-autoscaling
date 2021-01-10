@@ -88,8 +88,10 @@ var (
 	intervalTime int
 	timeout      int
 
-	/* PVRequest address */
-	address  = "localhost:30002"
+	/* RequestPVNames address */
+	requestPVNamesAddress  = "localhost:30002"
+	/* PVReply address */
+	replyPVInfosAddress    = "localhost:30003"
 
 	/* the tmp file for pv utilization*/
 	dfInfoFileName     = "df.txt"
@@ -103,7 +105,19 @@ func init() {
 
 func getPVRequestClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	conn, err := grpc.Dial(requestPVNamesAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+
+	client := pb.NewPVServiceClient(conn)
+
+	return client, conn
+}
+
+func getPVReplyClient() (pb.PVServiceClient, *grpc.ClientConn) {
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(requestPVNamesAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -137,12 +151,12 @@ func handlePVMetrics(target string, cmd Command) {
 	// TODO: fetch all metrics to server
 }
 
-func getTargetsFromGrpc(pvGrpcClient pb.PVServiceClient) ([]string, error) {
+func getTargetsFromGrpc(pvServiceClient pb.PVServiceClient) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
 	defer cancel()
-	resp, err := pvGrpcClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
+	resp, err := pvServiceClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
 	if err != nil {
-		log.Println("pvGrpcClient.RequestPVNames error: ", err)
+		log.Println("pvServiceClient.RequestPVNames error: ", err)
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 		return []string{}, err
 	}
@@ -152,14 +166,27 @@ func getTargetsFromGrpc(pvGrpcClient pb.PVServiceClient) ([]string, error) {
 	return targets, nil
 }
 
+func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo) {
+	//ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
+	//defer cancel()
+	//
+	//resp, err := {PVInfos: pvInfos}
+	//if err != nil {
+	//	log.Println("pvServiceClient.PVInfosRequest error: ", err)
+	//	return
+	//}
+
+	//pvServiceClient.ReplyPVInfos(ctx)
+}
+
 func main() {
 	flag.Parse()
 
-	pvGrpcClient, conn := getPVRequestClient()
-	defer conn.Close()
+	pvServiceClient, requestConn:= getPVRequestClient()
+	defer requestConn.Close()
 
 	for {
-		targets, err := getTargetsFromGrpc(pvGrpcClient)
+		targets, err := getTargetsFromGrpc(pvServiceClient)
 		if err != nil {
 			log.Fatal("getTargetsFromGrpc error: ", err)
 		}
@@ -167,6 +194,9 @@ func main() {
 		for _, target := range targets {
 			handlePVMetrics(target, cmd)
 		}
+
+		var pvInfos map[string]*pb.PVInfo
+		sendPVMetrics(pvServiceClient, pvInfos)
 		fmt.Println(time.Now(), ", this client send pvInfos to Server successfully~")
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}

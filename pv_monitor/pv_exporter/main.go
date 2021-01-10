@@ -45,6 +45,10 @@ func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVRe
 	return &pb.PVResponse{ PvNames: pvNames }, nil
 }
 
+func (s *server) ReplyPVInfos(ctx context.Context, in *pb.PVInfosRequest) (*pb.PVInfosResponse, error) {
+	return &pb.PVInfosResponse{Status: 1}, nil
+}
+
 
 func getInClusterClientSet() *kubernetes.Clientset {
 	config, err := rest.InClusterConfig()
