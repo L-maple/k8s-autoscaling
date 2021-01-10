@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc"
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -20,7 +19,6 @@ import (
  * struct command has a method: execute, which is used to execute the strcmd;
  */
 type Command struct{}
-
 func (c *Command) execute(cmdstr string, target string) (string, error) {
 	cmd := exec.Command("/bin/bash", cmdstr, target)
 
@@ -52,36 +50,57 @@ func (c *Command) execute(cmdstr string, target string) (string, error) {
 	return string(bytes), nil
 }
 
-func grepFileWithTarget(target string, tmpFileName string, cmd Command) (string, error) {
-	// 对tmpFileName文件使用grep target命令找到对应
-	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
-
-	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd, ""); err != nil {
-		log.Println("cmd.execute utilizationAndTargetCmd warn: ", target, " not found!")
-		return "", err
-	} else {
-		return targetUtilization, nil
+type PVCommand struct{
+	cmd       Command
+	target    string
+}
+func (p *PVCommand) getDiskUtilization() (float64, error) {
+	diskUtilization, err := p.cmd.execute("./disk_utilization.sh", p.target)
+	if err != nil {
+		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
+		return 0.0, err
 	}
+	slices := strings.Split(diskUtilization, "\n")
+	if len(slices) <= 1 {
+		log.Println("strings.Split error: ", slices)
+		return 0.0, err
+	}
+
+	utilization, err := strconv.ParseFloat(slices[0], 32)
+	if err != nil {
+		log.Println("strconv.Atoi error: ", err)
+		return 0.0, err
+	}
+
+	return utilization, err
+}
+func (p *PVCommand) getDiskIOPS() (float64, error) {
+	diskIOPS, err := p.cmd.execute("./disk_iops.sh", p.target)
+	if err != nil {
+		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
+		return 0.0, err
+	}
+	slices := strings.Split(diskIOPS, "\n")
+	if len(slices) <= 1 {
+		log.Println("strings.Split error: ", slices)
+		return 0.0, err
+	}
+
+	iops, err := strconv.ParseFloat(slices[0], 32)
+	if err != nil {
+		log.Println("strconv.Atoi error: ", err)
+		return 0.0, err
+	}
+
+	return iops, err
+}
+func (p *PVCommand) getDiskReadKBPS()  {
+
+}
+func (p *PVCommand) getDiskWriteKBPS() {
+
 }
 
-func saveDfInfo(tmpFileName string, cmd Command) {
-	// 读取文件系统使用量信息，保存到tmpFileName中
-	targetUtilizationCmd := fmt.Sprintf("df --output=pcent,target")
-	if targetUtilizations, err := cmd.execute(targetUtilizationCmd, ""); err != nil {
-		log.Println("cmd.execute targetUtilizationCmd error: ", err)
-		return
-	} else {
-		file, err := os.Create(tmpFileName)
-		if err != nil{
-			log.Fatal("error: os.Create error")
-		}
-		defer file.Close()
-
-		if _, err := file.WriteString(targetUtilizations); err != nil {
-			log.Fatal(err.Error())
-		}
-	}
-}
 
 var (
 	/* interval time */
@@ -105,7 +124,7 @@ func getPVServiceClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	return client, conn
 }
 
-func getTargetsFromGrpc(pvServiceClient pb.PVServiceClient) ([]string, error) {
+func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
 	defer cancel()
 	resp, err := pvServiceClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
@@ -135,26 +154,22 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	log.Println("resp.Status is ", resp.Status)
 }
 
+
 func handlePVMetricsWithScripts(target string) {
-	cmd := Command{}
+	pvCmd := PVCommand{Command{}, target}
 
-	diskUtilization, err := cmd.execute("./disk_utilization.sh", target)
+	diskUtilization, err := pvCmd.getDiskUtilization()
 	if err != nil {
-		log.Println("grepFileWithTarget warn: ", target, " not found!")
-		return
+		log.Fatal("pvCmd.getDiskUtilization: ", err)
 	}
-	slices := strings.Split(diskUtilization, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return
-	}
+	fmt.Println(diskUtilization)
 
-	utilization, err := strconv.ParseFloat(slices[0], 32)
+	diskIOPS, err := pvCmd.getDiskIOPS()
 	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
-		return
+		log.Fatal("pvCmd.getDiskIOPS: ", err)
 	}
-	fmt.Println(target, ": ", utilization)
+	fmt.Println(diskIOPS)
+
 
 }
 
@@ -170,7 +185,7 @@ func main() {
 	defer requestConn.Close()
 
 	for {
-		targets, err := getTargetsFromGrpc(pvServiceClient)
+		targets, err := getTargetsFromServer(pvServiceClient)
 		if err != nil {
 			log.Fatal("getTargetsFromGrpc error: ", err)
 		}
