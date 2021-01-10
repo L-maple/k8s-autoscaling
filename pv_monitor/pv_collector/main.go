@@ -6,101 +6,9 @@ import (
 	"fmt"
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 	"google.golang.org/grpc"
-	"io/ioutil"
 	"log"
-	"os/exec"
-	"strconv"
-	"strings"
 	"time"
 )
-
-/*
- * struct command, which represent a linux shell wrapper;
- * struct command has a method: execute, which is used to execute the strcmd;
- */
-type Command struct{}
-func (c *Command) execute(cmdstr string, target string) (string, error) {
-	cmd := exec.Command("/bin/bash", cmdstr, target)
-
-	/* Create the command pipe */
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Println("execute: cmd.StdoutPipe error: ", err)
-		return "", err
-	}
-
-	/* Execute the command */
-	if err := cmd.Start(); err != nil {
-		log.Println("execute: cmd.Start error: ", err)
-		return "", err
-	}
-
-	/* Read all inputs */
-	bytes, err := ioutil.ReadAll(stdout)
-	if err != nil {
-		log.Println("execute: ioutil.ReadAll error: ", err)
-		return "", err
-	}
-
-	if err := cmd.Wait(); err != nil {
-		log.Println("execute: execute: cmd.Wait error: ", err)
-		return "", err
-	}
-
-	return string(bytes), nil
-}
-
-type PVCommand struct{
-	cmd       Command
-	target    string
-}
-func (p *PVCommand) getDiskUtilization() (float64, error) {
-	diskUtilization, err := p.cmd.execute("./disk_utilization.sh", p.target)
-	if err != nil {
-		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
-		return 0.0, err
-	}
-	slices := strings.Split(diskUtilization, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return 0.0, err
-	}
-
-	utilization, err := strconv.ParseFloat(slices[0], 32)
-	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
-		return 0.0, err
-	}
-
-	return utilization, err
-}
-func (p *PVCommand) getDiskIOPS() (float64, error) {
-	diskIOPS, err := p.cmd.execute("./disk_iops.sh", p.target)
-	if err != nil {
-		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
-		return 0.0, err
-	}
-	slices := strings.Split(diskIOPS, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return 0.0, err
-	}
-
-	iops, err := strconv.ParseFloat(slices[0], 32)
-	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
-		return 0.0, err
-	}
-
-	return iops, err
-}
-func (p *PVCommand) getDiskReadKBPS()  {
-
-}
-func (p *PVCommand) getDiskWriteKBPS() {
-
-}
-
 
 var (
 	/* interval time */
@@ -109,8 +17,13 @@ var (
 
 	/* server address */
 	serverAddress  = "localhost:30002"
-)
 
+	/* script location */
+	diskUtilizationScript = "./scripts/disk_utilization.sh"
+	diskIOPSScript        = "./scripts/disk_iops.sh"
+	diskReadKbpsScript    = "./scripts/disk_read_kbps.sh"
+	diskWriteKbpsScript   = "./scripts/disk_write_kbps.sh"
+)
 
 func getPVServiceClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	// Set up a connection to the server.
@@ -154,23 +67,32 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	log.Println("resp.Status is ", resp.Status)
 }
 
-
 func handlePVMetricsWithScripts(target string) {
 	pvCmd := PVCommand{Command{}, target}
 
-	diskUtilization, err := pvCmd.getDiskUtilization()
+	diskUtilization, err := pvCmd.getDiskUtilization(diskUtilizationScript)
 	if err != nil {
 		log.Fatal("pvCmd.getDiskUtilization: ", err)
 	}
 	fmt.Println(diskUtilization)
 
-	diskIOPS, err := pvCmd.getDiskIOPS()
+	diskIOPS, err := pvCmd.getDiskIOPS(diskIOPSScript)
 	if err != nil {
 		log.Fatal("pvCmd.getDiskIOPS: ", err)
 	}
 	fmt.Println(diskIOPS)
 
+	diskReadKbps, err := pvCmd.getDiskReadKBPS(diskReadKbpsScript)
+	if err != nil {
+		log.Fatal("pvCmd.getDiskReadKBPS: ", err)
+	}
+	fmt.Println(diskReadKbps)
 
+	diskWriteKbps, err := pvCmd.getDiskWriteKBPS(diskWriteKbpsScript)
+	if err != nil {
+		log.Fatal("pvCmd.getDiskWriteKBPS: ", err)
+	}
+	fmt.Println(diskWriteKbps)
 }
 
 func init() {
