@@ -167,7 +167,24 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 func handlePVMetricsWithScripts(target string) {
 	cmd := Command{}
 
-	cmd.execute("./disk_utilization.sh " + target)
+	diskUtilization, err := cmd.execute("./disk_utilization.sh " + target)
+	if err != nil {
+		log.Println("grepFileWithTarget warn: ", target, " not found!")
+		return
+	}
+	slices := strings.Split(diskUtilization, "\n")
+	if len(slices) <= 1 {
+		log.Println("strings.Split error: ", slices)
+		return
+	}
+
+	utilization, err := strconv.Atoi(slices[0])
+	if err != nil {
+		log.Println("strconv.Atoi error: ", err)
+		return
+	}
+	fmt.Println(target, ": ", utilization)
+
 }
 
 func init() {
