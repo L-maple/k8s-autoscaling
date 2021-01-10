@@ -103,7 +103,7 @@ func init() {
 
 func getPVRequestClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -140,9 +140,7 @@ func handlePVMetrics(target string, cmd Command) {
 func getTargetsFromGrpc(pvGrpcClient pb.PVServiceClient) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
 	defer cancel()
-	fmt.Println("hello, world~")
 	resp, err := pvGrpcClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
-	fmt.Println("hi, world~")
 	if err != nil {
 		log.Println("pvGrpcClient.RequestPVNames error: ", err)
 		time.Sleep(time.Duration(intervalTime) * time.Second)
