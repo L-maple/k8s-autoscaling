@@ -178,7 +178,7 @@ func handlePVMetricsWithScripts(target string) {
 		return
 	}
 
-	utilization, err := strconv.Atoi(slices[0])
+	utilization, err := strconv.ParseFloat(slices[0], 32)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
 		return
