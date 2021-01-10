@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
@@ -62,7 +63,7 @@ func grepFileWithTarget(target string, tmpFileName string, cmd command) (string,
 	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
 
 	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd); err != nil {
-		log.Println("cmd.execute utilizationAndTargetCmd error: ", err)
+		log.Println("cmd.execute utilizationAndTargetCmd warn: ", target, " not found!")
 		return "", err
 	} else {
 		return targetUtilization, nil
@@ -121,27 +122,24 @@ func main() {
 	flag.Parse()
 
 	cmd := command{}
-	counter := 0
-	//pvGrpcClient, conn := getPVRequestClient()
-	//defer conn.Close()
+	pvGrpcClient, conn := getPVRequestClient()
+	defer conn.Close()
 	for {
-		fmt.Println("第", counter, "个请求: ")
-
-		//resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
-		//if err != nil {
-		//	log.Println("pvGrpcClient.RequestPVNames error: ", err)
-		//	time.Sleep(time.Duration(intervalTime) * time.Second)
-		//	continue
-		//}
-		//targets := resp.PvNames
-		targets := []string{"/sys/fs/cgroup", "/boot"}
+		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+		if err != nil {
+			log.Println("pvGrpcClient.RequestPVNames error: ", err)
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
+		}
+		targets := resp.PvNames
+		//targets := []string{"/sys/fs/cgroup", "/boot"}
 		fmt.Println("targets, ", targets)
 
 		for _, target := range targets {
 			saveDfInfo(tmpFileName, cmd)
 			utilizationAndTarget, err := grepFileWithTarget(target, tmpFileName, cmd)
 			if err != nil {
-				log.Println("grepFileWithTarget error: ", err)
+				log.Println("grepFileWithTarget warn: ", target, " not found!")
 				continue
 			}
 			utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
@@ -158,8 +156,8 @@ func main() {
 			}
 			fmt.Println(target, " ", float64(utilization)/100.0)
 		}
+		fmt.Println(time.Now(), ", this client send pvInfos to Server successfully~")
 		time.Sleep(time.Duration(intervalTime) * time.Second)
-		counter++
 	}
 }
 
