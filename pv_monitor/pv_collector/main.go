@@ -19,31 +19,25 @@ import (
  * struct command, which represent a linux shell wrapper;
  * struct command has a method: execute, which is used to execute the strcmd;
  */
-type command struct{}
+type Command struct{}
 
-func (c *command) execute(cmdstr string) (string, error) {
+func (c *Command) execute(cmdstr string) (string, error) {
 	cmd := exec.Command("/bin/bash", "-c", cmdstr)
 
-	/*
-	 * Create the command pipe
-	 */
+	/* Create the command pipe */
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Println("execute: cmd.StdoutPipe error: ", err)
 		return "", err
 	}
 
-	/*
-	 * Execute the command
-	 */
+	/* Execute the command */
 	if err := cmd.Start(); err != nil {
 		log.Println("execute: cmd.Start error: ", err)
 		return "", err
 	}
 
-	/*
-	 * Read all inputs
-	 */
+	/* Read all inputs */
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
 		log.Println("execute: ioutil.ReadAll error: ", err)
@@ -58,7 +52,7 @@ func (c *command) execute(cmdstr string) (string, error) {
 	return string(bytes), nil
 }
 
-func grepFileWithTarget(target string, tmpFileName string, cmd command) (string, error) {
+func grepFileWithTarget(target string, tmpFileName string, cmd Command) (string, error) {
 	// 对tmpFileName文件使用grep target命令找到对应
 	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
 
@@ -70,7 +64,7 @@ func grepFileWithTarget(target string, tmpFileName string, cmd command) (string,
 	}
 }
 
-func saveDfInfo(tmpFileName string, cmd command) {
+func saveDfInfo(tmpFileName string, cmd Command) {
 	// 读取文件系统使用量信息，保存到tmpFileName中
 	targetUtilizationCmd := fmt.Sprintf("df --output=pcent,target")
 	if targetUtilizations, err := cmd.execute(targetUtilizationCmd); err != nil {
@@ -119,12 +113,35 @@ func getPVRequestClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	return client, conn
 }
 
+func handlePVMetrics(target string, cmd Command) {
+	saveDfInfo(dfInfoFileName, cmd)
+	utilizationAndTarget, err := grepFileWithTarget(target, dfInfoFileName, cmd)
+	if err != nil {
+		log.Println("grepFileWithTarget warn: ", target, " not found!")
+		return
+	}
+	utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
+	slices := strings.Split(utilizationAndTarget, "%")
+	if len(slices) <= 1 {
+		log.Println("strings.Split error: ", slices)
+		return
+	}
+
+	utilization, err := strconv.Atoi(slices[0])
+	if err != nil {
+		log.Println("strconv.Atoi error: ", err)
+		return
+	}
+	fmt.Println(target, " ", float64(utilization)/100.0)
+}
+
 func main() {
 	flag.Parse()
 
-	cmd := command{}
+
 	pvGrpcClient, conn := getPVRequestClient()
 	defer conn.Close()
+
 	for {
 		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
 		if err != nil {
@@ -135,26 +152,10 @@ func main() {
 		targets := resp.PvNames
 		fmt.Println("targets, ", targets)
 
-		for _, target := range targets {
-			saveDfInfo(dfInfoFileName, cmd)
-			utilizationAndTarget, err := grepFileWithTarget(target, dfInfoFileName, cmd)
-			if err != nil {
-				log.Println("grepFileWithTarget warn: ", target, " not found!")
-				continue
-			}
-			utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
-			slices := strings.Split(utilizationAndTarget, "%")
-			if len(slices) <= 1 {
-				log.Println("strings.Split error: ", slices)
-				return
-			}
+		cmd := Command{}
 
-			utilization, err := strconv.Atoi(slices[0])
-			if err != nil {
-				log.Println("strconv.Atoi error: ", err)
-				return
-			}
-			fmt.Println(target, " ", float64(utilization)/100.0)
+		for _, target := range targets {
+			handlePVMetrics(target, cmd)
 		}
 		fmt.Println(time.Now(), ", this client send pvInfos to Server successfully~")
 		time.Sleep(time.Duration(intervalTime) * time.Second)

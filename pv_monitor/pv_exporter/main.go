@@ -23,6 +23,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
+type server struct {
+	pb.UnimplementedPVServiceServer
+}
+
+func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
+	var pvNames []string
+	if stsInfoGlobal.PodInfos == nil {
+		return &pb.PVResponse{PvNames: pvNames}, nil
+	}
+
+	pvNames = stsInfoGlobal.GetPodNames()
+
+	return &pb.PVResponse{ PvNames: pvNames }, nil
+}
+
 
 func getInClusterClientSet() *kubernetes.Clientset {
 	config, err := rest.InClusterConfig()

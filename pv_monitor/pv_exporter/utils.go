@@ -1,27 +1,5 @@
 package main
 
-import (
-	"context"
-	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
-)
-
-/***************************************************/
-
-type server struct {
-	pb.UnimplementedPVServiceServer
-}
-
-func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
-	var pvNames []string
-	if stsInfoGlobal.PodInfos == nil {
-		return &pb.PVResponse{PvNames: pvNames}, nil
-	}
-
-	pvNames = stsInfoGlobal.GetPodNames()
-
-	return &pb.PVResponse{ PvNames: pvNames }, nil
-}
-
 /**************************************************/
 
 type PodInfo struct {
@@ -64,6 +42,7 @@ func (p PVInfo) GetPVDiskIOPS() float32  {
 	return p.PVDiskIOPS
 }
 
+/****************************************************/
 
 type StatefulSetInfo struct {
 	StatefulSetName      string                /* statefulSet name        */
@@ -141,6 +120,8 @@ func (s *StatefulSetInfo) SetPVInfo(podName string, pvInfo PVInfo) {
 	}
 	s.PVInfos[podName] = pvInfo
 }
+
+/*************************************************/
 
 func Find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
