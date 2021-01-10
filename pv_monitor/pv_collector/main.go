@@ -98,7 +98,8 @@ var (
 	address  = "localhost:30002"
 
 	/* the tmp file for pv utilization*/
-	tmpFileName = "targetUtilization.txt"
+	dfInfoFileName     = "df.txt"
+	iostatInfoFileName = "iostat.txt"
 )
 
 func init() {
@@ -132,12 +133,11 @@ func main() {
 			continue
 		}
 		targets := resp.PvNames
-		//targets := []string{"/sys/fs/cgroup", "/boot"}
 		fmt.Println("targets, ", targets)
 
 		for _, target := range targets {
-			saveDfInfo(tmpFileName, cmd)
-			utilizationAndTarget, err := grepFileWithTarget(target, tmpFileName, cmd)
+			saveDfInfo(dfInfoFileName, cmd)
+			utilizationAndTarget, err := grepFileWithTarget(target, dfInfoFileName, cmd)
 			if err != nil {
 				log.Println("grepFileWithTarget warn: ", target, " not found!")
 				continue
