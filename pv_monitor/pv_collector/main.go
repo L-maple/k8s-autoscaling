@@ -88,36 +88,18 @@ var (
 	intervalTime int
 	timeout      int
 
-	/* RequestPVNames address */
-	requestPVNamesAddress  = "localhost:30002"
-	/* PVReply address */
-	replyPVInfosAddress    = "localhost:30003"
+	/* server address */
+	serverAddress  = "localhost:30002"
 
 	/* the tmp file for pv utilization*/
 	dfInfoFileName     = "df.txt"
 	iostatInfoFileName = "iostat.txt"
 )
 
-func init() {
-	flag.IntVar(&intervalTime, "s", 15, "collector interval")
-	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
-}
 
-func getPVRequestClient() (pb.PVServiceClient, *grpc.ClientConn) {
+func getPVServiceClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(requestPVNamesAddress, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-
-	client := pb.NewPVServiceClient(conn)
-
-	return client, conn
-}
-
-func getPVReplyClient() (pb.PVServiceClient, *grpc.ClientConn) {
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(requestPVNamesAddress, grpc.WithInsecure())
+	conn, err := grpc.Dial(serverAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -167,22 +149,31 @@ func getTargetsFromGrpc(pvServiceClient pb.PVServiceClient) ([]string, error) {
 }
 
 func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo) {
-	//ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
-	//defer cancel()
-	//
-	//resp, err := {PVInfos: pvInfos}
-	//if err != nil {
-	//	log.Println("pvServiceClient.PVInfosRequest error: ", err)
-	//	return
-	//}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
+	defer cancel()
 
-	//pvServiceClient.ReplyPVInfos(ctx)
+	resp, err := pvServiceClient.ReplyPVInfos(ctx, &pb.PVInfosRequest{
+		PVInfos: pvInfos,
+	})
+	if err != nil {
+		log.Println("pvServiceClient.PVInfosRequest error: ", err)
+		return
+	}
+	if resp.Status == 0 {
+		log.Println("resp.Status is 0")
+		return
+	}
+}
+
+func init() {
+	flag.IntVar(&intervalTime, "s", 15, "collector interval")
+	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
 }
 
 func main() {
 	flag.Parse()
 
-	pvServiceClient, requestConn:= getPVRequestClient()
+	pvServiceClient, requestConn:= getPVServiceClient()
 	defer requestConn.Close()
 
 	for {

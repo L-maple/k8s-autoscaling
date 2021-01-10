@@ -24,6 +24,27 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
+var (
+	/* input parameter */
+	intervalTime     int
+	namespaceName    string
+	statefulsetName  string
+
+	/* port */
+	promPort      = ":30001"     /* For RequestPVNames grpc */
+	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
+
+	/* metric name to expose */
+	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "whether_add_pod", // TODO: 命名不规范
+		Help: "whether add pod, 0 or 1",
+	})
+
+	/* global statefulSet's Pod info */
+	stsMutex      sync.RWMutex
+	stsInfoGlobal StatefulSetInfo
+)
+
 type server struct {
 	pb.UnimplementedPVServiceServer
 }
@@ -177,34 +198,6 @@ func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
 }
 
 
-var (
-	/* input parameter */
-	intervalTime     int
-	namespaceName    string
-	statefulsetName  string
-
-	/* port */
-	promPort      = ":30001"     /* For RequestPVNames grpc */
-	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
-
-	/* metric name to expose */
-	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "whether_add_pod", // TODO: 命名不规范
-		Help: "whether add pod, 0 or 1",
-	})
-
-	/* global statefulSet's Pod info */
-	stsMutex      sync.RWMutex
-	stsInfoGlobal StatefulSetInfo
-)
-
-func init() {
-	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
-	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
-	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
-}
-
-
 func ExposeAddPodMetric() {
 	go func() {
 		// TODO: build the forecast model
@@ -254,6 +247,12 @@ func RegisterPVRequestServer() {
 			log.Fatalf("failed to serve: %v", err)
 		}
 	}()
+}
+
+func init() {
+	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
+	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
+	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 }
 
 func main() {
