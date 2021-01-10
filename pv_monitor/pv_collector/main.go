@@ -134,7 +134,7 @@ func main() {
 		//	continue
 		//}
 		//targets := resp.PvNames
-		targets := []string{"lvm-1b36e7d3-8c2b-40a", "gooodak"}
+		targets := []string{"/sys/fs/cgroup", "/boot"}
 		fmt.Println("targets, ", targets)
 
 		for _, target := range targets {
