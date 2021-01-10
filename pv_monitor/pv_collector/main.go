@@ -21,8 +21,8 @@ import (
  */
 type Command struct{}
 
-func (c *Command) execute(cmdstr string) (string, error) {
-	cmd := exec.Command("/bin/bash", cmdstr)
+func (c *Command) execute(cmdstr string, target string) (string, error) {
+	cmd := exec.Command("/bin/bash", cmdstr, target)
 
 	/* Create the command pipe */
 	stdout, err := cmd.StdoutPipe()
@@ -56,7 +56,7 @@ func grepFileWithTarget(target string, tmpFileName string, cmd Command) (string,
 	// 对tmpFileName文件使用grep target命令找到对应
 	utilizationAndTargetCmd:= fmt.Sprintf("grep %s %s", target, tmpFileName)
 
-	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd); err != nil {
+	if targetUtilization, err := cmd.execute(utilizationAndTargetCmd, ""); err != nil {
 		log.Println("cmd.execute utilizationAndTargetCmd warn: ", target, " not found!")
 		return "", err
 	} else {
@@ -67,7 +67,7 @@ func grepFileWithTarget(target string, tmpFileName string, cmd Command) (string,
 func saveDfInfo(tmpFileName string, cmd Command) {
 	// 读取文件系统使用量信息，保存到tmpFileName中
 	targetUtilizationCmd := fmt.Sprintf("df --output=pcent,target")
-	if targetUtilizations, err := cmd.execute(targetUtilizationCmd); err != nil {
+	if targetUtilizations, err := cmd.execute(targetUtilizationCmd, ""); err != nil {
 		log.Println("cmd.execute targetUtilizationCmd error: ", err)
 		return
 	} else {
@@ -167,7 +167,7 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 func handlePVMetricsWithScripts(target string) {
 	cmd := Command{}
 
-	diskUtilization, err := cmd.execute("./disk_utilization.sh " + target)
+	diskUtilization, err := cmd.execute("./disk_utilization.sh", target)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", target, " not found!")
 		return
