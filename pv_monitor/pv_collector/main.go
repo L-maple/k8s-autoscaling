@@ -185,8 +185,10 @@ func main() {
 		}
 
 		var pvInfos map[string]*pb.PVInfo
+		fmt.Println(time.Now(), "sendPVMetrics...")
 		sendPVMetrics(pvServiceClient, pvInfos)
 		fmt.Println(time.Now(), ", this client send pvInfos to Server successfully~")
+
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
 }
