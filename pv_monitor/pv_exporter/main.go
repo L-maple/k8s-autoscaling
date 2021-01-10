@@ -93,7 +93,8 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 		podName, podLabels, found, podInfo := pod.Name, pod.Labels, false, PodInfo{}
 		for podLabelKey, podLabelValue := range podLabels {
 			if matchLabels[podLabelKey] == podLabelValue {
-				fmt.Println(pod.Status.Conditions)
+				// TODO: judge all the status is True;
+				// fmt.Println(pod.Status.Conditions)
 				found = true
 				break
 			}
@@ -161,16 +162,13 @@ var (
 	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
 
 	/* metric name to expose */
-	diskUtilizationMetric = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "disk_utilization_total", // TODO: 命名不规范
-		Help: "pv_disk_utilization_total",
+	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "whether_add_pod", // TODO: 命名不规范
+		Help: "whether add pod, 0 or 1",
 	})
 
 	/* global statefulSet's Pod info */
 	stsInfoGlobal StatefulSetInfo
-
-	/* disk utilization */
-	diskUtilizations map[string]float64
 )
 
 func init() {
@@ -183,6 +181,7 @@ func init() {
 func ExposeAddPodMetric() {
 	go func() {
 		// TODO: build the forecast model
+		addPodMetric.Set(1)
 
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}()
