@@ -90,10 +90,6 @@ var (
 
 	/* server address */
 	serverAddress  = "localhost:30002"
-
-	/* the tmp file for pv utilization*/
-	dfInfoFileName     = "df.txt"
-	iostatInfoFileName = "iostat.txt"
 )
 
 
@@ -107,31 +103,6 @@ func getPVServiceClient() (pb.PVServiceClient, *grpc.ClientConn) {
 	client := pb.NewPVServiceClient(conn)
 
 	return client, conn
-}
-
-func handlePVMetrics(target string) {
-	cmd := Command{}
-	saveDfInfo(dfInfoFileName, cmd)
-	utilizationAndTarget, err := grepFileWithTarget(target, dfInfoFileName, cmd)
-	if err != nil {
-		log.Println("grepFileWithTarget warn: ", target, " not found!")
-		return
-	}
-	utilizationAndTarget = strings.Trim(utilizationAndTarget, " ")
-	slices := strings.Split(utilizationAndTarget, "%")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return
-	}
-
-	utilization, err := strconv.Atoi(slices[0])
-	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
-		return
-	}
-	fmt.Println(target, " ", float64(utilization)/100.0)
-
-	// TODO: fetch all metrics to server
 }
 
 func getTargetsFromGrpc(pvServiceClient pb.PVServiceClient) ([]string, error) {
@@ -199,14 +170,12 @@ func main() {
 	defer requestConn.Close()
 
 	for {
-		//targets, err := getTargetsFromGrpc(pvServiceClient)
-		//if err != nil {
-		//	log.Fatal("getTargetsFromGrpc error: ", err)
-		//}
+		targets, err := getTargetsFromGrpc(pvServiceClient)
+		if err != nil {
+			log.Fatal("getTargetsFromGrpc error: ", err)
+		}
 
-		targets := []string{"/sys/fs/cgroup", "/boot"}
 		for _, target := range targets {
-			// handlePVMetrics(target)
 			handlePVMetricsWithScripts(target)
 		}
 
