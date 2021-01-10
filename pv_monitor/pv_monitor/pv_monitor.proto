@@ -17,11 +17,15 @@ message PVResponse {
   repeated string pvNames = 1;
 }
 
+message PVInfo {
+  float PVDiskUtilization  = 1;
+  float PVDiskIOPS         = 2;
+  float PVDiskWriteKBPS    = 3;
+  float PVDiskReadKBPS     = 4;
+}
+
 message PVInfosRequest {
-  map<string, float> pvNamesAndUtilization = 1;
-  map<string, float> pvDiskIOPS            = 2;
-  map<string, float> pvDiskWriteKBPS       = 3;
-  map<string, float> pvDiskReadKBPS        = 4;
+  map<string, PVInfo> PVInfos = 1;   /* PVName --> PVInfo */
 }
 
 message PVInfosResponse {

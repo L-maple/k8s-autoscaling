@@ -25,86 +25,6 @@ import (
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 )
 
-type server struct {
-	pb.UnimplementedPVServiceServer
-}
-
-func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
-	var pvNames []string
-	if stsInfoGlobal.PodInfos == nil {
-		log.Println("RequestPVNames: stsInfoGlobal.PodInfos is nil.")
-		return &pb.PVResponse{PvNames: pvNames},nil
-	}
-
-	for _, podInfo := range stsInfoGlobal.PodInfos {
-		for _, pvName := range podInfo.PVNames {
-			pvNames = append(pvNames, pvName)
-		}
-	}
-
-	return &pb.PVResponse{ PvNames: pvNames }, nil
-}
-
-type PodInfo struct {
-	PVCNames             []string
-	PVNames              []string
-}
-
-func (p *PodInfo) SetPVCNames(pvcNames []string) {
-	p.PVCNames = pvcNames
-}
-
-func (p PodInfo) GetPVCNames() []string {
-	return p.PVCNames
-}
-
-func (p *PodInfo) SetPVNames(pvNames []string) {
-	p.PVNames = pvNames
-}
-
-func (p PodInfo) GetPVNames() []string {
-	return p.PVNames
-}
-
-
-type StatefulSetInfo struct {
-	StatefulSetName      string                /* the statefulSet name */
-	PodNames             []string              /* the pods' name       */
-	PodInfos             map[string]PodInfo    /* store the pod's info */
-}
-
-func (s *StatefulSetInfo) setStatefulSetName(name string) {
-	s.StatefulSetName = name
-}
-
-func (s *StatefulSetInfo) getStatefulSetName() string {
-	return s.StatefulSetName
-}
-
-func (s *StatefulSetInfo) appendPodName(podName string) {
-	s.PodNames = append(s.PodNames, podName)
-}
-
-func (s *StatefulSetInfo) getPodNames() []string {
-	return s.PodNames
-}
-
-func (s *StatefulSetInfo) initializePodInfos() {
-	s.PodInfos = make(map[string]PodInfo)
-}
-
-func (s *StatefulSetInfo) setPodInfo(podName string, podInfo PodInfo) {
-	s.PodInfos[podName] = podInfo
-}
-
-func Find(slice []string, val string) (int, bool) {
-	for i, item := range slice {
-		if item == val {
-			return i, true
-		}
-	}
-	return -1, false
-}
 
 func getInClusterClientSet() *kubernetes.Clientset {
 	config, err := rest.InClusterConfig()
@@ -118,7 +38,6 @@ func getInClusterClientSet() *kubernetes.Clientset {
 
 	return clientSet
 }
-
 func getClientSet() *kubernetes.Clientset {
 	/* get the k8s clientset via config */
 	var kubeConfig* string
@@ -193,8 +112,6 @@ func setStsInfo(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *Stat
 
 
 func setPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList, stsInfo *StatefulSetInfo) {
-	stsInfo.initializePodInfos()
-
 	/* get all pods' pvc and pv info*/
 	var podInfo PodInfo
 	for _, pod := range pods.Items {
@@ -257,12 +174,12 @@ var (
 	statefulsetName  string
 
 	/* port */
-	promPort = ":30001"
-	pvRequestPort = ":30002"
+	promPort = ":30001"          /* For RequestPVNames grpc */
+	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
 
 	/* metric name to expose */
 	diskUtilizationMetric = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "disk_utilization_total",
+		Name: "disk_utilization_total", // TODO: 命名不规范
 		Help: "pv_disk_utilization_total",
 	})
 
