@@ -204,7 +204,7 @@ func main() {
 		//	log.Fatal("getTargetsFromGrpc error: ", err)
 		//}
 
-		targets := []string{"/sys/fs/cgroup", "/var/lib"}
+		targets := []string{"/sys/fs/cgroup", "/run/user/0"}
 		for _, target := range targets {
 			// handlePVMetrics(target)
 			handlePVMetricsWithScripts(target)
