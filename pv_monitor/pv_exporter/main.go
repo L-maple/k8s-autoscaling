@@ -37,8 +37,11 @@ func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVRe
 		return &pb.PVResponse{PvNames: pvNames}, nil
 	}
 
-	pvNames = stsInfoGlobal.GetPodNames()
-
+	for _, podInfo := range stsInfoGlobal.GetPodInfos() {
+		for _, pvName := range podInfo.GetPVNames() {
+			pvNames = append(pvNames, pvName)
+		}
+	}
 	return &pb.PVResponse{ PvNames: pvNames }, nil
 }
 

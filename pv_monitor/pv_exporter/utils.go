@@ -16,7 +16,7 @@ func (p PodInfo)GetPVCName() []string {
 func (p *PodInfo)AppendPVName(PVName string) {
 	p.PVNames = append(p.PVNames, PVName)
 }
-func (p PodInfo)GetPVName() []string {
+func (p PodInfo)GetPVNames() []string {
 	return p.PVNames
 }
 
