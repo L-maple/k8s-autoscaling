@@ -135,25 +135,28 @@ func handlePVMetrics(target string, cmd Command) {
 	fmt.Println(target, " ", float64(utilization)/100.0)
 }
 
+func getTargetsFromGrpc(pvGrpcClient pb.PVServiceClient) []string {
+	resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
+	if err != nil {
+		log.Println("pvGrpcClient.RequestPVNames error: ", err)
+		time.Sleep(time.Duration(intervalTime) * time.Second)
+		return []string{}
+	}
+	targets := resp.PvNames
+	fmt.Println("targets from grpc: ", targets)
+
+	return targets
+}
+
 func main() {
 	flag.Parse()
-
 
 	pvGrpcClient, conn := getPVRequestClient()
 	defer conn.Close()
 
 	for {
-		resp, err := pvGrpcClient.RequestPVNames(context.TODO(), &pb.PVRequest{Id: "1"})
-		if err != nil {
-			log.Println("pvGrpcClient.RequestPVNames error: ", err)
-			time.Sleep(time.Duration(intervalTime) * time.Second)
-			continue
-		}
-		targets := resp.PvNames
-		fmt.Println("targets, ", targets)
-
+		targets := getTargetsFromGrpc(pvGrpcClient)
 		cmd := Command{}
-
 		for _, target := range targets {
 			handlePVMetrics(target, cmd)
 		}
@@ -161,5 +164,3 @@ func main() {
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
 }
-
-

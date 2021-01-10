@@ -16,6 +16,7 @@ import (
 	"net"
 	"net/http"
 	"path/filepath"
+	"sync"
 	"time"
 
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
@@ -29,6 +30,9 @@ type server struct {
 
 func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
 	var pvNames []string
+
+	stsMutex.RLock()
+	defer stsMutex.RUnlock()
 	if stsInfoGlobal.PodInfos == nil {
 		return &pb.PVResponse{PvNames: pvNames}, nil
 	}
@@ -183,6 +187,7 @@ var (
 	})
 
 	/* global statefulSet's Pod info */
+	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
 )
 
@@ -221,7 +226,9 @@ func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 
 			printStatefulSetPodInfos(stsInfo)
 
+			stsMutex.Lock()
 			stsInfoGlobal = stsInfo
+			stsMutex.Unlock()
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 		}
