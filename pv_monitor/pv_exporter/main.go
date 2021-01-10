@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,16 +14,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"net"
+	"net/http"
 	"path/filepath"
 	"time"
 
-	"net/http"
-
+	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 )
 
 
@@ -95,6 +93,7 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 		podName, podLabels, found, podInfo := pod.Name, pod.Labels, false, PodInfo{}
 		for podLabelKey, podLabelValue := range podLabels {
 			if matchLabels[podLabelKey] == podLabelValue {
+				fmt.Println(pod.Status.Conditions)
 				found = true
 				break
 			}
@@ -181,20 +180,15 @@ func init() {
 }
 
 
-func setDiskUtilizationMetric() {
+func ExposeAddPodMetric() {
 	go func() {
-		if diskUtilizations == nil {
-			diskUtilizationMetric.Set(0)
-		} else {
-			diskUtilizationTotal := 0.0
-			for _, diskUtilization := range diskUtilizations {
-				diskUtilizationTotal += diskUtilization
-			}
-			diskUtilizationMetric.Set(diskUtilizationTotal)
-		}
+		// TODO: build the forecast model
 
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}()
+
+	http.Handle("/metrics", promhttp.Handler())
+	_ = http.ListenAndServe(promPort, nil)
 }
 
 func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
@@ -250,7 +244,5 @@ func main() {
 	RegisterPVRequestServer()
 
 	/* Set disk utilization metric & exposed at 30001 */
-	setDiskUtilizationMetric()
-	http.Handle("/metrics", promhttp.Handler())
-	_ = http.ListenAndServe(promPort, nil)
+	ExposeAddPodMetric()
 }
