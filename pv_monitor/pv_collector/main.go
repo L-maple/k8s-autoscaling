@@ -76,6 +76,8 @@ func handlePVMetricsWithScripts(target string) {
 	}
 	fmt.Println(diskUtilization)
 
+	// FIXME: 对target进行处理才能调用iostat命令
+	// 比如: lvm-43c80d34-b593-4f7d-b7bf-a45c8f4fdf05 的 设备名为 centos-lvm--43c80d34--b593--4f7d--b7bf--a45c8f4fdf05
 	diskIOPS, err := pvCmd.getDiskIOPS(diskIOPSScript)
 	if err != nil {
 		log.Fatal("pvCmd.getDiskIOPS: ", err)
