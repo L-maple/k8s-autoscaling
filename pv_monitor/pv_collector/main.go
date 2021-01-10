@@ -113,6 +113,10 @@ func main() {
 		}
 
 		for _, target := range targets {
+			//TODO: 先判定target是否存在于文件系统中
+			// ...
+
+			// 对target的指标信息进行处理
 			handlePVMetricsWithScripts(target)
 		}
 
