@@ -6,7 +6,7 @@ package pv_monitor;
 
 service PVService {
   rpc RequestPVNames(PVRequest) returns (PVResponse) {}
-  rpc ReplyPVNames(PVNamesRequest) returns (PVNamesResponse) {}
+  rpc ReplyPVInfos(PVInfosRequest) returns (PVInfosResponse) {}
 }
 
 message PVRequest {
@@ -17,11 +17,13 @@ message PVResponse {
   repeated string pvNames = 1;
 }
 
-message PVNamesRequest {
+message PVInfosRequest {
   map<string, float> pvNamesAndUtilization = 1;
+  map<string, float> pvDiskIOPS            = 2;
+  map<string, float> pvDiskWriteKBPS       = 3;
+  map<string, float> pvDiskReadKBPS        = 4;
 }
 
-message PVNamesResponse {
+message PVInfosResponse {
   int32 status  = 1;
 }
-
