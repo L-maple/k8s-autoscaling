@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -66,7 +67,7 @@ func getClientSet() *kubernetes.Clientset {
 }
 
 /* Set StatefulSet's info */
-func setStatefulSetInfo(clientSet *kubernetes.Clientset, pods *v1.PodList,
+func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 							nsName, statefulName string, stsInfo *StatefulSetInfo) {
 	statefulSetClient := clientSet.AppsV1().StatefulSets(nsName)
 	statefulSets, err := statefulSetClient.List(context.TODO(), metav1.ListOptions{})
@@ -133,6 +134,22 @@ func setStatefulSetInfo(clientSet *kubernetes.Clientset, pods *v1.PodList,
 	}
 }
 
+func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
+	for podName, podInfo := range stsInfo.GetPodInfos() {
+		fmt.Println(podName)
+
+		for _, pvcName := range podInfo.PVCNames {
+			fmt.Print(pvcName, " ")
+		}
+		fmt.Println()
+
+		for _, pvName := range podInfo.PVNames {
+			fmt.Print(pvName, " ")
+		}
+		fmt.Println()
+	}
+}
+
 
 var (
 	/* input parameter */
@@ -191,9 +208,10 @@ func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 				panic(err)
 			}
 
-			/* Set statefulSet's podNames */
-			setStatefulSetInfo(clientSet, pods, namespaceName, statefulsetName, &stsInfo)
+			/* Set statefulSet's podInfos */
+			setStatefulSetPodInfos(clientSet, pods, namespaceName, statefulsetName, &stsInfo)
 
+			printStatefulSetPodInfos(stsInfo)
 
 			stsInfoGlobal = stsInfo
 

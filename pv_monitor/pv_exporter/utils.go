@@ -110,6 +110,9 @@ func (s *StatefulSetInfo) GetPodInfo(podName string) PodInfo {
 	}
 	return PodInfo{}
 }
+func (s *StatefulSetInfo) GetPodInfos() map[string]PodInfo {
+	return s.PodInfos
+}
 func (s *StatefulSetInfo) SetPodInfo(podName string, podInfo PodInfo) {
 	if s.PodInfos == nil {
 		s.PodInfos = make(map[string]PodInfo)
@@ -128,6 +131,9 @@ func (s *StatefulSetInfo) GetPVInfo(podName string) PVInfo {
 		return pvInfo
 	}
 	return PVInfo{}
+}
+func (s *StatefulSetInfo) GetPVInfos() map[string]PVInfo {
+	return s.PVInfos
 }
 func (s *StatefulSetInfo) SetPVInfo(podName string, pvInfo PVInfo) {
 	if s.PVInfos == nil {
