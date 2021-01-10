@@ -199,11 +199,12 @@ func main() {
 	defer requestConn.Close()
 
 	for {
-		targets, err := getTargetsFromGrpc(pvServiceClient)
-		if err != nil {
-			log.Fatal("getTargetsFromGrpc error: ", err)
-		}
+		//targets, err := getTargetsFromGrpc(pvServiceClient)
+		//if err != nil {
+		//	log.Fatal("getTargetsFromGrpc error: ", err)
+		//}
 
+		targets := []string{"/sys/fs/cgroup123", "/var/lib"}
 		for _, target := range targets {
 			// handlePVMetrics(target)
 			handlePVMetricsWithScripts(target)
