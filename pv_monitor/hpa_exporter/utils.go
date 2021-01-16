@@ -5,12 +5,14 @@ package main
 type PodInfo struct {
 	PVCNames              []string
 	PVNames               []string
+	CpuLimit              int
+	MemoryLimit           int
 }
 
 func (p *PodInfo)AppendPVCName(PVCName string) {
 	p.PVCNames = append(p.PVCNames, PVCName)
 }
-func (p PodInfo)GetPVCName() []string {
+func (p PodInfo)GetPVCNames() []string {
 	return p.PVCNames
 }
 func (p *PodInfo)AppendPVName(PVName string) {
@@ -48,6 +50,7 @@ type StatefulSetInfo struct {
 	StatefulSetName      string                /* statefulSet name        */
 	PodInfos             map[string]PodInfo    /* podName --> PodInfo     */
 	PVInfos              map[string]PVInfo     /* podName --> PVInfo      */
+	Initialized          bool                  /* whether the obj has been initialized */
 }
 
 func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
@@ -131,3 +134,35 @@ func Find(slice []string, val string) (int, bool) {
 	}
 	return -1, false
 }
+
+func getAvgFloat64Utilization(utilizations []float64) float64 {
+	var utilizationSum float64 = 0
+	for _, utilization := range utilizations {
+		utilizationSum += utilization
+	}
+
+	return utilizationSum / float64(len(utilizations))
+}
+
+func getAvgInt64Utilization(utilizations []int64) int64 {
+	var utilizationSum int64 = 0
+	for _, utilization := range utilizations {
+		utilizationSum += utilization
+	}
+
+	return utilizationSum / int64(len(utilizations))
+}
+
+func getAboveUtilizationNumber(utilizations []float64, cmpUtilization float64) int {
+	var num = 0
+	for _, utilization := range utilizations {
+		if utilization > cmpUtilization {
+			num++
+		}
+	}
+
+	return num
+}
+
+/************************************************/
+

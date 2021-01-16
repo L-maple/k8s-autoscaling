@@ -9,7 +9,7 @@ import (
 )
 
 type PodStatistics struct {
-	podName, namespace string
+	PodName, Namespace string
 }
 
 func (c *PodStatistics) getUtilizationQuery(query string) []interface{}  {
@@ -46,7 +46,7 @@ func (c *PodStatistics) getUtilizationQuery(query string) []interface{}  {
 
 func (c *PodStatistics) GetAvgCpuUtilizationQuery() []interface{} {
 	query := "sum(rate(container_cpu_usage_seconds_total{" + "image!=\"\", " +
-			 "pod=" + "\""+ c.podName +"\", namespace=\"" + c.namespace +
+			 "pod=" + "\""+ c.PodName +"\", namespace=\"" + c.Namespace +
 			 "\"}[1m]))"
 
 	result := c.getUtilizationQuery(query)
@@ -55,7 +55,7 @@ func (c *PodStatistics) GetAvgCpuUtilizationQuery() []interface{} {
 
 func (c *PodStatistics) GetAvgMemoryUtilizationQuery() []interface{} {
 	query := "sum(container_memory_rss{" + "image!=\"\", " +
-		"pod=" + "\""+ c.podName +"\", namespace=\"" + c.namespace +
+		"pod=" + "\""+ c.PodName +"\", namespace=\"" + c.Namespace +
 		"\"})"
 
 	result := c.getUtilizationQuery(query)
@@ -63,10 +63,30 @@ func (c *PodStatistics) GetAvgMemoryUtilizationQuery() []interface{} {
 }
 
 func (c *PodStatistics) GetAvgDiskUtilizationQuery() []interface{} {
-	query := "disk_utilization{pod=" + "\"" + c.podName +  "\", namespace=\"" + c.namespace + "\"}"
+	query := "disk_utilization{pod=" + "\"" + c.PodName +  "\", namespace=\"" + c.Namespace + "\"}"
 
 	result := c.getUtilizationQuery(query)
-
 	return result
+}
+
+func (c *PodStatistics) GetLastCpuUtilizationQuery() float64 {
+	cpuTimeAndUtilizations := c.GetAvgCpuUtilizationQuery()
+
+	utilization := cpuTimeAndUtilizations[len(cpuTimeAndUtilizations) - 1].(float64)
+	return utilization
+}
+
+func (c *PodStatistics) GetLastMemoryUtilizationQuery() int64 {
+	memoryTimeAndUtilizations := c.GetAvgMemoryUtilizationQuery()
+
+	utilization := memoryTimeAndUtilizations[len(memoryTimeAndUtilizations) - 1].(int64)
+	return utilization
+}
+
+func (c *PodStatistics) GetLastDiskUtilizationQuery() float64 {
+	diskTimeAndUtilizations := c.GetAvgDiskUtilizationQuery()
+
+	utilization := diskTimeAndUtilizations[len(diskTimeAndUtilizations) - 1].(float64)
+	return utilization
 }
 

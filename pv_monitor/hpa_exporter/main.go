@@ -20,6 +20,7 @@ import (
 	"time"
 
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
+	rs "github.com/k8s-autoscaling/pv_monitor/resource_statistics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -147,7 +148,7 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 			}
 		}
 		
-		if found == false {  /* the statefulSet has this Pod*/
+		if found == false {  /* the statefulSet dont has this Pod*/
 			continue
 		}
 
@@ -178,6 +179,8 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 		podInfo.PVNames  = pvNames
 
 		stsInfo.PodInfos[podName] = podInfo
+
+		stsInfo.Initialized = true
 	}
 }
 
@@ -202,6 +205,7 @@ func ExposeAddPodMetric() {
 	go func() {
 		for {
 			// TODO: build the forecast model
+			judgeWhetherAddPod()
 			stsMutex.RLock()
 			addPodMetric.Set(float64(len(stsInfoGlobal.PodInfos)))
 			stsMutex.RUnlock()
@@ -214,6 +218,42 @@ func ExposeAddPodMetric() {
 	_ = http.ListenAndServe(promPort, nil)
 }
 
+func judgeWhetherAddPod() bool {
+	stsMutex.RLock()
+	defer stsMutex.RUnlock()
+
+	if stsInfoGlobal.Initialized == false {
+		return false
+	}
+	podNameAndInfo := stsInfoGlobal.GetPodInfos()
+
+	podCounter := len(podNameAndInfo)
+	var cpuUtilizations    []float64
+	var memoryUtilizations []int64
+	var diskUtilizations   []float64
+	for podName, _ := range podNameAndInfo {
+		podStatisticsObj := rs.PodStatistics{
+			PodName:   podName,
+			Namespace: namespaceName,
+		}
+
+		cpuUtilizations    = append(cpuUtilizations, podStatisticsObj.GetLastCpuUtilizationQuery())
+		memoryUtilizations = append(memoryUtilizations, podStatisticsObj.GetLastMemoryUtilizationQuery())
+		diskUtilizations   = append(diskUtilizations, podStatisticsObj.GetLastDiskUtilizationQuery())
+	}
+
+	//avgCpuUtilization    := getAvgFloat64Utilization(cpuUtilizations)
+	//avgMemoryUtilization := getAvgInt64Utilization(memoryUtilizations)
+	avgdiskUtilization   := getAvgFloat64Utilization(diskUtilizations)
+	aboveNumber := getAboveUtilizationNumber(diskUtilizations, 0.85)
+	if podCounter - aboveNumber < 3 || avgdiskUtilization < 0.8 {
+		return true
+	}
+
+	return false
+}
+
+// 该函数从Kubernetes中获取信息，并初始化stsInfoGlobal对象
 func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 	go func() {
 		for {
@@ -261,6 +301,8 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	stsInfoGlobal.Initialized = false
 
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset

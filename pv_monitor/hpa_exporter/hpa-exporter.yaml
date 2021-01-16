@@ -37,7 +37,7 @@ spec:
       - name: hpa-exporter
         image: aliuchangjie/hpa_exporter
         command: [ "/usr/bin/hpa_exporter" ]
-        args: ["-statefulset", "ubuntu", "-namespace", "default"]
+        args: ["-statefulset", "hdfs-datanode", "-namespace", "monitoring"]
         ports:
         - containerPort: 30001  # 用于暴露监控的指标数据
           protocol: TCP
