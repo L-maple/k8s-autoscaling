@@ -29,7 +29,7 @@ func main() {
 
 	responseBody, err := curl.Get("/api/v1/query", goz.Options{
 		Query: map[string]interface{}{
-			"query": "container_cpu_usage_seconds_total",
+			"query": "sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[1m])) by (pod, namespace)",
 			"time": time.Now().Unix(),
 		},
 	})
