@@ -17,6 +17,7 @@ func (c *PodStatistics) GetAvgCpuUtilizationQuery() string {
 			 "pod=" + c.podName +", namespace=" + c.namespace +
 			 "}[1m]))"
 
+	fmt.Println("query: ", query)
 	curl := PromCurl{endpoint, namespace, nil}
 	responseBody, err := curl.Get("/api/v1/query", goz.Options{
 		Query: map[string]interface{}{
