@@ -14,7 +14,7 @@ type PodStatistics struct {
 
 func (c *PodStatistics) GetAvgCpuUtilizationQuery() string {
 	query := "sum(rate(container_cpu_usage_seconds_total{" +
-			 "image!=\"\", pod=" + c.podName + ", namespace=" + c.namespace +
+			 "pod=" + c.podName +", namespace=" + c.namespace +
 			 "}[1m]))"
 
 	curl := PromCurl{endpoint, namespace, nil}
