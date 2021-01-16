@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/idoubi/goz"
 	"log"
+	"time"
 )
 
 var (
@@ -29,14 +30,13 @@ func main() {
 	responseBody, err := curl.Get("/api/v1/query", goz.Options{
 		Query: map[string]interface{}{
 			"query": "container_cpu_usage_seconds_total",
-			"time": 1610078841,
+			"time": time.Now().Unix(),
 		},
 	})
 	if err != nil {
 		log.Fatal("curl.Get error")
 	}
-	contents := responseBody.GetContents()
-
-
+	fmt.Println(time.Now().Unix())
+	fmt.Println(responseBody)
 }
 
