@@ -25,7 +25,7 @@ spec:
             containerPort: 10318
         resources:
           requests:
-            memory: "800Mi"
+            memory: "1000Mi"
             cpu: "200m"
           limits:
             memory: "2000Mi"
@@ -54,5 +54,5 @@ spec:
       volumeMode: Filesystem
       resources:
         requests:
-          storage: 1Gi
+          storage: 10Gi
       storageClassName: csi-lvm
