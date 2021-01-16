@@ -2,10 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"github.com/idoubi/goz"
-	"log"
-	"time"
 )
 
 var (
@@ -25,18 +21,8 @@ func init() {
 
 
 func main() {
-	curl := PromCurl{endpoint, namespace, nil}
+	podInfo := PodStatistics{}
 
-	responseBody, err := curl.Get("/api/v1/query", goz.Options{
-		Query: map[string]interface{}{
-			"query": "sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[1m])) by (pod, namespace)",
-			"time": time.Now().Unix(),
-		},
-	})
-	if err != nil {
-		log.Fatal("curl.Get error")
-	}
-	fmt.Println(time.Now().Unix())
-	fmt.Println(responseBody)
+	podInfo.GetAvgCpuUtilizationQuery()
 }
 
