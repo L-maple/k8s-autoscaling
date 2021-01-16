@@ -244,9 +244,9 @@ func judgeWhetherAddPod() bool {
 
 	//avgCpuUtilization    := getAvgFloat64Utilization(cpuUtilizations)
 	//avgMemoryUtilization := getAvgInt64Utilization(memoryUtilizations)
-	avgdiskUtilization   := getAvgFloat64Utilization(diskUtilizations)
+	avgDiskUtilization     := getAvgFloat64Utilization(diskUtilizations)
 	aboveNumber := getAboveUtilizationNumber(diskUtilizations, 0.85)
-	if podCounter - aboveNumber < 3 || avgdiskUtilization < 0.8 {
+	if podCounter - aboveNumber < 3 || avgDiskUtilization < 0.8 {
 		return true
 	}
 
