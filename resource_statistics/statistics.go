@@ -28,6 +28,8 @@ func (c *PodStatistics) GetAvgCpuUtilizationQuery() string {
 		log.Fatal("curl.Get error")
 	}
 
+	fmt.Println(responseBody)
+
 	jsonData := make(map[string]interface{})
 	err = json.Unmarshal(responseBody, &jsonData)
 	if err != nil {
