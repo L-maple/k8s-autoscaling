@@ -200,14 +200,18 @@ func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
 	}
 }
 
-
 func ExposeAddPodMetric() {
 	go func() {
 		for {
 			// TODO: build the forecast model
-			judgeWhetherAddPod()
+			// TODO: compare current cpu/memory with Limit
+			whetherAddPod := judgeWhetherAddPod()
 			stsMutex.RLock()
-			addPodMetric.Set(float64(len(stsInfoGlobal.PodInfos)))
+			if whetherAddPod {
+				addPodMetric.Set(0)
+			} else {
+				addPodMetric.Set(float64(len(stsInfoGlobal.PodInfos)))
+			}
 			stsMutex.RUnlock()
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
