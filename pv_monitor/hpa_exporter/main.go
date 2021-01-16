@@ -268,7 +268,7 @@ func main() {
 	initializeStsPodInfos(clientSet)
 
 	/* Register grpc server */
-	RegisterPVRequestServer()
+	//RegisterPVRequestServer()
 
 	/* Set disk utilization metric & exposed at 30001 */
 	ExposeAddPodMetric()
