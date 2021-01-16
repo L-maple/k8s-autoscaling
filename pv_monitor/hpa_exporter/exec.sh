@@ -15,3 +15,6 @@ go build .
 # 执行新的可执行文件
 echo "STEP 4: exec new file."
 ./hpa_exporter -statefulset=ubuntu
+
+# 生成新的镜像，并打包上传
+
