@@ -21,7 +21,10 @@ func init() {
 
 
 func main() {
-	podInfo := PodStatistics{}
+	podInfo := PodStatistics{
+		"hdfs-datanode-0",
+		"monitoring",
+	}
 
 	podInfo.GetAvgCpuUtilizationQuery()
 }
