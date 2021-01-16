@@ -1,45 +1,47 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: pv-exporter-service
+  name: hpa-exporter-service
   namespace: monitoring
 spec:
   type: NodePort
   ports:
   - port: 30001
     targetPort: 30001
-    nodePort: 31112
+    nodePort: 31111
   selector:
-    k8s-app: pv-exporter
+    k8s-app: hpa-exporter
 
 ---
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pv-exporter-deployment
+  name: hpa-exporter-deployment
   namespace: monitoring
   labels:
-    k8s-app: pv-exporter
+    k8s-app: hpa-exporter
 spec:
   selector:
     matchLabels:
-      k8s-app: pv-exporter
+      k8s-app: hpa-exporter
   template:
     metadata:
       labels:
-        k8s-app: pv-exporter
+        k8s-app: hpa-exporter
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
       containers:
-      - name: pv-exporter
-        image: aliuchangjie/pv_exporter
-        command: [ "/usr/bin/pv_exporter" ]
+      - name: hpa-exporter
+        image: aliuchangjie/hpa_exporter
+        command: [ "/usr/bin/hpa_exporter" ]
         args: ["-statefulset", "ubuntu", "-namespace", "default"]
         ports:
         - containerPort: 30001  # 用于暴露监控的指标数据
+          protocol: TCP
+        - containerPort: 30002  # 用于暴露pv_server的接口
           protocol: TCP
 
 ---

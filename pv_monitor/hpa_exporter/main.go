@@ -31,7 +31,7 @@ var (
 	statefulsetName  string
 
 	/* port */
-	promPort      = ":30001"     /* For RequestPVNames grpc */
+	promPort      = ":30001"     /* For whether_add_pod exporter */
 	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
 
 	/* metric name to expose */
@@ -200,10 +200,14 @@ func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
 
 func ExposeAddPodMetric() {
 	go func() {
-		// TODO: build the forecast model
-		addPodMetric.Set(1)
+		for {
+			// TODO: build the forecast model
+			stsMutex.RLock()
+			addPodMetric.Set(float64(len(stsInfoGlobal.PodInfos)))
+			stsMutex.RUnlock()
 
-		time.Sleep(time.Duration(intervalTime) * time.Second)
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+		}
 	}()
 
 	http.Handle("/metrics", promhttp.Handler())
@@ -261,14 +265,14 @@ func main() {
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset
 
-	//clientSet = getInClusterClientSet()
-	clientSet = getClientSet()
+	clientSet = getInClusterClientSet()
+	//clientSet = getClientSet()
 
 	/* Initialize StatefulSet PodInfos */
 	initializeStsPodInfos(clientSet)
 
 	/* Register grpc server */
-	//RegisterPVRequestServer()
+	RegisterPVRequestServer()
 
 	/* Set disk utilization metric & exposed at 30001 */
 	ExposeAddPodMetric()
