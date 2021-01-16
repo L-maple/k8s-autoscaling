@@ -8,7 +8,7 @@ spec:
     apiVersion: apps/v1
     kind: StatefulSet
     name: hdfs-datanode
-  minReplicas: 5
+  minReplicas: 3
   maxReplicas: 10
   metrics:
   - type: Pods
@@ -29,13 +29,13 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 60
+        averageUtilization: 80
   behavior:
     scaleDown:
       # stabilizationWindowSeconds: 300
       selectPolicy: Disabled   # 禁止缩容
     scaleUp:
-      stabilizationWindowSeconds: 20
+      stabilizationWindowSeconds: 100
       policies:
       - type: Pods
         value: 3
