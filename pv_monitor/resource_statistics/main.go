@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 var (
@@ -26,6 +27,8 @@ func main() {
 		"monitoring",
 	}
 
-	podInfo.GetAvgCpuUtilizationQuery()
+	fmt.Println(podInfo.GetAvgCpuUtilizationQuery())
+	fmt.Println(podInfo.GetAvgMemoryUtilizationQuery())
+	fmt.Println(podInfo.GetAvgDiskUtilizationQuery())
 }
 
