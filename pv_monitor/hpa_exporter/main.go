@@ -318,8 +318,8 @@ func main() {
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset
 
-	//clientSet = getInClusterClientSet()
-	clientSet = getClientSet()
+	clientSet = getInClusterClientSet()
+	//clientSet = getClientSet()
 
 	/* Initialize StatefulSet PodInfos */
 	initializeStsPodInfos(clientSet)
