@@ -49,31 +49,6 @@ var (
 	stsInfoGlobal StatefulSetInfo
 )
 
-type server struct {
-	pb.UnimplementedPVServiceServer
-}
-
-func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
-	var pvNames []string
-
-	stsMutex.RLock()
-	defer stsMutex.RUnlock()
-	if stsInfoGlobal.PodInfos == nil {
-		return &pb.PVResponse{PvNames: pvNames}, nil
-	}
-
-	for _, podInfo := range stsInfoGlobal.GetPodInfos() {
-		for _, pvName := range podInfo.GetPVNames() {
-			pvNames = append(pvNames, pvName)
-		}
-	}
-	return &pb.PVResponse{ PvNames: pvNames }, nil
-}
-
-func (s *server) ReplyPVInfos(ctx context.Context, in *pb.PVInfosRequest) (*pb.PVInfosResponse, error) {
-	return &pb.PVInfosResponse{Status: 1}, nil
-}
-
 
 func getInClusterClientSet() *kubernetes.Clientset {
 	config, err := rest.InClusterConfig()
@@ -162,6 +137,10 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 			}
 			pvcName := volume.PersistentVolumeClaim.ClaimName
 			pvcNames = append(pvcNames, pvcName)
+		}
+
+		for _, container := range pod.Spec.Containers {
+			fmt.Println(container.Name, container.Resources.Limits.Cpu().Value(), container.Resources.Limits.Memory().Value())
 		}
 
 		/* get all pvc's pv info*/
@@ -305,8 +284,8 @@ func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
-	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
-	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
+	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
+	flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 }
 
 func main() {
@@ -319,8 +298,8 @@ func main() {
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset
 
-	clientSet = getInClusterClientSet()
-	//clientSet = getClientSet()
+	//clientSet = getInClusterClientSet()
+	clientSet = getClientSet()
 
 	/* Initialize StatefulSet PodInfos */
 	initializeStsPodInfos(clientSet)
