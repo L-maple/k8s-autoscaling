@@ -35,6 +35,8 @@ kind: Service
 metadata:
   name: hpa-exporter-service
   namespace: monitoring
+  labels:
+    name: hpa-exporter-service
 spec:
   type: NodePort
   ports:
@@ -76,5 +78,3 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin
   apiGroup: rbac.authorization.k8s.io
-
-
