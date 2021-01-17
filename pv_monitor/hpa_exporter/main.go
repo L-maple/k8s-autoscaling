@@ -258,11 +258,9 @@ func main() {
 	stsInfoGlobal.Initialized = false
 	stsMutex.RUnlock()
 
-	/* get k8s clientset */
-	var clientSet *kubernetes.Clientset
-
-	//clientSet = getInClusterClientSet()
-	clientSet = getClientSet()
+	/* get K8s clientSet */
+	//clientSet := getInClusterClientSet()
+	clientSet := getClientSet()
 
 	/* Initialize StatefulSet PodInfos */
 	initializeStsPodInfos(clientSet)

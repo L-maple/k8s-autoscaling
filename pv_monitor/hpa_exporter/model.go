@@ -1,6 +1,9 @@
 package main
 
-import rs "github.com/k8s-autoscaling/pv_monitor/resource_statistics"
+import (
+	"fmt"
+	rs "github.com/k8s-autoscaling/pv_monitor/resource_statistics"
+)
 
 var (
 	/* HPA Finite State*/
@@ -34,10 +37,18 @@ func getHpaActivityState() int {
 		diskUtilizationSlice   = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilizationQuery())
 	}
 
-	//avgCpuUtilization    := getAvgFloat64Utilization(cpuUtilizations)
-	//avgMemoryUtilization := getAvgInt64Utilization(memoryUtilizations)
-	avgDiskUtilization     := getAvgFloat64Utilization(diskUtilizationSlice)
-	aboveNumber := getAboveUtilizationNumber(diskUtilizationSlice, 0.85)
+	// TODO: 设置稳定窗口
+	// 得到CPU的使用比率
+	avgCpuUtilization    := getAvgFloat64(cpuUtilizationSlice)
+
+	// 得到Memory的使用比率
+	avgMemoryUtilization := getAvgInt64(memoryUtilizationSlice)
+
+	fmt.Println("cpuUtilization: ", avgCpuUtilization)
+	fmt.Println("memoryUtilization: ", avgMemoryUtilization)
+
+	avgDiskUtilization    := getAvgFloat64(diskUtilizationSlice)
+	aboveNumber := getGreaterThanStone(diskUtilizationSlice, 0.85)
 	if podCounter - aboveNumber < 3 || avgDiskUtilization < 0.8 {
 		return ScaleUpState
 	}
