@@ -135,27 +135,27 @@ func Find(slice []string, val string) (int, bool) {
 	return -1, false
 }
 
-func getAvgFloat64Utilization(utilizations []float64) float64 {
+func getAvgFloat64Utilization(utilizationSlice []float64) float64 {
 	var utilizationSum float64 = 0
-	for _, utilization := range utilizations {
+	for _, utilization := range utilizationSlice {
 		utilizationSum += utilization
 	}
 
-	return utilizationSum / float64(len(utilizations))
+	return utilizationSum / float64(len(utilizationSlice))
 }
 
-func getAvgInt64Utilization(utilizations []int64) int64 {
+func getAvgInt64Utilization(utilizationSlice []int64) int64 {
 	var utilizationSum int64 = 0
-	for _, utilization := range utilizations {
+	for _, utilization := range utilizationSlice {
 		utilizationSum += utilization
 	}
 
-	return utilizationSum / int64(len(utilizations))
+	return utilizationSum / int64(len(utilizationSlice))
 }
 
-func getAboveUtilizationNumber(utilizations []float64, cmpUtilization float64) int {
+func getAboveUtilizationNumber(utilizationSlice []float64, cmpUtilization float64) int {
 	var num = 0
-	for _, utilization := range utilizations {
+	for _, utilization := range utilizationSlice {
 		if utilization > cmpUtilization {
 			num++
 		}
@@ -163,6 +163,4 @@ func getAboveUtilizationNumber(utilizations []float64, cmpUtilization float64) i
 
 	return num
 }
-
-/************************************************/
 

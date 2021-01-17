@@ -19,9 +19,9 @@ func getHpaActivityState() int {
 	podNameAndInfo := stsInfoGlobal.GetPodInfos()
 
 	podCounter := len(podNameAndInfo)
-	var cpuUtilizations    []float64
-	var memoryUtilizations []int64
-	var diskUtilizations   []float64
+	var cpuUtilizationSlice    []float64
+	var memoryUtilizationSlice []int64
+	var diskUtilizationSlice   []float64
 	for podName, _ := range podNameAndInfo {
 		podStatisticsObj := rs.PodStatistics{
 			Endpoint:  prometheusUrl,
@@ -29,15 +29,15 @@ func getHpaActivityState() int {
 			Namespace: namespaceName,
 		}
 
-		cpuUtilizations    = append(cpuUtilizations, podStatisticsObj.GetLastCpuUtilizationQuery())
-		memoryUtilizations = append(memoryUtilizations, podStatisticsObj.GetLastMemoryUtilizationQuery())
-		diskUtilizations   = append(diskUtilizations, podStatisticsObj.GetLastDiskUtilizationQuery())
+		cpuUtilizationSlice    = append(cpuUtilizationSlice, podStatisticsObj.GetLastCpuUtilizationQuery())
+		memoryUtilizationSlice = append(memoryUtilizationSlice, podStatisticsObj.GetLastMemoryUtilizationQuery())
+		diskUtilizationSlice   = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilizationQuery())
 	}
 
 	//avgCpuUtilization    := getAvgFloat64Utilization(cpuUtilizations)
 	//avgMemoryUtilization := getAvgInt64Utilization(memoryUtilizations)
-	avgDiskUtilization     := getAvgFloat64Utilization(diskUtilizations)
-	aboveNumber := getAboveUtilizationNumber(diskUtilizations, 0.85)
+	avgDiskUtilization     := getAvgFloat64Utilization(diskUtilizationSlice)
+	aboveNumber := getAboveUtilizationNumber(diskUtilizationSlice, 0.85)
 	if podCounter - aboveNumber < 3 || avgDiskUtilization < 0.8 {
 		return ScaleUpState
 	}
