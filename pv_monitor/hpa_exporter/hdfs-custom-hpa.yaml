@@ -15,6 +15,10 @@ spec:
     object:
       metric:
         name: whether_add_pod
+      describedObject:
+        apiVersion: app/v1
+        kind: Deployment
+        name: hpa-exporter-deployment
       target:
         type: Value
         Value: 1
