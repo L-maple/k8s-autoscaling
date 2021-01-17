@@ -18,8 +18,8 @@ spec:
         name: whether_add_pod
       describedObject:
         apiVersion: custom.metrics.k8s.io/v1beta1
-        kind: MetricValueList
-        name: pods/whether_add_pod  # kubectl get --raw="/apis/custom.metrics.k8s.io/v1beta1" | jq .
+        kind: "MetricValueList"
+        name: "pods/whether_add_pod"  # kubectl get --raw="/apis/custom.metrics.k8s.io/v1beta1" | jq .
       target:
         type: Value
         value: 1
