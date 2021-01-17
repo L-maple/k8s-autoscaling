@@ -141,6 +141,7 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 
 		for _, container := range pod.Spec.Containers {
 			fmt.Println(container.Name, container.Resources.Limits.Cpu().Value(), container.Resources.Limits.Memory().Value())
+			fmt.Println(container.Name, container.Resources.Requests.Cpu().Value(), container.Resources.Limits.Cpu().MilliValue())
 		}
 
 		/* get all pvc's pv info*/
