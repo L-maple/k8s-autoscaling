@@ -210,7 +210,7 @@ func ExposeAddPodMetric() {
 			if whetherAddPod {
 				addPodMetric.Set(0)
 			} else {
-				addPodMetric.Set(float64(len(stsInfoGlobal.PodInfos)))
+				addPodMetric.Set(1)
 			}
 			stsMutex.RUnlock()
 
@@ -306,7 +306,9 @@ func init() {
 func main() {
 	flag.Parse()
 
+	stsMutex.RLock()
 	stsInfoGlobal.Initialized = false
+	stsMutex.RUnlock()
 
 	/* get k8s clientset */
 	var clientSet *kubernetes.Clientset
