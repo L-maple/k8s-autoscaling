@@ -73,21 +73,41 @@ func (c *PodStatistics) GetAvgDiskUtilizationQuery() []interface{} {
 func (c *PodStatistics) GetLastCpuUtilizationQuery() float64 {
 	cpuTimeAndUtilizations := c.GetAvgCpuUtilizationQuery()
 
-	utilization := cpuTimeAndUtilizations[len(cpuTimeAndUtilizations) - 1].(float64)
-	return utilization
+	lastCpuTimeAndUtilization := cpuTimeAndUtilizations[len(cpuTimeAndUtilizations) - 1]
+	utilization := lastCpuTimeAndUtilization.([]interface{})[1].(string)
+
+	floatVal, err := strconv.ParseFloat(utilization, 64)
+	if err != nil {
+		log.Fatal("strconv.ParseFloat: ", err)
+	}
+
+	return floatVal
 }
 
 func (c *PodStatistics) GetLastMemoryUtilizationQuery() int64 {
 	memoryTimeAndUtilizations := c.GetAvgMemoryUtilizationQuery()
 
-	utilization := memoryTimeAndUtilizations[len(memoryTimeAndUtilizations) - 1].(int64)
-	return utilization
+	lastMemoryTimeAndUtilization := memoryTimeAndUtilizations[len(memoryTimeAndUtilizations) - 1]
+	utilization := lastMemoryTimeAndUtilization.([]interface{})[1].(string)
+
+	intVal, err := strconv.ParseInt(utilization, 10, 64)
+	if err != nil {
+		log.Fatal("strconv.ParseInt", err)
+	}
+
+	return intVal
 }
 
 func (c *PodStatistics) GetLastDiskUtilizationQuery() float64 {
 	diskTimeAndUtilizations := c.GetAvgDiskUtilizationQuery()
 
-	utilization := diskTimeAndUtilizations[len(diskTimeAndUtilizations) - 1].(float64)
-	return utilization
+	lastDiskTimeAndUtilization := diskTimeAndUtilizations[len(diskTimeAndUtilizations) - 1]
+	utilization := lastDiskTimeAndUtilization.([]interface{})[1].(string)
+
+	floatVal, err := strconv.ParseFloat(utilization, 64)
+	if err != nil {
+		log.Fatal("strconv.ParseFloat: ", err)
+	}
+	return floatVal
 }
 
