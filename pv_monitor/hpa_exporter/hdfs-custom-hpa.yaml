@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: hdfs-datanode-custom
@@ -20,7 +20,7 @@ spec:
         kind: Deployment
         name: hpa-exporter-deployment
       target:
-        kind: Value
+        type: Value
         value: 1
   behavior:
     scaleDown:
