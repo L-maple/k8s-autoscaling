@@ -306,6 +306,7 @@ func init() {
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
+	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 }
 
 func main() {
@@ -327,6 +328,6 @@ func main() {
 	/* Register grpc server */
 	RegisterPVRequestServer()
 
-	/* Set disk utilization metric & exposed at 30001 */
+	/* Set addPodMetric & exposed at 30001 */
 	ExposeAddPodMetric()
 }
