@@ -16,12 +16,12 @@ spec:
       metric:
         name: whether_add_pod
       describedObject:
-        apiVersion: app/v1
+        apiVersion: apps/v1
         kind: Deployment
         name: hpa-exporter-deployment
       target:
         kind: Value
-        Value: 1
+        value: 1
   behavior:
     scaleDown:
       # stabilizationWindowSeconds: 300
