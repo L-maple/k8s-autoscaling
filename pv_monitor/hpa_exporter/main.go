@@ -46,11 +46,6 @@ var (
 	/* global statefulSet's Pod info */
 	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
-
-	/* HPA Finite State*/
-	FREE_STATE    = 0
-	STRESS_STATE  = 1
-	SCALEUP_STATE = 2
 )
 
 
@@ -174,22 +169,6 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 	}
 }
 
-func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
-	for podName, podInfo := range stsInfo.GetPodInfos() {
-		fmt.Println(podName)
-
-		for _, pvcName := range podInfo.PVCNames {
-			fmt.Print(pvcName, " ")
-		}
-		fmt.Println()
-
-		for _, pvName := range podInfo.PVNames {
-			fmt.Print(pvName, " ")
-		}
-		fmt.Println()
-	}
-}
-
 func ExposeAddPodMetric() {
 	go func() {
 		for {
@@ -243,6 +222,25 @@ func RegisterPVRequestServer() {
 			log.Fatalf("failed to serve: %v", err)
 		}
 	}()
+}
+
+func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
+	for podName, podInfo := range stsInfo.GetPodInfos() {
+		fmt.Println(podName)
+
+		for _, pvcName := range podInfo.PVCNames {
+			fmt.Print(pvcName, " ")
+		}
+		fmt.Println()
+
+		for _, pvName := range podInfo.PVNames {
+			fmt.Print(pvName, " ")
+		}
+		fmt.Println()
+
+		fmt.Println("CpuMilliLimit: ", podInfo.CpuMilliLimit)
+		fmt.Println("MemoryByteLimit: ", podInfo.MemoryByteLimit)
+	}
 }
 
 func init() {

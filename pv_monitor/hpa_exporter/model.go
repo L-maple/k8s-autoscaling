@@ -2,13 +2,19 @@ package main
 
 import rs "github.com/k8s-autoscaling/pv_monitor/resource_statistics"
 
+var (
+	/* HPA Finite State*/
+	FreeState    = 0
+	StressState  = 1
+	ScaleUpState = 2
+)
 
 func getHpaActivityState() int {
 	stsMutex.RLock()
 	defer stsMutex.RUnlock()
 
 	if stsInfoGlobal.Initialized == false {
-		return FREE_STATE
+		return FreeState
 	}
 	podNameAndInfo := stsInfoGlobal.GetPodInfos()
 
@@ -33,9 +39,9 @@ func getHpaActivityState() int {
 	avgDiskUtilization     := getAvgFloat64Utilization(diskUtilizations)
 	aboveNumber := getAboveUtilizationNumber(diskUtilizations, 0.85)
 	if podCounter - aboveNumber < 3 || avgDiskUtilization < 0.8 {
-		return SCALEUP_STATE
+		return ScaleUpState
 	}
 
-	return FREE_STATE
+	return FreeState
 }
 
