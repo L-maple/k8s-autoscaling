@@ -5,8 +5,8 @@ package main
 type PodInfo struct {
 	PVCNames              []string
 	PVNames               []string
-	CpuLimit              int
-	MemoryLimit           int
+	CpuMilliLimit         int64
+	MemoryByteLimit       int64
 }
 
 func (p *PodInfo)AppendPVCName(PVCName string) {

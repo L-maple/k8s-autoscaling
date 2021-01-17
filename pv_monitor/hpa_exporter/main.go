@@ -20,7 +20,6 @@ import (
 	"time"
 
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
-	rs "github.com/k8s-autoscaling/pv_monitor/resource_statistics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -47,6 +46,11 @@ var (
 	/* global statefulSet's Pod info */
 	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
+
+	/* HPA Finite State*/
+	FREE_STATE    = 0
+	STRESS_STATE  = 1
+	SCALEUP_STATE = 2
 )
 
 
@@ -116,6 +120,7 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 
 	/* Search all pods' name in this statefulSetName */
 	for _, pod := range pods.Items {
+		cpuMilliLimit, memoryByteLimit := int64(0), int64(0)  /* sum the pod's cpu & memory limit */
 		podName, podLabels, found, podInfo := pod.Name, pod.Labels, false, PodInfo{}
 		for podLabelKey, podLabelValue := range podLabels {
 			if matchLabels[podLabelKey] == podLabelValue {
@@ -140,8 +145,8 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 		}
 
 		for _, container := range pod.Spec.Containers {
-			fmt.Println(container.Name, container.Resources.Limits.Cpu().Value(), container.Resources.Limits.Memory().Value())
-			fmt.Println(container.Name, container.Resources.Requests.Cpu().Value(), container.Resources.Limits.Cpu().MilliValue())
+			memoryByteLimit += container.Resources.Limits.Memory().Value()
+			cpuMilliLimit   += container.Resources.Limits.Cpu().MilliValue()
 		}
 
 		/* get all pvc's pv info*/
@@ -160,6 +165,8 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 
 		podInfo.PVCNames = pvcNames
 		podInfo.PVNames  = pvNames
+		podInfo.CpuMilliLimit = cpuMilliLimit
+		podInfo.MemoryByteLimit = memoryByteLimit
 
 		stsInfo.PodInfos[podName] = podInfo
 
@@ -187,15 +194,8 @@ func ExposeAddPodMetric() {
 	go func() {
 		for {
 			// TODO: build the forecast model
-			// TODO: compare current cpu/memory with Limit
-			whetherAddPod := judgeWhetherAddPod()
-			stsMutex.RLock()
-			if whetherAddPod {
-				addPodMetric.Set(1)
-			} else {
-				addPodMetric.Set(0)
-			}
-			stsMutex.RUnlock()
+			res := getHpaActivityState()
+			addPodMetric.Set(float64(res))
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 		}
@@ -203,42 +203,6 @@ func ExposeAddPodMetric() {
 
 	http.Handle("/metrics", promhttp.Handler())
 	_ = http.ListenAndServe(promPort, nil)
-}
-
-func judgeWhetherAddPod() bool {
-	stsMutex.RLock()
-	defer stsMutex.RUnlock()
-
-	if stsInfoGlobal.Initialized == false {
-		return false
-	}
-	podNameAndInfo := stsInfoGlobal.GetPodInfos()
-
-	podCounter := len(podNameAndInfo)
-	var cpuUtilizations    []float64
-	var memoryUtilizations []int64
-	var diskUtilizations   []float64
-	for podName, _ := range podNameAndInfo {
-		podStatisticsObj := rs.PodStatistics{
-			Endpoint:  prometheusUrl,
-			PodName:   podName,
-			Namespace: namespaceName,
-		}
-
-		cpuUtilizations    = append(cpuUtilizations, podStatisticsObj.GetLastCpuUtilizationQuery())
-		memoryUtilizations = append(memoryUtilizations, podStatisticsObj.GetLastMemoryUtilizationQuery())
-		diskUtilizations   = append(diskUtilizations, podStatisticsObj.GetLastDiskUtilizationQuery())
-	}
-
-	//avgCpuUtilization    := getAvgFloat64Utilization(cpuUtilizations)
-	//avgMemoryUtilization := getAvgInt64Utilization(memoryUtilizations)
-	avgDiskUtilization     := getAvgFloat64Utilization(diskUtilizations)
-	aboveNumber := getAboveUtilizationNumber(diskUtilizations, 0.85)
-	if podCounter - aboveNumber < 3 || avgDiskUtilization < 0.8 {
-		return true
-	}
-
-	return false
 }
 
 // 该函数从Kubernetes中获取信息，并初始化stsInfoGlobal对象
