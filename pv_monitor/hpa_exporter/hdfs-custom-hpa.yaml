@@ -1,3 +1,4 @@
+# https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.12/#objectmetricsource-v2beta2-autoscaling
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
