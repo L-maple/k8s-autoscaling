@@ -36,7 +36,7 @@ var (
 	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
 
 	/* prometheus endpoint: http://ip:port */
-	endpoint         string
+	prometheusUrl    string
 
 	/* metric name to expose */
 	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
@@ -240,7 +240,7 @@ func judgeWhetherAddPod() bool {
 	var diskUtilizations   []float64
 	for podName, _ := range podNameAndInfo {
 		podStatisticsObj := rs.PodStatistics{
-			Endpoint: endpoint,
+			Endpoint:  prometheusUrl,
 			PodName:   podName,
 			Namespace: namespaceName,
 		}
@@ -305,7 +305,7 @@ func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
-	flag.StringVar(&endpoint, "endpoint", "http://127.0.0.1:9090", "promethues url")
+	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 }
 
 func main() {
