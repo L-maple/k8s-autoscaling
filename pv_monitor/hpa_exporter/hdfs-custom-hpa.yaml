@@ -1,7 +1,7 @@
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: hdfs-datanode
+  name: hdfs-datanode-custom
   namespace: monitoring
 spec:
   scaleTargetRef:

@@ -211,9 +211,9 @@ func ExposeAddPodMetric() {
 			whetherAddPod := judgeWhetherAddPod()
 			stsMutex.RLock()
 			if whetherAddPod {
-				addPodMetric.Set(0)
-			} else {
 				addPodMetric.Set(1)
+			} else {
+				addPodMetric.Set(0)
 			}
 			stsMutex.RUnlock()
 
