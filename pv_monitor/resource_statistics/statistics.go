@@ -9,11 +9,12 @@ import (
 )
 
 type PodStatistics struct {
+	Endpoint           string   /* pod statistics' data source: http://ip:port */
 	PodName, Namespace string
 }
 
 func (c *PodStatistics) getUtilizationQuery(query string) []interface{}  {
-	curl := PromCurl{endpoint, namespace, nil}
+	curl := PromCurl{c.Endpoint, nil}
 	responseBody, err := curl.Get("/api/v1/query_range", goz.Options{
 		Query: map[string]interface{}{
 			"query": query,

@@ -8,9 +8,8 @@ import (
 
 // PromCurl: a struct used for Get prometheus http request
 type PromCurl struct {
-	// endpoint is url:port,
-	// namespace is the statefulSet/deployment's namespace
-	endpoint, namespace  string
+	// endpoint is url:port
+	endpoint  string
 
 	// httpClient is the singleton client
 	httpClient           *goz.Request
@@ -31,16 +30,3 @@ func (c *PromCurl) Get(path string, queryParams goz.Options) (goz.ResponseBody, 
 	return resp.GetBody()
 }
 
-
-type PromJsonParser struct {
-	
-}
-
-type PromRespContent struct {
-	Data    interface{}
-	Status  string
-}
-
-func (p *PromJsonParser) parser() {
-
-}

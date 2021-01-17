@@ -35,6 +35,9 @@ var (
 	promPort      = ":30001"     /* For whether_add_pod exporter */
 	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
 
+	/* prometheus endpoint: http://ip:port */
+	endpoint         string
+
 	/* metric name to expose */
 	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "whether_add_pod", // TODO: 命名不规范
@@ -237,6 +240,7 @@ func judgeWhetherAddPod() bool {
 	var diskUtilizations   []float64
 	for podName, _ := range podNameAndInfo {
 		podStatisticsObj := rs.PodStatistics{
+			Endpoint: endpoint,
 			PodName:   podName,
 			Namespace: namespaceName,
 		}
@@ -301,6 +305,7 @@ func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
+	flag.StringVar(&endpoint, "endpoint", "http://127.0.0.1:9090", "promethues url")
 }
 
 func main() {
