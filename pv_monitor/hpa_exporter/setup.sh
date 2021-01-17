@@ -21,10 +21,12 @@ docker push aliuchangjie/hpa_exporter
 echo "Step5: docker push SUCCESS."
 
 # 删除遗留的yaml部署资源
-kubectl delete -f hpa-exporter.yaml
+kubectl delete -f custom-hpa/hpa-exporter.yaml
+kubectl delete -f custom-hpa/hdfs-custom-hpa.yaml
 echo "Step6: kubectl delete SUCCESS."
 
 # 部署yaml文件
-kubectl apply -f hpa-exporter.yaml
+kubectl apply -f custom-hpa/hpa-exporter.yaml
+kubectl apply -f custom-hpa/hdfs-custom-hpa.yaml
 echo "Step7: kubectl apply SUCCESS."
 
