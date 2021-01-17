@@ -20,7 +20,7 @@ spec:
         kind: Deployment
         name: hpa-exporter-deployment
       target:
-        type: Value
+        kind: Value
         Value: 1
   behavior:
     scaleDown:
