@@ -40,7 +40,7 @@ var (
 	/* metric name to expose */
 	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "whether_add_pod", // TODO: 命名不规范
-		Help: "whether add pod, 0 or 1",
+		Help: "whether add pod, 0 - FreeState; 1 - StressState; 2 - ScaleUpState;",
 	})
 
 	/* global statefulSet's Pod info */
