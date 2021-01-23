@@ -29,10 +29,11 @@ spec:
       # stabilizationWindowSeconds: 300
       selectPolicy: Disabled   # 禁止缩容
     scaleUp:
-      stabilizationWindowSeconds: 100
-      policies:
-        - type: Pods
-          value: 3
-          periodSeconds: 20
+#      https://kubernetes:io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-custom-metrics:
+      stabilizationWindowSeconds: 15
+#      policies:
+#        - type: Pods
+#          value: 1
+#          periodSeconds: 20
       selectPolicy: Max
 
