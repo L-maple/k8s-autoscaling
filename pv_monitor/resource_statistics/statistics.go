@@ -45,11 +45,12 @@ func (c *PodStatistics) getUsageQuery(query string) []interface{}  {
 	return values.([]interface{})
 }
 
-func (c *PodStatistics) GetAvgCpuUsages() []interface{} {
-	query := "sum(rate(container_cpu_usage_seconds_total{" + "image!=\"\", " +
-			 "pod=" + "\""+ c.PodName +"\", namespace=\"" + c.Namespace +
-			 "\"}[1m]))"
-
+func (c *PodStatistics) GetAvgCpuUtilizations() []interface{} {
+	query := "sum(rate(container_cpu_usage_seconds_total{image!=\"\"," +
+			 "pod=" + "\"" + c.PodName + "\", namespace=\"" + c.Namespace +
+			 "\"}[1m])) / " +
+			 "sum(container_spec_cpu_quota{image!=\"\", pod=\"" + c.PodName + "\", namespace=\"" + c.Namespace + "\"} " +
+				"/ container_spec_cpu_period{image!=\"\", pod=\"" + c.PodName + "\", namespace=\"" +c.Namespace + "\"})"
 	result := c.getUsageQuery(query)
 	return result
 }
@@ -70,8 +71,8 @@ func (c *PodStatistics) GetAvgDiskUtilizations() []interface{} {
 	return result
 }
 
-func (c *PodStatistics) GetLastCpuUsage() float64 {
-	cpuTimeAndUtilizations := c.GetAvgCpuUsages()
+func (c *PodStatistics) GetLastCpuUtilization() float64 {
+	cpuTimeAndUtilizations := c.GetAvgCpuUtilizations()
 
 	lastCpuTimeAndUtilization := cpuTimeAndUtilizations[len(cpuTimeAndUtilizations) - 1]
 	utilization := lastCpuTimeAndUtilization.([]interface{})[1].(string)

@@ -27,11 +27,10 @@ func getHpaActivityState() int {
 		return FreeState
 	}
 	podNameAndInfo  := stsInfoGlobal.GetPodInfos()
-	cpumilliLimit   := stsInfoGlobal.GetCpuMilliLimit()
 	memoryByteLimit := stsInfoGlobal.GetMemoryByteLimit()
 
 	podCounter := len(podNameAndInfo)
-	var cpuUsageSlice          []float64
+	var cpuUtilizationSlice    []float64
 	var memoryUsageSlice       []int64
 	var diskUtilizationSlice   []float64
 	for podName, _ := range podNameAndInfo {
@@ -41,16 +40,14 @@ func getHpaActivityState() int {
 			Namespace: namespaceName,
 		}
 
-		cpuUsageSlice        = append(cpuUsageSlice, podStatisticsObj.GetLastCpuUsage())
+		cpuUtilizationSlice  = append(cpuUtilizationSlice, podStatisticsObj.GetLastCpuUtilization())
 		memoryUsageSlice     = append(memoryUsageSlice, podStatisticsObj.GetLastMemoryUsage())
 		diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 	}
 
 	// TODO: 设置稳定窗口计时器
 	// 得到CPU的平均使用量
-	avgCpuUsage    := getAvgFloat64(cpuUsageSlice)
-	fmt.Println("avgCpuUsage: ", avgCpuUsage)
-	avgCpuUtilization := avgCpuUsage / float64(cpumilliLimit)
+	avgCpuUtilization    := getAvgFloat64(cpuUtilizationSlice)
 
 	// 得到Memory的平均使用量
 	avgMemoryUsage := getAvgInt64(memoryUsageSlice)

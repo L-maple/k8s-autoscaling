@@ -1,5 +1,7 @@
 package statistics
 
+import "fmt"
+
 func main() {
 	podStatistics := PodStatistics{
 		Endpoint:  "http://localhost:9090",
@@ -9,4 +11,5 @@ func main() {
 
 	podStatistics.GetLastDiskUtilization()
 	podStatistics.GetLastMemoryUsage()
+	fmt.Println(podStatistics.GetLastCpuUtilization())
 }
