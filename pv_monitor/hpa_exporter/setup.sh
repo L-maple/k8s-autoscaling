@@ -1,5 +1,8 @@
 #! /bin/sh
 
+# Git pull
+git pull
+
 # 删除遗留的可执行文件
 rm -rf hpa_exporter
 echo "Step1: rm SUCCESS."
