@@ -62,6 +62,32 @@ func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
 
 	return stsInfo
 }
+func (s *StatefulSetInfo) GetCpuMilliLimit() int64 {
+	var cpuMilliLimit int64 = 1 << 31 - 1
+
+	if s.Initialized == false || len(s.PodInfos) == 0 {
+		return cpuMilliLimit
+	}
+
+	for _, podInfo := range s.PodInfos {
+		cpuMilliLimit = podInfo.CpuMilliLimit
+		break
+	}
+	return cpuMilliLimit
+}
+func (s *StatefulSetInfo) GetMemoryByteLimit() int64 {
+	var memoryByteLimit int64 = 1 << 63 - 1
+
+	if s.Initialized == false || len(s.PodInfos) == 0 {
+		return memoryByteLimit
+	}
+
+	for _, podInfo := range s.PodInfos {
+		memoryByteLimit = podInfo.MemoryByteLimit
+		break
+	}
+	return memoryByteLimit
+}
 func (s *StatefulSetInfo) GetStatefulSetName() string {
 	return s.StatefulSetName
 }

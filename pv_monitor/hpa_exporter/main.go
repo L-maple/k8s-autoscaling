@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -199,8 +198,7 @@ func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 			/* Set statefulSet's podInfos */
 			setStatefulSetPodInfos(clientSet, pods, namespaceName, statefulsetName, &stsInfo)
 
-			printStatefulSetPodInfos(stsInfo)
-
+			//printStatefulSetPodInfos(stsInfo)
 			stsMutex.Lock()
 			stsInfoGlobal = stsInfo
 			stsMutex.Unlock()
@@ -224,24 +222,6 @@ func RegisterPVRequestServer() {
 	}()
 }
 
-func printStatefulSetPodInfos(stsInfo StatefulSetInfo) {
-	for podName, podInfo := range stsInfo.GetPodInfos() {
-		fmt.Println(podName)
-
-		for _, pvcName := range podInfo.PVCNames {
-			fmt.Print(pvcName, " ")
-		}
-		fmt.Println()
-
-		for _, pvName := range podInfo.PVNames {
-			fmt.Print(pvName, " ")
-		}
-		fmt.Println()
-
-		fmt.Println("CpuMilliLimit: ", podInfo.CpuMilliLimit)
-		fmt.Println("MemoryByteLimit: ", podInfo.MemoryByteLimit)
-	}
-}
 
 func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")

@@ -13,7 +13,7 @@ type PodStatistics struct {
 	PodName, Namespace string
 }
 
-func (c *PodStatistics) getUtilizationQuery(query string) []interface{}  {
+func (c *PodStatistics) getUsageQuery(query string) []interface{}  {
 	curl := PromCurl{c.Endpoint, nil}
 	responseBody, err := curl.Get("/api/v1/query_range", goz.Options{
 		Query: map[string]interface{}{
@@ -45,33 +45,33 @@ func (c *PodStatistics) getUtilizationQuery(query string) []interface{}  {
 	return values.([]interface{})
 }
 
-func (c *PodStatistics) GetAvgCpuUtilizationQuery() []interface{} {
+func (c *PodStatistics) GetAvgCpuUsages() []interface{} {
 	query := "sum(rate(container_cpu_usage_seconds_total{" + "image!=\"\", " +
 			 "pod=" + "\""+ c.PodName +"\", namespace=\"" + c.Namespace +
 			 "\"}[1m]))"
 
-	result := c.getUtilizationQuery(query)
+	result := c.getUsageQuery(query)
 	return result
 }
 
-func (c *PodStatistics) GetAvgMemoryUtilizationQuery() []interface{} {
+func (c *PodStatistics) GetAvgMemoryUsages() []interface{} {
 	query := "sum(container_memory_rss{" + "image!=\"\", " +
 		"pod=" + "\""+ c.PodName +"\", namespace=\"" + c.Namespace +
 		"\"})"
 
-	result := c.getUtilizationQuery(query)
+	result := c.getUsageQuery(query)
 	return result
 }
 
-func (c *PodStatistics) GetAvgDiskUtilizationQuery() []interface{} {
+func (c *PodStatistics) GetAvgDiskUtilizations() []interface{} {
 	query := "disk_utilization{pod=" + "\"" + c.PodName +  "\", namespace=\"" + c.Namespace + "\"}"
 
-	result := c.getUtilizationQuery(query)
+	result := c.getUsageQuery(query)
 	return result
 }
 
-func (c *PodStatistics) GetLastCpuUtilizationQuery() float64 {
-	cpuTimeAndUtilizations := c.GetAvgCpuUtilizationQuery()
+func (c *PodStatistics) GetLastCpuUsage() float64 {
+	cpuTimeAndUtilizations := c.GetAvgCpuUsages()
 
 	lastCpuTimeAndUtilization := cpuTimeAndUtilizations[len(cpuTimeAndUtilizations) - 1]
 	utilization := lastCpuTimeAndUtilization.([]interface{})[1].(string)
@@ -84,8 +84,8 @@ func (c *PodStatistics) GetLastCpuUtilizationQuery() float64 {
 	return floatVal
 }
 
-func (c *PodStatistics) GetLastMemoryUtilizationQuery() int64 {
-	memoryTimeAndUtilizations := c.GetAvgMemoryUtilizationQuery()
+func (c *PodStatistics) GetLastMemoryUsage() int64 {
+	memoryTimeAndUtilizations := c.GetAvgMemoryUsages()
 
 	lastMemoryTimeAndUtilization := memoryTimeAndUtilizations[len(memoryTimeAndUtilizations) - 1]
 	utilization := lastMemoryTimeAndUtilization.([]interface{})[1].(string)
@@ -98,8 +98,8 @@ func (c *PodStatistics) GetLastMemoryUtilizationQuery() int64 {
 	return intVal
 }
 
-func (c *PodStatistics) GetLastDiskUtilizationQuery() float64 {
-	diskTimeAndUtilizations := c.GetAvgDiskUtilizationQuery()
+func (c *PodStatistics) GetLastDiskUtilization() float64 {
+	diskTimeAndUtilizations := c.GetAvgDiskUtilizations()
 
 	lastDiskTimeAndUtilization := diskTimeAndUtilizations[len(diskTimeAndUtilizations) - 1]
 	utilization := lastDiskTimeAndUtilization.([]interface{})[1].(string)
