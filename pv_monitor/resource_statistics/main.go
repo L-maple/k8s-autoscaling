@@ -7,6 +7,6 @@ func main() {
 		Namespace: "monitoring",
 	}
 
-	podStatistics.GetLastDiskUtilizationQuery()
-	podStatistics.GetLastMemoryUtilizationQuery()
+	podStatistics.GetLastDiskUtilization()
+	podStatistics.GetLastMemoryUsage()
 }
