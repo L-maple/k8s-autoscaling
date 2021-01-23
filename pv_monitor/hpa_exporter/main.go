@@ -227,8 +227,8 @@ func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
-	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
-	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
+	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
+	flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 }
 
 func main() {
@@ -239,8 +239,8 @@ func main() {
 	stsMutex.RUnlock()
 
 	/* get K8s clientSet */
-	clientSet := getInClusterClientSet()
-	//clientSet := getClientSet()
+	//clientSet := getInClusterClientSet()
+	clientSet := getClientSet()
 
 	/* Initialize StatefulSet PodInfos */
 	initializeStsPodInfos(clientSet)
