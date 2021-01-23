@@ -49,6 +49,7 @@ func getHpaActivityState() int {
 	// TODO: 设置稳定窗口计时器
 	// 得到CPU的平均使用量
 	avgCpuUsage    := getAvgFloat64(cpuUsageSlice)
+	fmt.Println("avgCpuUsage: ", avgCpuUsage)
 	avgCpuUtilization := avgCpuUsage / float64(cpumilliLimit)
 
 	// 得到Memory的平均使用量
@@ -56,11 +57,11 @@ func getHpaActivityState() int {
 	avgMemoryUtilization := float64(avgMemoryUsage) / float64(memoryByteLimit)
 
 	avgDiskUtilization    := getAvgFloat64(diskUtilizationSlice)
-	aboveNumber := getGreaterThanStone(diskUtilizationSlice, 0.85)
+	aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.85)
 
-	printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization, podCounter, aboveNumber)
+	printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization, podCounter, aboveCeilingNumber)
 
-	if podCounter - aboveNumber < ReplicasAmount || avgDiskUtilization > 0.8 {
+	if podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization > 0.8 {
 		return ScaleUpState
 	}
 
@@ -68,15 +69,15 @@ func getHpaActivityState() int {
 }
 
 func printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization float64,
-						podCounter, aboveNumber int) {
+						podCounter, aboveCeilingNumber int) {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
 	printStatefulSetState(&stsInfoGlobal)
 
-	fmt.Printf("avgCpuUtilization: %-30.3f, avgMemoryUtilization: %-30.3f, avgDiskUtilization: %-30.3f\n",
+	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
-	fmt.Printf("pod Numbers: %d, aboveNumber: %d\n", podCounter, aboveNumber)
+	fmt.Printf("pod Numbers: %d, aboveCeilingNumber: %d\n", podCounter, aboveCeilingNumber)
 	fmt.Printf("====================================\n\n")
 }
 
