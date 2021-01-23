@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: hdfs-datanode
@@ -13,5 +13,32 @@ spec:
   metrics:
   - type: Pods
     pods:
-      metricName: directory_size
-      targetAverageValue: 90000
+      metric:
+        name: disk_utilization
+      target: 
+        type: AverageValue
+        averageValue: 0.5
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 90
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      # stabilizationWindowSeconds: 300
+      selectPolicy: Disabled   # 禁止缩容
+    scaleUp:
+      stabilizationWindowSeconds: 100
+      policies:
+      - type: Pods
+        value: 3
+        periodSeconds: 20
+      selectPolicy: Max
+
