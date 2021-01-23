@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -174,7 +173,6 @@ func ExposeAddPodMetric() {
 		for {
 			// TODO: build the forecast model
 			res := getHpaActivityState()
-			fmt.Println("res: ", res)
 			addPodMetric.Set(float64(res))
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)

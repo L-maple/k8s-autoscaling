@@ -19,10 +19,11 @@ var (
 func getHpaActivityState() int {
 	stsMutex.RLock()
 	defer stsMutex.RUnlock()
+
+	fmt.Println("stsInfoGlobal.Initialized: ", stsInfoGlobal.Initialized)
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState
 	if stsInfoGlobal.Initialized == false {
-		fmt.Println("stsInfoGlobal.Initialized: ", stsInfoGlobal.Initialized)
-		printStatefulSetState(stsInfoGlobal)
+		printStatefulSetState(&stsInfoGlobal)
 		return FreeState
 	}
 	podNameAndInfo  := stsInfoGlobal.GetPodInfos()
@@ -70,10 +71,8 @@ func printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilizati
 						podCounter, aboveNumber int) {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
-	stsMutex.RLock()
-	stsTmp := stsInfoGlobal
-	stsMutex.RUnlock()
-	printStatefulSetState(stsTmp)
+
+	printStatefulSetState(&stsInfoGlobal)
 
 	fmt.Printf("avgCpuUtilization: %-30.3f, avgMemoryUtilization: %-30.3f, avgDiskUtilization: %-30.3f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
@@ -81,7 +80,7 @@ func printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilizati
 	fmt.Printf("====================================\n\n")
 }
 
-func printStatefulSetState(stsInfo StatefulSetInfo) {
+func printStatefulSetState(stsInfo *StatefulSetInfo) {
 	fmt.Printf("%-40s, %-40s, %-40s\n", "PodName", "PvcName", "PvName")
 	for podName, podInfo := range stsInfo.GetPodInfos() {
 		fmt.Printf("%-40s ", podName)
