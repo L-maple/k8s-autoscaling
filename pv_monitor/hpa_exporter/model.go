@@ -18,14 +18,16 @@ var (
 
 func getHpaActivityState() int {
 	stsMutex.RLock()
+	defer stsMutex.RUnlock()
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState
 	if stsInfoGlobal.Initialized == false {
+		fmt.Println("stsInfoGlobal.Initialized: ", stsInfoGlobal.Initialized)
+		printStatefulSetState(stsInfoGlobal)
 		return FreeState
 	}
 	podNameAndInfo  := stsInfoGlobal.GetPodInfos()
 	cpumilliLimit   := stsInfoGlobal.GetCpuMilliLimit()
 	memoryByteLimit := stsInfoGlobal.GetMemoryByteLimit()
-	stsMutex.RUnlock()
 
 	podCounter := len(podNameAndInfo)
 	var cpuUsageSlice          []float64
@@ -43,7 +45,7 @@ func getHpaActivityState() int {
 		diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 	}
 
-	// TODO: 设置稳定窗口
+	// TODO: 设置稳定窗口计时器
 	// 得到CPU的平均使用量
 	avgCpuUsage    := getAvgFloat64(cpuUsageSlice)
 	avgCpuUtilization := avgCpuUsage / float64(cpumilliLimit)

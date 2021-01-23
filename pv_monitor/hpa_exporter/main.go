@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -163,9 +164,9 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 		podInfo.MemoryByteLimit = memoryByteLimit
 
 		stsInfo.PodInfos[podName] = podInfo
-
-		stsInfo.Initialized = true
 	}
+
+	stsInfo.Initialized = true
 }
 
 func ExposeAddPodMetric() {
@@ -173,6 +174,7 @@ func ExposeAddPodMetric() {
 		for {
 			// TODO: build the forecast model
 			res := getHpaActivityState()
+			fmt.Println("res: ", res)
 			addPodMetric.Set(float64(res))
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
