@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
@@ -62,7 +61,10 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
-	fmt.Println(diskUtilization)
+	if diskUtilization == "" {
+		log.Println("diskUtilization is empty", p.args)
+		return -1.0, nil
+	}
 
 	utilization, err := strconv.ParseFloat(diskUtilization, 64)
 	if err != nil {
@@ -78,7 +80,10 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
-	fmt.Println(diskIOPS)
+	if diskIOPS == "" {
+		log.Println("diskIOPS is empty", p.args)
+		return -1.0, nil
+	}
 
 	iops, err := strconv.ParseFloat(diskIOPS, 64)
 	if err != nil {
@@ -94,7 +99,10 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
-	fmt.Println(diskReadKbps)
+	if diskReadKbps == "" {
+		log.Println("diskReadKbps is empty", p.args)
+		return -1.0, nil
+	}
 
 	readKbps, err := strconv.ParseFloat(diskReadKbps, 64)
 	if err != nil {
@@ -111,7 +119,10 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
-	fmt.Println(diskWriteKbps)
+	if diskWriteKbps == "" {
+		log.Println("diskWriteKbps is empty", p.args)
+		return -1.0, nil
+	}
 
 	writeKbps, err := strconv.ParseFloat(diskWriteKbps, 64)
 	if err != nil {
