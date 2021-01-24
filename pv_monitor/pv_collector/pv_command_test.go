@@ -6,9 +6,9 @@ import (
 
 func TestGetDiskWriteMBPSWithTarget(t *testing.T) {
 	target := "centos-root"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_write_kbps.sh"}, target}
 
-	if writeMbps, err := pvCmd.getDiskWriteMBPS(target); err != nil {
+	if writeMbps, err := pvCmd.getDiskWriteMBPS(); err != nil {
 		t.Error("pvCmd.getDiskWriteMBPS error, target: ", target)
 	} else {
 		t.Log("DiskWriteMBPS: ", writeMbps)
@@ -17,9 +17,9 @@ func TestGetDiskWriteMBPSWithTarget(t *testing.T) {
 
 func TestGetDiskWriteMBPSWithoutTarget(t *testing.T) {
 	target := "hello-world"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_write_kbps.sh"}, target}
 
-	if writeMbps, err := pvCmd.getDiskWriteMBPS(target); err != nil {
+	if writeMbps, err := pvCmd.getDiskWriteMBPS(); err != nil {
 		t.Error("pvCmd.getDiskWriteMBPS error, target: ", target)
 	} else {
 		t.Log("DiskWriteMBPS: ", writeMbps)
@@ -28,9 +28,9 @@ func TestGetDiskWriteMBPSWithoutTarget(t *testing.T) {
 
 func TestGetDiskReadMBPSWithTarget(t *testing.T) {
 	target := "centos-root"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_read_kbps.sh"}, target}
 
-	if readMbps, err := pvCmd.getDiskReadMBPS(target); err != nil {
+	if readMbps, err := pvCmd.getDiskReadMBPS(); err != nil {
 		t.Error("pvCmd.getDiskReadMBPS error, target: ", target)
 	} else {
 		t.Log("DiskReadMBPS: ", readMbps)
@@ -39,9 +39,9 @@ func TestGetDiskReadMBPSWithTarget(t *testing.T) {
 
 func TestGetDiskReadMBPSWithoutTarget(t *testing.T) {
 	target := "hello_world"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_read_kbps.sh"}, target}
 
-	if readMbps, err := pvCmd.getDiskReadMBPS(target); err != nil {
+	if readMbps, err := pvCmd.getDiskReadMBPS(); err != nil {
 		t.Error("pvCmd.getDiskReadMBPS error, target: ", target)
 	} else {
 		t.Log("DiskReadMBPS: ", readMbps)
@@ -50,9 +50,9 @@ func TestGetDiskReadMBPSWithoutTarget(t *testing.T) {
 
 func TestGetDiskIOPSWithTarget(t *testing.T) {
 	target := "centos-root"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_iops.sh"}, target}
 
-	if iops, err := pvCmd.getDiskIOPS(target); err != nil {
+	if iops, err := pvCmd.getDiskIOPS(); err != nil {
 		t.Error("pvCmd.getDiskIOPS error, target: ", target)
 	} else {
 		t.Log("DiskIOPS: ", iops)
@@ -61,9 +61,9 @@ func TestGetDiskIOPSWithTarget(t *testing.T) {
 
 func TestGetDiskIOPSWithoutTarget(t *testing.T) {
 	target := "hello_world"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_iops.sh"}, target}
 
-	if iops, err := pvCmd.getDiskIOPS(target); err != nil {
+	if iops, err := pvCmd.getDiskIOPS(); err != nil {
 		t.Error("pvCmd.getDiskIOPS error, target: ", target)
 	} else {
 		t.Log("DiskIOPS: ", iops)
@@ -72,9 +72,9 @@ func TestGetDiskIOPSWithoutTarget(t *testing.T) {
 
 func TestGetDiskUtilizationWithTarget(t *testing.T) {
 	target := "centos-root"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_utilization.sh"}, target}
 
-	if utilization, err := pvCmd.getDiskUtilization(target); err != nil {
+	if utilization, err := pvCmd.getDiskUtilization(); err != nil {
 		t.Error("pvCmd.getDiskUtilization error, target: ", target)
 	} else {
 		t.Log("DiskUtilization: ", utilization)
@@ -83,11 +83,12 @@ func TestGetDiskUtilizationWithTarget(t *testing.T) {
 
 func TestGetDiskUtilizationWithoutTarget(t *testing.T) {
 	target := "hello_world"
-	pvCmd := PVCommand{Command{}, target}
+	pvCmd := PVCommand{Command{CmdPath: "./scripts/disk_utilization.sh"}, target}
 
-	if utilization, err := pvCmd.getDiskIOPS(target); err != nil {
+	if utilization, err := pvCmd.getDiskIOPS(); err != nil {
 		t.Error("pvCmd.getDiskUtilization error, target: ", target)
 	} else {
 		t.Log("DiskUtilization: ", utilization)
 	}
 }
+

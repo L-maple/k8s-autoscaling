@@ -12,10 +12,15 @@ import (
  * struct command, which represent a linux shell wrapper;
  * struct command has a method: execute, which is used to execute the strcmd;
  */
-type Command struct{}
-func (c *Command) execute(cmdstr string, target string) (string, error) {
-	cmd := exec.Command(cmdstr, target)
+type Command struct{
+	CmdPath string
+}
+func (c *Command) execute(args string) (string, error) {
+	if c.CmdPath == "" {
+		c.CmdPath = "/bin/bash"
+	}
 
+	cmd := exec.Command(c.CmdPath, args)
 	/* Create the command pipe */
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -46,12 +51,12 @@ func (c *Command) execute(cmdstr string, target string) (string, error) {
 
 type PVCommand struct{
 	cmd       Command
-	target    string
+	args      string
 }
-func (p *PVCommand) getDiskUtilization(diskUtilizationScript string) (float64, error) {
-	diskUtilization, err := p.cmd.execute(diskUtilizationScript, p.target)
+func (p *PVCommand) getDiskUtilization() (float64, error) {
+	diskUtilization, err := p.cmd.execute(p.args)
 	if err != nil {
-		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
+		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
 	slices := strings.Split(diskUtilization, "\n")
@@ -68,10 +73,10 @@ func (p *PVCommand) getDiskUtilization(diskUtilizationScript string) (float64, e
 
 	return utilization, err
 }
-func (p *PVCommand) getDiskIOPS(diskIOPSScript string) (float64, error) {
-	diskIOPS, err := p.cmd.execute(diskIOPSScript, p.target)
+func (p *PVCommand) getDiskIOPS() (float64, error) {
+	diskIOPS, err := p.cmd.execute(p.args)
 	if err != nil {
-		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
+		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
 	slices := strings.Split(diskIOPS, "\n")
@@ -88,10 +93,10 @@ func (p *PVCommand) getDiskIOPS(diskIOPSScript string) (float64, error) {
 
 	return iops, err
 }
-func (p *PVCommand) getDiskReadMBPS(diskReadKbpsScript string) (float64, error) {
-	diskReadKbps, err := p.cmd.execute(diskReadKbpsScript, p.target)
+func (p *PVCommand) getDiskReadMBPS() (float64, error) {
+	diskReadKbps, err := p.cmd.execute(p.args)
 	if err != nil {
-		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
+		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
 	slices := strings.Split(diskReadKbps, "\n")
@@ -109,10 +114,10 @@ func (p *PVCommand) getDiskReadMBPS(diskReadKbpsScript string) (float64, error) 
 
 	return readMbps, err
 }
-func (p *PVCommand) getDiskWriteMBPS(diskWriteKbpsScript string) (float64, error) {
-	diskWriteKbps, err := p.cmd.execute(diskWriteKbpsScript, p.target)
+func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
+	diskWriteKbps, err := p.cmd.execute(p.args)
 	if err != nil {
-		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
+		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
 	slices := strings.Split(diskWriteKbps, "\n")
