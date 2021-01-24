@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ func TestGetDiskWriteMBPSWithTarget(t *testing.T) {
 	if writeMbps, err := pvCmd.getDiskWriteMBPS(); err != nil {
 		t.Error("pvCmd.getDiskWriteMBPS error, target: ", target)
 	} else {
-		t.Log("DiskWriteMBPS: ", writeMbps)
+		fmt.Println("DiskWriteMBPS: ", writeMbps)
 	}
 }
 
@@ -22,7 +23,7 @@ func TestGetDiskWriteMBPSWithoutTarget(t *testing.T) {
 	if writeMbps, err := pvCmd.getDiskWriteMBPS(); err != nil {
 		t.Error("pvCmd.getDiskWriteMBPS error, target: ", target)
 	} else {
-		t.Log("DiskWriteMBPS: ", writeMbps)
+		fmt.Println("DiskWriteMBPS: ", writeMbps)
 	}
 }
 
@@ -33,7 +34,7 @@ func TestGetDiskReadMBPSWithTarget(t *testing.T) {
 	if readMbps, err := pvCmd.getDiskReadMBPS(); err != nil {
 		t.Error("pvCmd.getDiskReadMBPS error, target: ", target)
 	} else {
-		t.Log("DiskReadMBPS: ", readMbps)
+		fmt.Println("DiskReadMBPS: ", readMbps)
 	}
 }
 
@@ -44,7 +45,7 @@ func TestGetDiskReadMBPSWithoutTarget(t *testing.T) {
 	if readMbps, err := pvCmd.getDiskReadMBPS(); err != nil {
 		t.Error("pvCmd.getDiskReadMBPS error, target: ", target)
 	} else {
-		t.Log("DiskReadMBPS: ", readMbps)
+		fmt.Println("DiskReadMBPS: ", readMbps)
 	}
 }
 
@@ -55,7 +56,7 @@ func TestGetDiskIOPSWithTarget(t *testing.T) {
 	if iops, err := pvCmd.getDiskIOPS(); err != nil {
 		t.Error("pvCmd.getDiskIOPS error, target: ", target)
 	} else {
-		t.Log("DiskIOPS: ", iops)
+		fmt.Println("DiskIOPS: ", iops)
 	}
 }
 
@@ -66,7 +67,7 @@ func TestGetDiskIOPSWithoutTarget(t *testing.T) {
 	if iops, err := pvCmd.getDiskIOPS(); err != nil {
 		t.Error("pvCmd.getDiskIOPS error, target: ", target)
 	} else {
-		t.Log("DiskIOPS: ", iops)
+		fmt.Println("DiskIOPS: ", iops)
 	}
 }
 
@@ -77,7 +78,7 @@ func TestGetDiskUtilizationWithTarget(t *testing.T) {
 	if utilization, err := pvCmd.getDiskUtilization(); err != nil {
 		t.Error("pvCmd.getDiskUtilization error, target: ", target)
 	} else {
-		t.Log("DiskUtilization: ", utilization)
+		fmt.Println("DiskUtilization: ", utilization)
 	}
 }
 
@@ -88,7 +89,7 @@ func TestGetDiskUtilizationWithoutTarget(t *testing.T) {
 	if utilization, err := pvCmd.getDiskIOPS(); err != nil {
 		t.Error("pvCmd.getDiskUtilization error, target: ", target)
 	} else {
-		t.Log("DiskUtilization: ", utilization)
+		fmt.Println("DiskUtilization: ", utilization)
 	}
 }
 

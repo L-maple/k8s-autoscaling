@@ -124,7 +124,6 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 		return 0.0, err
 	}
 	if diskWriteKbps == "" {
-		log.Println("diskWriteKbps is empty", p.args)
 		return -1.0, nil
 	}
 
