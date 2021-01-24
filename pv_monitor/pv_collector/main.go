@@ -47,7 +47,6 @@ func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) 
 		return []string{}, err
 	}
 	targets := resp.PvNames
-	fmt.Println("targets from grpc: ", targets)
 
 	return targets, nil
 }
@@ -84,13 +83,13 @@ func handlePVMetricsWithScripts(target string) {
 	}
 	fmt.Println(diskIOPS)
 
-	diskReadKbps, err := pvCmd.getDiskReadKBPS(diskReadKbpsScript)
+	diskReadKbps, err := pvCmd.getDiskReadMBPS(diskReadKbpsScript)
 	if err != nil {
 		log.Fatal("pvCmd.getDiskReadKBPS: ", err)
 	}
 	fmt.Println(diskReadKbps)
 
-	diskWriteKbps, err := pvCmd.getDiskWriteKBPS(diskWriteKbpsScript)
+	diskWriteKbps, err := pvCmd.getDiskWriteMBPS(diskWriteKbpsScript)
 	if err != nil {
 		log.Fatal("pvCmd.getDiskWriteKBPS: ", err)
 	}
@@ -98,7 +97,7 @@ func handlePVMetricsWithScripts(target string) {
 }
 
 func init() {
-	flag.IntVar(&intervalTime, "s", 15, "collector interval")
+	flag.IntVar(&intervalTime, "s", 10, "collector interval")
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
 }
 

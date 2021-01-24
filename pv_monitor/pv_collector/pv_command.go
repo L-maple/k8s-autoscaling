@@ -88,7 +88,7 @@ func (p *PVCommand) getDiskIOPS(diskIOPSScript string) (float64, error) {
 
 	return iops, err
 }
-func (p *PVCommand) getDiskReadKBPS(diskReadKbpsScript string) (float64, error) {
+func (p *PVCommand) getDiskReadMBPS(diskReadKbpsScript string) (float64, error) {
 	diskReadKbps, err := p.cmd.execute(diskReadKbpsScript, p.target)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
@@ -105,10 +105,11 @@ func (p *PVCommand) getDiskReadKBPS(diskReadKbpsScript string) (float64, error) 
 		log.Println("strconv.Atoi error: ", err)
 		return 0.0, err
 	}
+	readMbps := readKbps / 1024
 
-	return readKbps, err
+	return readMbps, err
 }
-func (p *PVCommand) getDiskWriteKBPS(diskWriteKbpsScript string) (float64, error) {
+func (p *PVCommand) getDiskWriteMBPS(diskWriteKbpsScript string) (float64, error) {
 	diskWriteKbps, err := p.cmd.execute(diskWriteKbpsScript, p.target)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", p.target, " not found!")
@@ -125,6 +126,7 @@ func (p *PVCommand) getDiskWriteKBPS(diskWriteKbpsScript string) (float64, error
 		log.Println("strconv.Atoi error: ", err)
 		return 0.0, err
 	}
+	writeMbps := writeKbps / 1024
 
-	return writeKbps, err
+	return writeMbps, err
 }
