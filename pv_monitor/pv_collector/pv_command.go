@@ -15,6 +15,9 @@ import (
 type Command struct{
 	CmdPath string
 }
+func (c *Command) initializeCmdPath(cmdPath string) {
+	c.CmdPath = cmdPath
+}
 func (c *Command) execute(args string) (string, error) {
 	if c.CmdPath == "" {
 		c.CmdPath = "/bin/bash"

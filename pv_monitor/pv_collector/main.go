@@ -69,7 +69,8 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 func handlePVMetricsWithScripts(target string) {
 	pvCmd := PVCommand{Command{}, target}
 
-	diskUtilization, err := pvCmd.getDiskUtilization(diskUtilizationScript)
+	pvCmd.cmd.initializeCmdPath(diskUtilizationScript)
+	diskUtilization, err := pvCmd.getDiskUtilization()
 	if err != nil {
 		log.Fatal("pvCmd.getDiskUtilization: ", err)
 	}
@@ -77,23 +78,26 @@ func handlePVMetricsWithScripts(target string) {
 
 	// FIXME: 对target进行处理才能调用iostat命令
 	// 比如: lvm-43c80d34-b593-4f7d-b7bf-a45c8f4fdf05 的 设备名为 centos-lvm--43c80d34--b593--4f7d--b7bf--a45c8f4fdf05
-	diskIOPS, err := pvCmd.getDiskIOPS(diskIOPSScript)
+	pvCmd.cmd.initializeCmdPath(diskIOPSScript)
+	diskIOPS, err := pvCmd.getDiskIOPS()
 	if err != nil {
 		log.Fatal("pvCmd.getDiskIOPS: ", err)
 	}
 	fmt.Println(diskIOPS)
 
-	diskReadKbps, err := pvCmd.getDiskReadMBPS(diskReadKbpsScript)
+	pvCmd.cmd.initializeCmdPath(diskReadKbpsScript)
+	diskReadMbps, err := pvCmd.getDiskReadMBPS()
 	if err != nil {
-		log.Fatal("pvCmd.getDiskReadKBPS: ", err)
+		log.Fatal("pvCmd.getDiskReadMBPS: ", err)
 	}
-	fmt.Println(diskReadKbps)
+	fmt.Println(diskReadMbps)
 
-	diskWriteKbps, err := pvCmd.getDiskWriteMBPS(diskWriteKbpsScript)
+	pvCmd.cmd.initializeCmdPath(diskWriteKbpsScript)
+	diskWriteMbps, err := pvCmd.getDiskWriteMBPS()
 	if err != nil {
-		log.Fatal("pvCmd.getDiskWriteKBPS: ", err)
+		log.Fatal("pvCmd.getDiskWriteMBPS: ", err)
 	}
-	fmt.Println(diskWriteKbps)
+	fmt.Println(diskWriteMbps)
 }
 
 func init() {
