@@ -7,6 +7,7 @@ import (
 	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
 	"google.golang.org/grpc"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -67,8 +68,10 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 }
 
 func handlePVMetricsWithScripts(target string) {
+	target = preprocess(target)
 	pvCmd := PVCommand{Command{}, target}
 
+	// get disk utilization
 	pvCmd.cmd.initializeCmdPath(diskUtilizationScript)
 	diskUtilization, err := pvCmd.getDiskUtilization()
 	if err != nil {
@@ -76,8 +79,7 @@ func handlePVMetricsWithScripts(target string) {
 	}
 	fmt.Println(diskUtilization)
 
-	// FIXME: 对target进行处理才能调用iostat命令
-	// 比如: lvm-43c80d34-b593-4f7d-b7bf-a45c8f4fdf05 的 设备名为 centos-lvm--43c80d34--b593--4f7d--b7bf--a45c8f4fdf05
+	// get disk iops
 	pvCmd.cmd.initializeCmdPath(diskIOPSScript)
 	diskIOPS, err := pvCmd.getDiskIOPS()
 	if err != nil {
@@ -85,6 +87,7 @@ func handlePVMetricsWithScripts(target string) {
 	}
 	fmt.Println(diskIOPS)
 
+	// get disk read mbps
 	pvCmd.cmd.initializeCmdPath(diskReadKbpsScript)
 	diskReadMbps, err := pvCmd.getDiskReadMBPS()
 	if err != nil {
@@ -92,12 +95,25 @@ func handlePVMetricsWithScripts(target string) {
 	}
 	fmt.Println(diskReadMbps)
 
+	// get disk write mbps
 	pvCmd.cmd.initializeCmdPath(diskWriteKbpsScript)
 	diskWriteMbps, err := pvCmd.getDiskWriteMBPS()
 	if err != nil {
 		log.Fatal("pvCmd.getDiskWriteMBPS: ", err)
 	}
 	fmt.Println(diskWriteMbps)
+}
+
+// 对target进行预处理
+// 比如: lvm-43c80d34-b593-4f7d-b7bf-a45c8f4fdf05 只保留最后的a45c8f4fdf05
+// 这样对 iostat 和 df 命令都适用
+func preprocess(target string) string {
+	if target == "" {
+		return ""
+	}
+	separators := strings.Split(target, "-")
+
+	return separators[len(separators)-1]
 }
 
 func init() {
