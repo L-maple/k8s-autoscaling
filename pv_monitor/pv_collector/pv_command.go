@@ -14,7 +14,7 @@ import (
  */
 type Command struct{}
 func (c *Command) execute(cmdstr string, target string) (string, error) {
-	cmd := exec.Command("/bin/bash", cmdstr, target)
+	cmd := exec.Command(cmdstr, target)
 
 	/* Create the command pipe */
 	stdout, err := cmd.StdoutPipe()
