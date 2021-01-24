@@ -6,7 +6,6 @@ import (
 	"log"
 	"os/exec"
 	"strconv"
-	"strings"
 )
 
 /*
@@ -65,13 +64,7 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 	}
 	fmt.Println(diskUtilization)
 
-	slices := strings.Split(diskUtilization, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return 0.0, err
-	}
-
-	utilization, err := strconv.ParseFloat(slices[0], 32)
+	utilization, err := strconv.ParseFloat(diskUtilization, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
 		return 0.0, err
@@ -87,13 +80,7 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 	}
 	fmt.Println(diskIOPS)
 
-	slices := strings.Split(diskIOPS, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return 0.0, err
-	}
-
-	iops, err := strconv.ParseFloat(slices[0], 32)
+	iops, err := strconv.ParseFloat(diskIOPS, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
 		return 0.0, err
@@ -109,13 +96,7 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 	}
 	fmt.Println(diskReadKbps)
 
-	slices := strings.Split(diskReadKbps, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return 0.0, err
-	}
-
-	readKbps, err := strconv.ParseFloat(slices[0], 32)
+	readKbps, err := strconv.ParseFloat(diskReadKbps, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
 		return 0.0, err
@@ -132,13 +113,7 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 	}
 	fmt.Println(diskWriteKbps)
 
-	slices := strings.Split(diskWriteKbps, "\n")
-	if len(slices) <= 1 {
-		log.Println("strings.Split error: ", slices)
-		return 0.0, err
-	}
-
-	writeKbps, err := strconv.ParseFloat(slices[0], 32)
+	writeKbps, err := strconv.ParseFloat(diskWriteKbps, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
 		return 0.0, err
