@@ -67,7 +67,7 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	log.Println("resp.Status is ", resp.Status)
 }
 
-func handlePVMetricsWithScripts(target string) {
+func handlePVMetricsWithScripts(target string) *pb.PVInfo {
 	target = preprocess(target)
 	pvCmd := PVCommand{Command{}, target}
 
@@ -77,7 +77,6 @@ func handlePVMetricsWithScripts(target string) {
 	if err != nil {
 		log.Fatal("pvCmd.getDiskUtilization: ", err)
 	}
-	fmt.Println(diskUtilization)
 
 	// get disk iops
 	pvCmd.cmd.initializeCmdPath(diskIOPSScript)
@@ -85,7 +84,6 @@ func handlePVMetricsWithScripts(target string) {
 	if err != nil {
 		log.Fatal("pvCmd.getDiskIOPS: ", err)
 	}
-	fmt.Println(diskIOPS)
 
 	// get disk read mbps
 	pvCmd.cmd.initializeCmdPath(diskReadKbpsScript)
@@ -93,7 +91,6 @@ func handlePVMetricsWithScripts(target string) {
 	if err != nil {
 		log.Fatal("pvCmd.getDiskReadMBPS: ", err)
 	}
-	fmt.Println(diskReadMbps)
 
 	// get disk write mbps
 	pvCmd.cmd.initializeCmdPath(diskWriteKbpsScript)
@@ -101,7 +98,15 @@ func handlePVMetricsWithScripts(target string) {
 	if err != nil {
 		log.Fatal("pvCmd.getDiskWriteMBPS: ", err)
 	}
-	fmt.Println(diskWriteMbps)
+
+	pvInfo := pb.PVInfo{
+		PVDiskUtilization: float32(diskUtilization),
+		PVDiskIOPS:        float32(diskIOPS),
+		PVDiskReadKBPS:    float32(diskReadMbps),
+		PVDiskWriteKBPS:   float32(diskWriteMbps),
+	}
+
+	return &pvInfo
 }
 
 // 对target进行预处理
@@ -133,15 +138,17 @@ func main() {
 			log.Fatal("getTargetsFromGrpc error: ", err)
 		}
 
+		var pvInfos map[string]*pb.PVInfo
 		for _, target := range targets {
-			//TODO: 先判定target是否存在于文件系统中
-			// ...
-
 			// 对target的指标信息进行处理
-			handlePVMetricsWithScripts(target)
+			pvInfo := handlePVMetricsWithScripts(target)
+			if pvInfo.PVDiskReadKBPS < 0 || pvInfo.PVDiskWriteKBPS < 0 ||
+					pvInfo.PVDiskIOPS < 0 || pvInfo.PVDiskUtilization < 0 {
+				continue
+			}
+			pvInfos[target] = pvInfo
 		}
 
-		var pvInfos map[string]*pb.PVInfo
 		fmt.Println(time.Now(), "sendPVMetrics...")
 		sendPVMetrics(pvServiceClient, pvInfos)
 		fmt.Println(time.Now(), ", this client send pvInfos to Server successfully~")
