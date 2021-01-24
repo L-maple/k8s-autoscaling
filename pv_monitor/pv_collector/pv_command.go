@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
@@ -62,6 +63,8 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+	fmt.Println(diskUtilization)
+
 	slices := strings.Split(diskUtilization, "\n")
 	if len(slices) <= 1 {
 		log.Println("strings.Split error: ", slices)
@@ -82,6 +85,8 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+	fmt.Println(diskIOPS)
+
 	slices := strings.Split(diskIOPS, "\n")
 	if len(slices) <= 1 {
 		log.Println("strings.Split error: ", slices)
@@ -102,6 +107,8 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+	fmt.Println(diskReadKbps)
+
 	slices := strings.Split(diskReadKbps, "\n")
 	if len(slices) <= 1 {
 		log.Println("strings.Split error: ", slices)
@@ -123,6 +130,8 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+	fmt.Println(diskWriteKbps)
+
 	slices := strings.Split(diskWriteKbps, "\n")
 	if len(slices) <= 1 {
 		log.Println("strings.Split error: ", slices)
