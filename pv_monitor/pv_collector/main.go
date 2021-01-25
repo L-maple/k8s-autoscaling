@@ -153,7 +153,7 @@ func main() {
 			pvInfos[target] = pvInfo
 		}
 
-		printCurrentPvInfos(pvInfos)
+		printCurrentPvInfos(targets, pvInfos)
 
 		if status, err := sendPVMetrics(pvServiceClient, pvInfos); err != nil {
 			log.Println("error: ", err)
@@ -165,9 +165,19 @@ func main() {
 	}
 }
 
-func printCurrentPvInfos(pvInfos map[string]*pb.PVInfo) {
+func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
 	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
+	fmt.Printf("Received targets are: \n")
+	for index, target := range targets {
+		fmt.Printf("%-30s", target)
+		if (index + 1) % 3 == 0 {
+			fmt.Printf("\n")
+		}
+	}
+
+	fmt.Printf("-----------------------\n")
+
 	if len(pvInfos) == 0 {
 		fmt.Printf("pvInfos is empty.\n")
 	}

@@ -63,7 +63,6 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 		return 0.0, err
 	}
 	if diskUtilization == "" {
-		log.Println("diskUtilization is empty", p.args)
 		return -1.0, nil
 	}
 
