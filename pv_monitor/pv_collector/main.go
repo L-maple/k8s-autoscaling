@@ -123,11 +123,36 @@ func preprocess(target string) string {
 	return separators[len(separators)-1]
 }
 
+func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
+	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++\n")
+	fmt.Printf("[INFO] %v\n", time.Now())
+	fmt.Printf("Received targets are: \n")
+	for index, target := range targets {
+		fmt.Printf("%-60s", target)
+		if (index + 1) % 2 == 0 {
+			fmt.Printf("\n")
+		}
+	}
+
+	fmt.Printf("\n-----------------------\n")
+
+	if len(pvInfos) == 0 {
+		fmt.Printf("pvInfos is empty.\n")
+	}
+
+	for pvName, pvInfo := range pvInfos {
+		fmt.Printf("PVName: %s\n", pvName)
+		fmt.Printf("Utilization: %-30.6f IOPS: %-30.6f ReadMBPS: %-30.6f WriteMBPS: %-30.6f\n",
+			pvInfo.PVDiskUtilization, pvInfo.PVDiskIOPS, pvInfo.PVDiskReadKBPS, pvInfo.PVDiskWriteKBPS)
+	}
+	fmt.Printf("===========================================\n")
+}
+
 func init() {
 	flag.IntVar(&intervalTime, "s", 10, "collector interval")
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
-	flag.StringVar(&serverAddress, "serverAddress", "localhost:30002", "hpa-exporter comm address")
-	//flag.StringVar(&serverAddress, "serverAddress", "http://hpa-exporter-service.monitoring.svc:30002/", "hpa-exporter comm address")
+	//flag.StringVar(&serverAddress, "serverAddress", "localhost:30002", "hpa-exporter comm address")
+	flag.StringVar(&serverAddress, "serverAddress", "http://hpa-exporter-service.monitoring.svc:30002/", "hpa-exporter comm address")
 }
 
 func main() {
@@ -165,27 +190,4 @@ func main() {
 	}
 }
 
-func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
-	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++\n")
-	fmt.Printf("[INFO] %v\n", time.Now())
-	fmt.Printf("Received targets are: \n")
-	for index, target := range targets {
-		fmt.Printf("%-60s", target)
-		if (index + 1) % 2 == 0 {
-			fmt.Printf("\n")
-		}
-	}
 
-	fmt.Printf("\n-----------------------\n")
-
-	if len(pvInfos) == 0 {
-		fmt.Printf("pvInfos is empty.\n")
-	}
-
-	for pvName, pvInfo := range pvInfos {
-		fmt.Printf("PVName: %s\n", pvName)
-		fmt.Printf("Utilization: %-30.6f IOPS: %-30.6f ReadMBPS: %-30.6f WriteMBPS: %-30.6f\n",
-				pvInfo.PVDiskUtilization, pvInfo.PVDiskIOPS, pvInfo.PVDiskReadKBPS, pvInfo.PVDiskWriteKBPS)
-	}
-	fmt.Printf("===========================================\n")
-}
