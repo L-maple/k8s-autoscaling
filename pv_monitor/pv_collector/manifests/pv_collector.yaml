@@ -22,6 +22,7 @@ spec:
       containers:
         - name: pv-collector
           image: aliuchangjie/pv_collector
+          command: [ "/usr/bin/pv_collector" ]
           volumeMounts:
             - name: root-dir
               mountPath: /root
