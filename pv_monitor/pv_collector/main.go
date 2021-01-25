@@ -17,7 +17,7 @@ var (
 	timeout      int
 
 	/* server address */
-	serverAddress  = "localhost:30002"
+	serverAddress  string
 
 	/* script location */
 	diskUtilizationScript = "./scripts/disk_utilization.sh"
@@ -52,7 +52,7 @@ func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) 
 	return targets, nil
 }
 
-func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo) {
+func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo) (int32, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
 	defer cancel()
 
@@ -61,10 +61,12 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	})
 	if err != nil {
 		log.Println("pvServiceClient.PVInfosRequest error: ", err)
-		return
+		return -1, err
 	}
 
 	log.Println("resp.Status is ", resp.Status)
+
+	return resp.Status, nil
 }
 
 func handlePVMetricsWithScripts(target string) *pb.PVInfo {
@@ -124,6 +126,8 @@ func preprocess(target string) string {
 func init() {
 	flag.IntVar(&intervalTime, "s", 10, "collector interval")
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
+	flag.StringVar(&serverAddress, "serverAddress", "localhost:30002", "hpa-exporter comm address")
+	//flag.StringVar(&serverAddress, "serverAddress", "http://hpa-exporter-service.monitoring.svc:30002/", "hpa-exporter comm address")
 }
 
 func main() {
@@ -138,7 +142,7 @@ func main() {
 			log.Fatal("getTargetsFromGrpc error: ", err)
 		}
 
-		var pvInfos map[string]*pb.PVInfo
+		pvInfos := make(map[string]*pb.PVInfo)
 		for _, target := range targets {
 			// 对target的指标信息进行处理
 			pvInfo := handlePVMetricsWithScripts(target)
@@ -149,10 +153,29 @@ func main() {
 			pvInfos[target] = pvInfo
 		}
 
-		fmt.Println(time.Now(), "sendPVMetrics...")
-		sendPVMetrics(pvServiceClient, pvInfos)
-		fmt.Println(time.Now(), ", this client send pvInfos to Server successfully~")
+		printCurrentPvInfos(pvInfos)
+
+		if status, err := sendPVMetrics(pvServiceClient, pvInfos); err != nil {
+			log.Println("error: ", err)
+		} else {
+			log.Println("send pvInfos successfully, status: ", status)
+		}
 
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
+}
+
+func printCurrentPvInfos(pvInfos map[string]*pb.PVInfo) {
+	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++\n")
+	fmt.Printf("[INFO] %v\n", time.Now())
+	if len(pvInfos) == 0 {
+		fmt.Printf("pvInfos is empty.\n")
+	}
+
+	for pvName, pvInfo := range pvInfos {
+		fmt.Printf("PVName: %s\n", pvName)
+		fmt.Printf("Utilization: %-30.6f IOPS: %-30.6f ReadMBPS: %-30.6f WriteMBPS: %-30.6f\n",
+				pvInfo.PVDiskUtilization, pvInfo.PVDiskIOPS, pvInfo.PVDiskReadKBPS, pvInfo.PVDiskWriteKBPS)
+	}
+	fmt.Printf("===========================================\n")
 }
