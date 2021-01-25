@@ -22,6 +22,9 @@ spec:
       containers:
         - name: pv-collector
           image: aliuchangjie/pv_collector
+          volumeMounts:
+            - name: root-dir
+              mountPath: /root
           resources:
             limits:
               cpu: 200m
@@ -29,4 +32,9 @@ spec:
             requests:
               cpu: 100m
               memory: 200Mi
+      volumes:
+        - name: root-dir
+          hostPath:
+            path: "/"
+            type: Directory
       terminationGracePeriodSeconds: 30
