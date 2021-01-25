@@ -1,13 +1,13 @@
 #! /bin/bash
 
-echo "STEP1. rm the hpa_exporter"
 rm -f hpa_exporter
+echo "STEP1. rm the hpa_exporter SUCCESS"
 
-echo "STEP2. git pull"
 git pull
+echo "STEP2. git pull SUCCESS"
 
-echo "STEP3. go build ."
 go build .
+echo "STEP3. go build . SUCCESS"
 
-echo "STEP4. execute"
 ./hpa_exporter -namespace=monitoring -statefulset=hdfs-datanode
+echo "STEP4. execute SUCCESS"
