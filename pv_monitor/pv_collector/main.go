@@ -176,7 +176,7 @@ func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
 		}
 	}
 
-	fmt.Printf("-----------------------\n")
+	fmt.Printf("\n-----------------------\n")
 
 	if len(pvInfos) == 0 {
 		fmt.Printf("pvInfos is empty.\n")
