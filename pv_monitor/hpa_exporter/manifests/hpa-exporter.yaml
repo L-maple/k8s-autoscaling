@@ -44,6 +44,9 @@ spec:
     port: 30001
     targetPort: 30001
     nodePort: 31111
+  - name: pv_server
+    port: 30002
+    targetPort: 30002
   selector:
     k8s-app: hpa-exporter
 
