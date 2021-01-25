@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pv-collector-daemonset
+  namespace: monitoring
+  labels:
+    k8s-app: pv-collector-daemonset
+spec:
+  selector:
+    matchLabels:
+      name: pv-collector-daemonset
+  template:
+    metadata:
+      labels:
+        name: pv-collector-daemonset
+    spec:
+      tolerations:
+        # this toleration is to have the daemonset runnable on master nodes
+        # remove it if your masters can't run pods
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: pv-collector
+          image: aliuchangjie/pv_collector
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+      terminationGracePeriodSeconds: 30
