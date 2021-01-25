@@ -170,8 +170,8 @@ func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
 	fmt.Printf("[INFO] %v\n", time.Now())
 	fmt.Printf("Received targets are: \n")
 	for index, target := range targets {
-		fmt.Printf("%-30s", target)
-		if (index + 1) % 3 == 0 {
+		fmt.Printf("%-60s", target)
+		if (index + 1) % 2 == 0 {
 			fmt.Printf("\n")
 		}
 	}

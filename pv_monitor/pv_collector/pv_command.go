@@ -82,7 +82,6 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 		return 0.0, err
 	}
 	if diskIOPS == "" {
-		log.Println("diskIOPS is empty", p.args)
 		return -1.0, nil
 	}
 
@@ -102,7 +101,6 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 		return 0.0, err
 	}
 	if diskReadKbps == "" {
-		log.Println("diskReadKbps is empty", p.args)
 		return -1.0, nil
 	}
 
