@@ -23,9 +23,11 @@ spec:
         - name: pv-collector
           image: aliuchangjie/pv_collector
           command: [ "/usr/bin/pv_collector" ]
+          securityContext:
+            privileged: true
           volumeMounts:
             - name: root-dir
-              mountPath: /root
+              mountPath: /host
           resources:
             limits:
               cpu: 200m
