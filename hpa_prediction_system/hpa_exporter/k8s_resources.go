@@ -25,23 +25,42 @@ func (p PodInfo)GetPVNames() []string {
 /**************************************************/
 
 type PVInfo struct {
+	Timestamp            int64
 	PVDiskUtilization    float32
 	PVDiskIOPS           float32
-	PVDiskWriteKBPS      float32
-	PVDiskReadKBPS       float32
+	PVDiskWriteMBPS      float32
+	PVDiskReadMBPS       float32
 }
 
-func (p *PVInfo) SetPVDiskUtilization(utilization float32) {
-	p.PVDiskUtilization = utilization
+func (p *PVInfo) GetPVTimestamp() int64 {
+	return p.Timestamp
+}
+func (p *PVInfo) SetPVTimestamp(timestamp int64) {
+	p.Timestamp = timestamp
+}
+func (p *PVInfo) GetPVDiskWriteMBPS() float32 {
+	return p.PVDiskWriteMBPS
+}
+func (p *PVInfo) SetPVDiskWriteMBPS(mbps float32) {
+	p.PVDiskWriteMBPS = mbps
+}
+func (p *PVInfo) GetPVDiskReadMBPS() float32 {
+	return p.PVDiskReadMBPS
+}
+func (p *PVInfo) SetPVDiskReadMBPS(mbps float32) {
+	p.PVDiskReadMBPS = mbps
 }
 func (p PVInfo) GetPVDiskUtilization() float32 {
 	return p.PVDiskUtilization
 }
-func (p *PVInfo) SetPVDiskIOPS(iops float32) {
-	p.PVDiskIOPS = iops
+func (p *PVInfo) SetPVDiskUtilization(utilization float32) {
+	p.PVDiskUtilization = utilization
 }
 func (p PVInfo) GetPVDiskIOPS() float32  {
 	return p.PVDiskIOPS
+}
+func (p *PVInfo) SetPVDiskIOPS(iops float32) {
+	p.PVDiskIOPS = iops
 }
 
 /****************************************************/

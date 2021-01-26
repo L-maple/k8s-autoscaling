@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	pb "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor"
 )
 
@@ -26,6 +27,11 @@ func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVRe
 	return &pb.PVResponse{ PvNames: pvNames }, nil
 }
 
-func (s *server) ReplyPVInfos(ctx context.Context, in *pb.PVInfosRequest) (*pb.PVInfosResponse, error) {
+func (s *server) ReplyPVInfos(ctx context.Context, pvInfos *pb.PVInfosRequest) (*pb.PVInfosResponse, error) {
+	for pvName, pvInfo := range pvInfos.GetPVInfos() {
+		// TODO: 将PV信息添加到内存数组中
+		fmt.Println(pvName)
+		fmt.Println(pvInfo.PVDiskIOPS, pvInfo.PVDiskUtilization, pvInfo.PVDiskReadMBPS, pvInfo.PVDiskWriteMBPS)
+	}
 	return &pb.PVInfosResponse{Status: 1}, nil
 }
