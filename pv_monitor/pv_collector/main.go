@@ -65,8 +65,6 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 		return -1, err
 	}
 
-	log.Println("resp.Status is ", resp.Status)
-
 	return resp.Status, nil
 }
 
@@ -124,8 +122,9 @@ func preprocess(target string) string {
 	return separators[len(separators)-1]
 }
 
-func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
+func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo, status int32) {
 	fmt.Printf("+++++++++++++++++++++++++++++++++++++++++++\n")
+
 	fmt.Printf("[INFO] %v\n", time.Now())
 	fmt.Printf("Received targets are: \n")
 	for index, target := range targets {
@@ -140,12 +139,13 @@ func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo) {
 	if len(pvInfos) == 0 {
 		fmt.Printf("pvInfos is empty.\n")
 	}
-
 	for pvName, pvInfo := range pvInfos {
 		fmt.Printf("PVName: %s\n", pvName)
-		fmt.Printf("Utilization: %-30.6f IOPS: %-30.6f ReadMBPS: %-30.6f WriteMBPS: %-30.6f\n",
+		fmt.Printf("Utilization: %-15.6f IOPS: %-15.6f ReadMBPS: %-15.6f WriteMBPS: %-15.6f\n",
 			pvInfo.PVDiskUtilization, pvInfo.PVDiskIOPS, pvInfo.PVDiskReadKBPS, pvInfo.PVDiskWriteKBPS)
 	}
+	fmt.Printf("\nsend PvInfos successfully, status: %d\n", status)
+
 	fmt.Printf("===========================================\n")
 }
 
@@ -184,13 +184,12 @@ func main() {
 			pvInfos[target] = pvInfo
 		}
 
-		printCurrentPvInfos(targets, pvInfos)
-
-		if status, err := sendPVMetrics(pvServiceClient, pvInfos); err != nil {
+		status, err := sendPVMetrics(pvServiceClient, pvInfos);
+		if err != nil {
 			log.Println("error: ", err)
-		} else {
-			log.Println("send pvInfos successfully, status: ", status)
 		}
+
+		printCurrentPvInfos(targets, pvInfos, status)
 
 		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
