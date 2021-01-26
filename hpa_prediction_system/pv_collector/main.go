@@ -103,8 +103,8 @@ func handlePVMetricsWithScripts(target string) *pb.PVInfo {
 	pvInfo := pb.PVInfo{
 		PVDiskUtilization: float32(diskUtilization),
 		PVDiskIOPS:        float32(diskIOPS),
-		PVDiskReadKBPS:    float32(diskReadMbps),
-		PVDiskWriteKBPS:   float32(diskWriteMbps),
+		PVDiskReadMBPS:    float32(diskReadMbps),
+		PVDiskWriteMBPS:   float32(diskWriteMbps),
 	}
 
 	return &pvInfo
@@ -142,7 +142,7 @@ func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo, status
 	for pvName, pvInfo := range pvInfos {
 		fmt.Printf("PVName: %s\n", pvName)
 		fmt.Printf("Utilization: %-15.6f IOPS: %-15.6f ReadMBPS: %-15.6f WriteMBPS: %-15.6f\n",
-			pvInfo.PVDiskUtilization, pvInfo.PVDiskIOPS, pvInfo.PVDiskReadKBPS, pvInfo.PVDiskWriteKBPS)
+			pvInfo.PVDiskUtilization, pvInfo.PVDiskIOPS, pvInfo.PVDiskReadMBPS, pvInfo.PVDiskWriteMBPS)
 	}
 	fmt.Printf("\nsend PvInfos successfully, status: %d\n", status)
 
@@ -177,7 +177,7 @@ func main() {
 		for _, target := range targets {
 			// 对target的指标信息进行处理
 			pvInfo := handlePVMetricsWithScripts(target)
-			if pvInfo.PVDiskReadKBPS < 0 || pvInfo.PVDiskWriteKBPS < 0 ||
+			if pvInfo.PVDiskReadMBPS < 0 || pvInfo.PVDiskWriteMBPS < 0 ||
 					pvInfo.PVDiskIOPS < 0 || pvInfo.PVDiskUtilization < 0 {
 				continue
 			}
