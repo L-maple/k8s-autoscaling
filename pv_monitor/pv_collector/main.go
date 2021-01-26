@@ -153,7 +153,8 @@ func init() {
 	flag.IntVar(&intervalTime, "s", 10, "collector interval")
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
 	//flag.StringVar(&serverAddress, "serverAddress", "localhost:30002", "hpa-exporter comm address")
-	flag.StringVar(&serverAddress, "serverAddress", "http://hpa-exporter-service.monitoring.svc:30002/", "hpa-exporter comm address")
+	// https://pkg.go.dev/github.com/sercand/kuberesolver@v2.4.0+incompatible
+	flag.StringVar(&serverAddress, "serverAddress", "kubernetes://hpa-exporter-service.monitoring:30002", "hpa-exporter comm address")
 }
 
 func main() {
