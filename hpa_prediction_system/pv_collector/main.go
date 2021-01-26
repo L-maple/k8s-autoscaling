@@ -146,7 +146,7 @@ func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo, status
 	}
 	fmt.Printf("\nsend PvInfos successfully, status: %d\n", status)
 
-	fmt.Printf("===========================================\n")
+	fmt.Printf("===========================================\n\n")
 }
 
 func init() {
