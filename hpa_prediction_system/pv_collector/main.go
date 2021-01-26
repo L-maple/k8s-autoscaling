@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
+	pb "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor"
 	"github.com/sercand/kuberesolver"
 	"google.golang.org/grpc"
 	"log"

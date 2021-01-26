@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/k8s-autoscaling/pv_monitor/pv_monitor";
+option go_package = "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor";
 
 package pv_monitor;
 
@@ -20,8 +20,8 @@ message PVResponse {
 message PVInfo {
   float PVDiskUtilization  = 1;
   float PVDiskIOPS         = 2;
-  float PVDiskWriteKBPS    = 3;
-  float PVDiskReadKBPS     = 4;
+  float PVDiskWriteMBPS    = 3;
+  float PVDiskReadMBPS     = 4;
 }
 
 message PVInfosRequest {

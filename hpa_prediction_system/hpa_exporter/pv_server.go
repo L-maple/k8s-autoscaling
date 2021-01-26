@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	pb "github.com/k8s-autoscaling/pv_monitor/pv_monitor"
+	pb "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor"
 )
 
 type server struct {

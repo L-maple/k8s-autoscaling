@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	rs "github.com/k8s-autoscaling/pv_monitor/resource_statistics"
+	rs "github.com/k8s-autoscaling/hpa_prediction_system/resource_statistics"
 	"time"
 )
 
