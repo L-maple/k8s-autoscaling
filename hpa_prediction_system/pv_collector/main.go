@@ -59,6 +59,7 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 
 	resp, err := pvServiceClient.ReplyPVInfos(ctx, &pb.PVInfosRequest{
 		PVInfos: pvInfos,
+		Timestamp: time.Now().Unix(),
 	})
 	if err != nil {
 		log.Println("pvServiceClient.PVInfosRequest error: ", err)

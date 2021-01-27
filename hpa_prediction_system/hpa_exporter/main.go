@@ -45,6 +45,14 @@ var (
 	/* global statefulSet's Pod info */
 	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
+
+	/* memory database -- disk infos */
+	diskInfoInMemoryMutex sync.RWMutex
+	diskIOPSInMemory, diskUtilizationInMemory, diskReadMBPSInMemory, diskWriteMBPSInMemory map[string][][]string
+)
+
+const (
+	DiskInfoInMemoryNumber = 500
 )
 
 
@@ -229,6 +237,11 @@ func init() {
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
+
+	diskIOPSInMemory        = make(map[string][][]string)
+	diskUtilizationInMemory = make(map[string][][]string)
+	diskReadMBPSInMemory    = make(map[string][][]string)
+	diskWriteMBPSInMemory   = make(map[string][][]string)
 }
 
 func main() {
