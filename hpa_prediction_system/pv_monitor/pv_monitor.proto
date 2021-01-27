@@ -25,7 +25,8 @@ message PVInfo {
 }
 
 message PVInfosRequest {
-  map<string, PVInfo> PVInfos = 1;   /* PVName --> PVInfo */
+  map<string, PVInfo> PVInfos    = 1;   /* PVName --> PVInfo */
+  int64               Timestamp = 2;
 }
 
 message PVInfosResponse {
