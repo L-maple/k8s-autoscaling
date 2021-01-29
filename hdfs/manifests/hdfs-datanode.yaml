@@ -2,9 +2,8 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: hdfs-datanode
-  namespace: monitoring
 spec:
-  serviceName: "datanode"
+  serviceName: "hdfs-datanode"
   replicas: 3
   selector:
     matchLabels:
@@ -16,7 +15,7 @@ spec:
     spec:
       containers:
       - name: hdfs-datanode
-        image: jinbozi/hdfs:0.4
+        image: jinbozi/hdfs:0.6
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 9000
@@ -54,5 +53,5 @@ spec:
       volumeMode: Filesystem
       resources:
         requests:
-          storage: 10Gi
+          storage: 15Gi
       storageClassName: csi-lvm

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: hdfs-client
+  namespace: monitoring
 spec:
   serviceName: "client"
   replicas: 1
@@ -17,13 +18,20 @@ spec:
       - name: hdfs-client
         image: jinbozi/hdfs:0.5
         imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "1000Mi"
+            cpu: "200m"
+          limits:
+            memory: "2000Mi"
+            cpu: "500m"
         ports:
           - containerPort: 31822
         env:
           - name: FIRST_FILE_SIZE
-            value: "756"
+            value: "0"
           - name: INCREASE_FILE_SIZE
-            value: "252"
+            value: "0"
           - name: INCREASE_FILE_NUMBER
             value: "7"
           - name: INCREASE_TIME
