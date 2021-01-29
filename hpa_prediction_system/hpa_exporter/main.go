@@ -47,6 +47,7 @@ var (
 	stsInfoGlobal StatefulSetInfo
 
 	/* memory database -- disk infos */
+	// TODO: 将这4个全局变量合并到statefulInfo中
 	diskInfoInMemoryMutex sync.RWMutex
 	diskIOPSInMemory, diskUtilizationInMemory, diskReadMBPSInMemory, diskWriteMBPSInMemory map[string][][]string
 )

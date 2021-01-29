@@ -24,43 +24,36 @@ func (p PodInfo)GetPVNames() []string {
 
 /**************************************************/
 
-type PVInfo struct {
-	Timestamp            int64
-	PVDiskUtilization    float32
-	PVDiskIOPS           float32
-	PVDiskWriteMBPS      float32
-	PVDiskReadMBPS       float32
+type PVStatistics struct {
+	DiskUtilization    [][]string
+	DiskIOPS           [][]string
+	DiskWriteMBPS      [][]string
+	DiskReadMBPS       [][]string
 }
 
-func (p *PVInfo) GetPVTimestamp() int64 {
-	return p.Timestamp
+func (p *PVStatistics) GetPVDiskWriteMBPS() [][]string {
+	return p.DiskWriteMBPS
 }
-func (p *PVInfo) SetPVTimestamp(timestamp int64) {
-	p.Timestamp = timestamp
+func (p *PVStatistics) AppendPVDiskWriteMBPS(timeAndMbps []string) {
+	p.DiskWriteMBPS = append(p.DiskWriteMBPS,timeAndMbps)
 }
-func (p *PVInfo) GetPVDiskWriteMBPS() float32 {
-	return p.PVDiskWriteMBPS
+func (p *PVStatistics) GetPVDiskReadMBPS() [][]string {
+	return p.DiskReadMBPS
 }
-func (p *PVInfo) SetPVDiskWriteMBPS(mbps float32) {
-	p.PVDiskWriteMBPS = mbps
+func (p *PVStatistics) AppendPVDiskReadMBPS(timeAndMbps []string) {
+	p.DiskReadMBPS = append(p.DiskReadMBPS, timeAndMbps)
 }
-func (p *PVInfo) GetPVDiskReadMBPS() float32 {
-	return p.PVDiskReadMBPS
+func (p *PVStatistics) GetPVDiskUtilization() [][]string {
+	return p.DiskUtilization
 }
-func (p *PVInfo) SetPVDiskReadMBPS(mbps float32) {
-	p.PVDiskReadMBPS = mbps
+func (p *PVStatistics) AppendPVDiskUtilization(timeAndUtilization []string) {
+	p.DiskUtilization = append(p.DiskUtilization, timeAndUtilization)
 }
-func (p PVInfo) GetPVDiskUtilization() float32 {
-	return p.PVDiskUtilization
+func (p PVStatistics) GetPVDiskIOPS() [][]string {
+	return p.DiskIOPS
 }
-func (p *PVInfo) SetPVDiskUtilization(utilization float32) {
-	p.PVDiskUtilization = utilization
-}
-func (p PVInfo) GetPVDiskIOPS() float32  {
-	return p.PVDiskIOPS
-}
-func (p *PVInfo) SetPVDiskIOPS(iops float32) {
-	p.PVDiskIOPS = iops
+func (p *PVStatistics) AppendPVDiskIOPS(timeAndIops []string) {
+	p.DiskIOPS = append(p.DiskIOPS, timeAndIops)
 }
 
 /****************************************************/
@@ -68,6 +61,7 @@ func (p *PVInfo) SetPVDiskIOPS(iops float32) {
 type StatefulSetInfo struct {
 	StatefulSetName      string                /* statefulSet name        */
 	PodInfos             map[string]PodInfo    /* podName --> PodInfo     */
+	PVInfos              map[string]PVStatistics
 	Initialized          bool                  /* whether the obj has been initialized */
 }
 
