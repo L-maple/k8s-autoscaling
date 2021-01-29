@@ -58,6 +58,8 @@ spec:
   selector:
     name: hdfs-datanode
   ports:
+    - name: pexport
+      port: 10318
     - port: 8040
       name: yarn-node0
     - port: 8041
