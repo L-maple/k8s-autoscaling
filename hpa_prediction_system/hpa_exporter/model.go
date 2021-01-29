@@ -93,26 +93,27 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 			fmt.Printf("%-40s ", pvName)
 		}
 		fmt.Printf("; \n")
-	}
-	for pvName, _ := range stsInfoGlobal.GetPVInfos() {
-		fmt.Printf("PV Name: %s: ", pvName)
-		diskIOPS, err        := getLastDiskIOPS(pvName)
-		if err != nil {
-			log.Fatal("getLastDiskIOPS: ", err)
+
+		for index, pvName := range podInfo.PVNames {
+			fmt.Printf("PV Name{%d}: %s: \n", index, pvName)
+			diskIOPS, err        := getLastDiskIOPS(pvName)
+			if err != nil {
+				log.Fatal("getLastDiskIOPS: ", err)
+			}
+			diskReadMBPS, err    := getLastDiskReadMBPS(pvName)
+			if err != nil {
+				log.Fatal("getLastDiskReadMBPS: ", err)
+			}
+			diskWriteMBPS, err   := getLastWriteMBPS(pvName)
+			if err != nil {
+				log.Fatal("getLastWriteMBPS: ", err)
+			}
+			diskUtilization, err := getLastDiskUtilization(pvName)
+			if err != nil {
+				log.Fatal("getLastDiskUtilization: ", err)
+			}
+			fmt.Printf("diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n",
+				diskIOPS, diskReadMBPS, diskWriteMBPS, diskUtilization)
 		}
-		diskReadMBPS, err    := getLastDiskReadMBPS(pvName)
-		if err != nil {
-			log.Fatal("getLastDiskReadMBPS: ", err)
-		}
-		diskWriteMBPS, err   := getLastWriteMBPS(pvName)
-		if err != nil {
-			log.Fatal("getLastWriteMBPS: ", err)
-		}
-		diskUtilization, err := getLastDiskUtilization(pvName)
-		if err != nil {
-			log.Fatal("getLastDiskUtilization: ", err)
-		}
-		fmt.Printf("diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n",
-					diskIOPS, diskReadMBPS, diskWriteMBPS, diskUtilization)
 	}
 }

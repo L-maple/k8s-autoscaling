@@ -68,7 +68,6 @@ func (p *PVInfo) SetPVDiskIOPS(iops float32) {
 type StatefulSetInfo struct {
 	StatefulSetName      string                /* statefulSet name        */
 	PodInfos             map[string]PodInfo    /* podName --> PodInfo     */
-	PVInfos              map[string]PVInfo     /* podName --> PVInfo      */
 	Initialized          bool                  /* whether the obj has been initialized */
 }
 
@@ -77,7 +76,6 @@ func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
 
 	stsInfo.StatefulSetName = stsName
 	stsInfo.PodInfos = make(map[string]PodInfo)
-	stsInfo.PVInfos  = make(map[string]PVInfo)
 
 	return stsInfo
 }
@@ -146,25 +144,4 @@ func (s *StatefulSetInfo) SetPodInfo(podName string, podInfo PodInfo) {
 	}
 
 	s.PodInfos[podName] = podInfo
-}
-func (s *StatefulSetInfo) GetPVInfo(podName string) PVInfo {
-	if s.PVInfos == nil {
-		s.PVInfos = make(map[string]PVInfo)
-		return PVInfo{}
-	}
-
-	pvInfo, found := s.PVInfos[podName]
-	if found == true {
-		return pvInfo
-	}
-	return PVInfo{}
-}
-func (s *StatefulSetInfo) GetPVInfos() map[string]PVInfo {
-	return s.PVInfos
-}
-func (s *StatefulSetInfo) SetPVInfo(podName string, pvInfo PVInfo) {
-	if s.PVInfos == nil {
-		s.PVInfos = make(map[string]PVInfo)
-	}
-	s.PVInfos[podName] = pvInfo
 }
