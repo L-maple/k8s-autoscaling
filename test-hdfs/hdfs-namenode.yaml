@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hdfs-namenode
+spec:
+  serviceName: "hdfs-namenode"
+  replicas: 1
+  selector:
+    matchLabels:
+      name: hdfs-namenode
+  template:
+    metadata:
+      labels:
+        name: hdfs-namenode
+    spec:
+      containers:
+      - name: hdfs-namenode
+        image: jinbozi/hdfs:0.6
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9000
+          - containerPort: 8032
+          - containerPort: 8088
+          - containerPort: 50070
+          - containerPort: 31822
+        volumeMounts:
+          - name: hdfs
+            mountPath: /custom/hdfs_dir
+        env:
+          - name: HADOOP_NODE_TYPE
+            value: namenode
+          - name: HDFS_MASTER_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: hdfs-conf
+                key: HDFS_MASTER_SERVICE
+          - name: HDFS_REP
+            valueFrom:
+              configMapKeyRef:
+                name: hdfs-conf
+                key: HDFS_REP
+  volumeClaimTemplates:
+  - metadata:
+      name: hdfs
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 15Gi
+      storageClassName: csi-lvm
