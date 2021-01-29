@@ -89,11 +89,7 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 		}
 
 		for _, pvName := range podInfo.PVNames {
-			fmt.Printf("%-40s ", pvName)
-		}
-
-		for index, pvName := range podInfo.PVNames {
-			fmt.Printf("PV Name{%d}: %s: \n", index, pvName)
+			fmt.Printf("%-40s \n", pvName)
 			diskIOPS, err        := getLastDiskIOPS(pvName)
 			if err != nil {
 				log.Fatal("getLastDiskIOPS: ", err)
