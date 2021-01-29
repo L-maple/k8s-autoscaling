@@ -52,7 +52,7 @@ var (
 )
 
 const (
-	DiskInfoInMemoryNumber = 500
+	DiskInfoInMemoryNumber = 500  /* 保存在内存中的时序数值数量 */
 )
 
 
