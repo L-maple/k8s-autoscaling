@@ -80,19 +80,17 @@ func printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilizati
 }
 
 func printStatefulSetState(stsInfo *StatefulSetInfo) {
-	fmt.Printf("%-40s, %-40s, %-40s\n", "PodName", "PvcName", "PvName")
+	fmt.Printf("%-40s %-40s %-40s\n", "PodName", "PvcName", "PvName")
 	for podName, podInfo := range stsInfo.GetPodInfos() {
 		fmt.Printf("%-40s ", podName)
 
 		for _, pvcName := range podInfo.PVCNames {
 			fmt.Printf("%-40s ", pvcName)
 		}
-		fmt.Printf("; ")
 
 		for _, pvName := range podInfo.PVNames {
 			fmt.Printf("%-40s ", pvName)
 		}
-		fmt.Printf("; \n")
 
 		for index, pvName := range podInfo.PVNames {
 			fmt.Printf("PV Name{%d}: %s: \n", index, pvName)
@@ -112,7 +110,7 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 			if err != nil {
 				log.Fatal("getLastDiskUtilization: ", err)
 			}
-			fmt.Printf("diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n",
+			fmt.Printf("diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n\n",
 				diskIOPS, diskReadMBPS, diskWriteMBPS, diskUtilization)
 		}
 	}
