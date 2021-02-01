@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	rs "github.com/k8s-autoscaling/hpa_prediction_system/resource_statistics"
+	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"log"
 	"time"
 )
@@ -47,10 +47,10 @@ func getHpaActivityState() int {
 	}
 
 	// TODO: 设置稳定窗口计时器
-	// 得到CPU的平均使用量
+	// 得到CPU的平均使用率
 	avgCpuUtilization    := getAvgFloat64(cpuUtilizationSlice)
 
-	// 得到Memory的平均使用量
+	// 得到Memory的平均使用率
 	avgMemoryUsage := getAvgInt64(memoryUsageSlice)
 	avgMemoryUtilization := float64(avgMemoryUsage) / float64(memoryByteLimit)
 
@@ -90,19 +90,19 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 
 		for _, pvName := range podInfo.PVNames {
 			fmt.Printf("%-40s \n", pvName)
-			diskIOPS, err        := getLastDiskIOPS(pvName)
+			diskIOPS, err        := stsInfo.PVInfos[pvName].GetLastDiskIOPS()
 			if err != nil {
 				log.Fatal("getLastDiskIOPS: ", err)
 			}
-			diskReadMBPS, err    := getLastDiskReadMBPS(pvName)
+			diskReadMBPS, err    := stsInfo.PVInfos[pvName].GetLastDiskReadMBPS()
 			if err != nil {
 				log.Fatal("getLastDiskReadMBPS: ", err)
 			}
-			diskWriteMBPS, err   := getLastWriteMBPS(pvName)
+			diskWriteMBPS, err   := stsInfo.PVInfos[pvName].GetLastWriteMBPS()
 			if err != nil {
 				log.Fatal("getLastWriteMBPS: ", err)
 			}
-			diskUtilization, err := getLastDiskUtilization(pvName)
+			diskUtilization, err := stsInfo.PVInfos[pvName].GetLastDiskUtilization()
 			if err != nil {
 				log.Fatal("getLastDiskUtilization: ", err)
 			}
