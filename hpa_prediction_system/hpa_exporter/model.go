@@ -90,19 +90,19 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 
 		for _, pvName := range podInfo.PVNames {
 			fmt.Printf("%-40s \n", pvName)
-			diskIOPS, err        := stsInfo.PVInfos[pvName].GetLastDiskIOPS()
+			diskIOPS, err        := PVInfos[pvName].GetLastDiskIOPS()
 			if err != nil {
 				log.Fatal("getLastDiskIOPS: ", err)
 			}
-			diskReadMBPS, err    := stsInfo.PVInfos[pvName].GetLastDiskReadMBPS()
+			diskReadMBPS, err    := PVInfos[pvName].GetLastDiskReadMBPS()
 			if err != nil {
 				log.Fatal("getLastDiskReadMBPS: ", err)
 			}
-			diskWriteMBPS, err   := stsInfo.PVInfos[pvName].GetLastWriteMBPS()
+			diskWriteMBPS, err   := PVInfos[pvName].GetLastWriteMBPS()
 			if err != nil {
 				log.Fatal("getLastWriteMBPS: ", err)
 			}
-			diskUtilization, err := stsInfo.PVInfos[pvName].GetLastDiskUtilization()
+			diskUtilization, err := PVInfos[pvName].GetLastDiskUtilization()
 			if err != nil {
 				log.Fatal("getLastDiskUtilization: ", err)
 			}
