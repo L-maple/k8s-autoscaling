@@ -72,6 +72,8 @@ kind: Service
 metadata:
   name: hdfs-pexport
   namespace: monitoring
+  labels:
+    name: hdfs-datanode
 spec:
   type: NodePort
   selector:
