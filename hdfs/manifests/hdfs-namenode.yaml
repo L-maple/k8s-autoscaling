@@ -4,7 +4,7 @@ metadata:
   name: hdfs-namenode
   namespace: monitoring
 spec:
-  serviceName: "hdfs-namenode"
+  serviceName: "namenode"
   replicas: 1
   selector:
     matchLabels:
@@ -16,8 +16,12 @@ spec:
     spec:
       containers:
       - name: hdfs-namenode
-        image: jinbozi/hdfs:0.6
+        image: jinbozi/hdfs:0.4
         imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9000
+          - containerPort: 50070
+          - containerPort: 31822
         resources:
           requests:
             memory: "1000Mi"
@@ -25,12 +29,6 @@ spec:
           limits:
             memory: "2000Mi"
             cpu: "500m"
-        ports:
-          - containerPort: 9000
-          - containerPort: 8032
-          - containerPort: 8088
-          - containerPort: 50070
-          - containerPort: 31822
         volumeMounts:
           - name: hdfs
             mountPath: /custom/hdfs_dir
@@ -55,5 +53,5 @@ spec:
       volumeMode: Filesystem
       resources:
         requests:
-          storage: 15Gi
+          storage: 10Gi
       storageClassName: csi-lvm

@@ -62,3 +62,19 @@ spec:
     - port: 8042
       name: yarn-node-web
 
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hdfs-pexport
+spec:
+  type: NodePort
+  selector:
+    name: hdfs-datanode
+  ports:
+    - name: promethues
+      port: 10318
+      targetPort: 10318
+      nodePort: 31318
+
