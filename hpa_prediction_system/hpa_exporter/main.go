@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -45,6 +46,9 @@ var (
 	/* global statefulSet's Pod info */
 	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
+
+	pvMutex       sync.RWMutex
+	PVInfos       map[string]rs.PVStatistics
 )
 
 const (
@@ -233,6 +237,8 @@ func init() {
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
+
+	PVInfos  = make(map[string]rs.PVStatistics)
 }
 
 func main() {

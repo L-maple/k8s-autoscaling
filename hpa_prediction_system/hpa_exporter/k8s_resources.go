@@ -1,9 +1,5 @@
 package main
 
-import (
-	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
-)
-
 /**************************************************/
 
 type PodInfo struct {
@@ -31,7 +27,6 @@ func (p PodInfo)GetPVNames() []string {
 type StatefulSetInfo struct {
 	StatefulSetName      string                /* statefulSet name        */
 	PodInfos             map[string]PodInfo    /* podName --> PodInfo     */
-	PVInfos              map[string]rs.PVStatistics
 	Initialized          bool                  /* whether the obj has been initialized */
 }
 
@@ -40,7 +35,6 @@ func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
 
 	stsInfo.StatefulSetName = stsName
 	stsInfo.PodInfos = make(map[string]PodInfo)
-	stsInfo.PVInfos  = make(map[string]rs.PVStatistics)
 	stsInfo.Initialized = false
 
 	return stsInfo
