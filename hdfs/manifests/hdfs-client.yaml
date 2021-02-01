@@ -29,9 +29,9 @@ spec:
           - containerPort: 31822
         env:
           - name: FIRST_FILE_SIZE
-            value: "756"
+            value: "0"
           - name: INCREASE_FILE_SIZE
-            value: "252"
+            value: "0"
           - name: INCREASE_FILE_NUMBER
             value: "7"
           - name: INCREASE_TIME
