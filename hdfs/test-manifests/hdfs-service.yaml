@@ -79,7 +79,7 @@ spec:
   selector:
     name: hdfs-datanode
   ports:
-    - name: promethues
+    - name: prometheus
       port: 10318
       targetPort: 10318
       nodePort: 31318
