@@ -41,6 +41,7 @@ func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
 	stsInfo.StatefulSetName = stsName
 	stsInfo.PodInfos = make(map[string]PodInfo)
 	stsInfo.PVInfos  = make(map[string]rs.PVStatistics)
+	stsInfo.Initialized = false
 
 	return stsInfo
 }
