@@ -22,46 +22,11 @@ func (p PodInfo)GetPVNames() []string {
 	return p.PVNames
 }
 
-/**************************************************/
-
-type PVStatistics struct {
-	DiskUtilization    [][]string
-	DiskIOPS           [][]string
-	DiskWriteMBPS      [][]string
-	DiskReadMBPS       [][]string
-}
-
-func (p *PVStatistics) GetPVDiskWriteMBPS() [][]string {
-	return p.DiskWriteMBPS
-}
-func (p *PVStatistics) AppendPVDiskWriteMBPS(timeAndMbps []string) {
-	p.DiskWriteMBPS = append(p.DiskWriteMBPS,timeAndMbps)
-}
-func (p *PVStatistics) GetPVDiskReadMBPS() [][]string {
-	return p.DiskReadMBPS
-}
-func (p *PVStatistics) AppendPVDiskReadMBPS(timeAndMbps []string) {
-	p.DiskReadMBPS = append(p.DiskReadMBPS, timeAndMbps)
-}
-func (p *PVStatistics) GetPVDiskUtilization() [][]string {
-	return p.DiskUtilization
-}
-func (p *PVStatistics) AppendPVDiskUtilization(timeAndUtilization []string) {
-	p.DiskUtilization = append(p.DiskUtilization, timeAndUtilization)
-}
-func (p PVStatistics) GetPVDiskIOPS() [][]string {
-	return p.DiskIOPS
-}
-func (p *PVStatistics) AppendPVDiskIOPS(timeAndIops []string) {
-	p.DiskIOPS = append(p.DiskIOPS, timeAndIops)
-}
-
 /****************************************************/
 
 type StatefulSetInfo struct {
 	StatefulSetName      string                /* statefulSet name        */
 	PodInfos             map[string]PodInfo    /* podName --> PodInfo     */
-	PVInfos              map[string]PVStatistics
 	Initialized          bool                  /* whether the obj has been initialized */
 }
 
@@ -70,6 +35,7 @@ func getStatefulSetInfoObj(stsName string) StatefulSetInfo {
 
 	stsInfo.StatefulSetName = stsName
 	stsInfo.PodInfos = make(map[string]PodInfo)
+	stsInfo.Initialized = false
 
 	return stsInfo
 }

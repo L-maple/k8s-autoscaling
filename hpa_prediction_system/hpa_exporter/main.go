@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -46,10 +47,8 @@ var (
 	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
 
-	/* memory database -- disk infos */
-	// TODO: 将这4个全局变量合并到statefulInfo中
-	diskInfoInMemoryMutex sync.RWMutex
-	diskIOPSInMemory, diskUtilizationInMemory, diskReadMBPSInMemory, diskWriteMBPSInMemory map[string][][]string
+	pvMutex       sync.RWMutex
+	PVInfos       map[string]rs.PVStatistics
 )
 
 const (
@@ -239,10 +238,7 @@ func init() {
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 
-	diskIOPSInMemory        = make(map[string][][]string)
-	diskUtilizationInMemory = make(map[string][][]string)
-	diskReadMBPSInMemory    = make(map[string][][]string)
-	diskWriteMBPSInMemory   = make(map[string][][]string)
+	PVInfos  = make(map[string]rs.PVStatistics)
 }
 
 func main() {
