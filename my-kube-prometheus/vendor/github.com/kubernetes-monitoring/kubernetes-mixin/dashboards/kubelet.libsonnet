@@ -1,4 +1,4 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
+local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
 local dashboard = grafana.dashboard;
 local row = grafana.row;
 local prometheus = grafana.prometheus;
@@ -26,7 +26,7 @@ local singlestat = grafana.singlestat;
           span=2,
           valueName='min',
         )
-        .addTarget(prometheus.target('sum(kubelet_running_pod_count{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance"})' % $._config, legendFormat='{{instance}}'));
+        .addTarget(prometheus.target('sum(kubelet_running_pods{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance"})' % $._config, legendFormat='{{instance}}'));
 
       local runningContainerCount =
         singlestat.new(
@@ -35,7 +35,7 @@ local singlestat = grafana.singlestat;
           span=2,
           valueName='min',
         )
-        .addTarget(prometheus.target('sum(kubelet_running_container_count{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance"})' % $._config, legendFormat='{{instance}}'));
+        .addTarget(prometheus.target('sum(kubelet_running_containers{%(clusterLabel)s="$cluster", %(kubeletSelector)s, instance=~"$instance"})' % $._config, legendFormat='{{instance}}'));
 
       local actualVolumeCount =
         singlestat.new(
@@ -292,7 +292,7 @@ local singlestat = grafana.singlestat;
           legend_alignAsTable=true,
           legend_rightSide=true,
         )
-        .addTarget(prometheus.target('histogram_quantile(0.99, sum(rate(rest_client_request_latency_seconds_bucket{%(clusterLabel)s="$cluster",%(kubeletSelector)s, instance=~"$instance"}[5m])) by (instance, verb, url, le))' % $._config, legendFormat='{{instance}} {{verb}} {{url}}'));
+        .addTarget(prometheus.target('histogram_quantile(0.99, sum(rate(rest_client_request_duration_seconds_bucket{%(clusterLabel)s="$cluster",%(kubeletSelector)s, instance=~"$instance"}[5m])) by (instance, verb, url, le))' % $._config, legendFormat='{{instance}} {{verb}} {{url}}'));
 
       local memory =
         graphPanel.new(

@@ -12,12 +12,14 @@ spec:
       app: grafana
   template:
     metadata:
+      annotations:
+        checksum/grafana-datasources: 48faab41f579fc8efde6034391496f6a
       labels:
         app: grafana
     spec:
       containers:
       - env: []
-        image: aliuchangjie/grafana:6.4.3
+        image: aliuchangjie/grafana:7.3.4
         name: grafana
         ports:
         - containerPort: 3000

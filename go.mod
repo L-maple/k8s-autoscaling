@@ -3,8 +3,12 @@ module github.com/k8s-autoscaling
 go 1.13
 
 require (
+	github.com/brancz/gojsontoyaml v0.0.0-20201216083616-202f76bf8c1f // indirect
+	github.com/cloudflare/cfssl v1.5.0 // indirect
 	github.com/golang/protobuf v1.4.3
+	github.com/google/go-jsonnet v0.17.0 // indirect
 	github.com/idoubi/goz v1.0.0
+	github.com/jsonnet-bundler/jsonnet-bundler v0.4.0 // indirect
 	github.com/prometheus/client_golang v1.9.0
 	github.com/sercand/kuberesolver v2.4.0+incompatible
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect

@@ -57,11 +57,6 @@ This page collects this repositories alerts and begins the process of describing
 + *Message*: `A number of pods of daemonset {{$labels.namespace}}/{{$labels.daemonset}} are running where they are not supposed to run.`
 + *Severity*: warning
 
-##### Alert Name: "KubeCronJobRunning"
-+ *Message*: `CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} is taking more than 1h to complete.`
-+ *Severity*: warning
-+ *Action*: Check the cronjob using `kubectl describe cronjob <cronjob>` and look at the pod logs using `kubectl logs <pod>` for further information.
-
 ##### Alert Name: "KubeJobCompletion"
 + *Message*: `Job {{ $labels.namespace }}/{{ $labels.job_name }} is taking more than 1h to complete.`
 + *Severity*: warning
@@ -85,6 +80,12 @@ This page collects this repositories alerts and begins the process of describing
 ##### Alert Name: "KubeMemOvercommit"
 + *Message*: `Overcommited Memory resource request quota on Namespaces.`
 + *Severity*: warning
+##### Alert Name: "KubeQuotaAlmostFull"
++ *Message*: `{{ $value | humanizePercentage }} usage of {{ $labels.resource }} in namespace {{ $labels.namespace }}.`
++ *Severity*: info
+##### Alert Name: "KubeQuotaFullyUsed"
++ *Message*: `{{ $value | humanizePercentage }} usage of {{ $labels.resource }} in namespace {{ $labels.namespace }}.`
++ *Severity*: info
 ##### Alert Name: "KubeQuotaExceeded"
 + *Message*: `{{ $value | humanizePercentage }} usage of {{ $labels.resource }} in namespace {{ $labels.namespace }}.`
 + *Severity*: warning
@@ -110,18 +111,6 @@ This page collects this repositories alerts and begins the process of describing
 + *Severity*: warning
 ##### Alert Name: "KubeletTooManyPods"
 + *Message*: `Kubelet {{$labels.instance}} is running {{$value}} pods, close to the limit of 110.`
-+ *Severity*: warning
-##### Alert Name: "KubeAPILatencyHigh"
-+ *Message*: `The API server has a 99th percentile latency of {{ $value }} seconds for {{$labels.verb}} {{$labels.resource}}.`
-+ *Severity*: warning
-##### Alert Name: "KubeAPILatencyHigh"
-+ *Message*: `The API server has a 99th percentile latency of {{ $value }} seconds for {{$labels.verb}} {{$labels.resource}}.`
-+ *Severity*: critical
-##### Alert Name: "KubeAPIErrorsHigh"
-+ *Message*: `API server is erroring for {{ $value | humanizePercentage }} of requests.`
-+ *Severity*: critical
-##### Alert Name: "KubeAPIErrorsHigh"
-+ *Message*: `API server is erroring for {{ $value | humanizePercentage }} of requests.`
 + *Severity*: warning
 ##### Alert Name: "KubeClientCertificateExpiration"
 + *Message*: `A client certificate used to authenticate to the apiserver is expiring in less than 7 days.`

@@ -35,7 +35,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Cluster has overcommitted CPU resource requests for Pods and cannot tolerate node failure.',
+              description: 'Cluster has overcommitted CPU resource requests for Pods and cannot tolerate node failure.',
+              summary: 'Cluster has overcommitted CPU resource requests.',
             },
             'for': '5m',
           },
@@ -54,7 +55,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Cluster has overcommitted memory resource requests for Pods and cannot tolerate node failure.',
+              description: 'Cluster has overcommitted memory resource requests for Pods and cannot tolerate node failure.',
+              summary: 'Cluster has overcommitted memory resource requests.',
             },
             'for': '5m',
           },
@@ -70,7 +72,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Cluster has overcommitted CPU resource requests for Namespaces.',
+              description: 'Cluster has overcommitted CPU resource requests for Namespaces.',
+              summary: 'Cluster has overcommitted CPU resource requests.',
             },
             'for': '5m',
           },
@@ -79,16 +82,51 @@
             expr: |||
               sum(kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="hard", resource="memory"})
                 /
-              sum(kube_node_status_allocatable_memory_bytes{%(nodeExporterSelector)s})
+              sum(kube_node_status_allocatable_memory_bytes{%(kubeStateMetricsSelector)s})
                 > %(namespaceOvercommitFactor)s
             ||| % $._config,
             labels: {
               severity: 'warning',
             },
             annotations: {
-              message: 'Cluster has overcommitted memory resource requests for Namespaces.',
+              description: 'Cluster has overcommitted memory resource requests for Namespaces.',
+              summary: 'Cluster has overcommitted memory resource requests.',
             },
             'for': '5m',
+          },
+          {
+            alert: 'KubeQuotaAlmostFull',
+            expr: |||
+              kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="used"}
+                / ignoring(instance, job, type)
+              (kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="hard"} > 0)
+                > 0.9 < 1
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'info',
+            },
+            annotations: {
+              description: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
+              summary: 'Namespace quota is going to be full.',
+            },
+          },
+          {
+            alert: 'KubeQuotaFullyUsed',
+            expr: |||
+              kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="used"}
+                / ignoring(instance, job, type)
+              (kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="hard"} > 0)
+                == 1
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'info',
+            },
+            annotations: {
+              description: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
+              summary: 'Namespace quota is fully used.',
+            },
           },
           {
             alert: 'KubeQuotaExceeded',
@@ -96,14 +134,15 @@
               kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="used"}
                 / ignoring(instance, job, type)
               (kube_resourcequota{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, type="hard"} > 0)
-                > 0.90
+                > 1
             ||| % $._config,
             'for': '15m',
             labels: {
               severity: 'warning',
             },
             annotations: {
-              message: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
+              description: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
+              summary: 'Namespace quota has exceeded the limits.',
             },
           },
           {
@@ -116,10 +155,11 @@
             ||| % $._config,
             'for': '15m',
             labels: {
-              severity: 'warning',
+              severity: 'info',
             },
             annotations: {
-              message: '{{ $value | humanizePercentage }} throttling of CPU in namespace {{ $labels.namespace }} for container {{ $labels.container }} in pod {{ $labels.pod }}.',
+              description: '{{ $value | humanizePercentage }} throttling of CPU in namespace {{ $labels.namespace }} for container {{ $labels.container }} in pod {{ $labels.pod }}.',
+              summary: 'Processes experience elevated CPU throttling.',
             },
           },
         ],

@@ -1,5 +1,3 @@
-local slo = import 'slo-libsonnet/slo.libsonnet';
-
 {
   _config+:: {
     SLOs: {
@@ -60,6 +58,10 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
       'kubelet.json': 'B1azll2ETo7DTiM8CysrH6g4s5NCgkOz6ZdU8Q0j',
     },
 
+    // Support for Grafana 7.2+ `$__rate_interval` instead of `$__interval`
+    grafana72: true,
+    grafanaIntervalVar: if self.grafana72 then '$__rate_interval' else '$__interval',
+
     // Config for the Grafana dashboards in the Kubernetes Mixin
     grafanaK8s: {
       dashboardNamePrefix: 'Kubernetes / ',
@@ -71,6 +73,7 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
 
       // The default refresh time for all dashboards, default to 10s
       refresh: '10s',
+      minimumTimeInterval: '1m',
     },
 
     // Opt-in to multiCluster dashboards by overriding this and the clusterLabel.
@@ -84,7 +87,7 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
     fstypeSelector: 'fstype=~"%s"' % std.join('|', self.fstypes),
 
     // This list of disk device names is referenced in various expressions.
-    diskDevices: ['nvme.+', 'rbd.+', 'sd.+', 'vd.+', 'xvd.+', 'dm-.+', 'dasd.+'],
+    diskDevices: ['mmcblk.p.+', 'nvme.+', 'rbd.+', 'sd.+', 'vd.+', 'xvd.+', 'dm-.+', 'dasd.+'],
     diskDeviceSelector: 'device=~"%s"' % std.join('|', self.diskDevices),
   },
 }

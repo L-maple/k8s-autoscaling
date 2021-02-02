@@ -17,16 +17,15 @@ spec:
       labels:
         name: prometheus-adapter
     spec:
-      hostNetwork: true
       containers:
       - args:
         - --cert-dir=/var/run/serving-cert
         - --config=/etc/adapter/config.yaml
         - --logtostderr=true
-        - --metrics-relist-interval=5s
+        - --metrics-relist-interval=1m
         - --prometheus-url=http://prometheus-k8s.monitoring.svc:9090/
         - --secure-port=6443
-        image: aliuchangjie/k8s-prometheus-adapter-amd64:v0.5.0
+        image: aliuchangjie/k8s-prometheus-adapter:v0.8.2
         name: prometheus-adapter
         ports:
         - containerPort: 6443

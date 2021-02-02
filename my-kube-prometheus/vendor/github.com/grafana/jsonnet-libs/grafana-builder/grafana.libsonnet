@@ -1,5 +1,5 @@
 {
-  dashboard(title, uid=''):: {
+  dashboard(title, uid='', datasource='default'):: {
     // Stuff that isn't materialised.
     _nextPanel:: 1,
     addRow(row):: self {
@@ -88,8 +88,8 @@
       list: [
         {
           current: {
-            text: 'default',
-            value: 'default',
+            text: datasource,
+            value: datasource,
           },
           hide: 0,
           label: null,
@@ -282,6 +282,7 @@
         type: if std.objectHas(labelStyle, 'type') then labelStyle.type else 'number',
         unit: if std.objectHas(labelStyle, 'unit') then labelStyle.unit else 'short',
         link: std.objectHas(labelStyle, 'link'),
+        linkTargetBlank: if std.objectHas(labelStyle, 'linkTargetBlank') then labelStyle.linkTargetBlank else false,
         linkTooltip: if std.objectHas(labelStyle, 'linkTooltip') then labelStyle.linkTooltip else 'Drill down',
         linkUrl: if std.objectHas(labelStyle, 'link') then labelStyle.link else '',
       },
@@ -319,6 +320,25 @@
     ],
   },
 
+  textPanel(title, markdown):: {
+    type: 'text',
+    title: title,
+    options: {
+      content: markdown,
+      mode: 'markdown',
+    },
+    transparent: true,
+    datasource: null,
+    timeFrom: null,
+    timeShift: null,
+    fieldConfig: {
+      defaults: {
+        custom: {},
+      },
+      overrides: [],
+    },
+  },
+
   stack:: {
     stack: true,
     fill: 10,
@@ -347,7 +367,7 @@
       },
     ],
 
-  qpsPanel(selector):: {
+  qpsPanel(selector, statusLabelName='status_code'):: {
     aliasColors: {
       '1xx': '#EAB839',
       '2xx': '#7EB26D',
@@ -359,9 +379,13 @@
     },
     targets: [
       {
-        expr: 'sum by (status) (label_replace(label_replace(rate(' + selector + '[$__interval]),'
-              + ' "status", "${1}xx", "status_code", "([0-9]).."),'
-              + ' "status", "${1}",   "status_code", "([a-z]+)"))',
+        expr:
+          |||
+            sum by (status) (
+              label_replace(label_replace(rate(%s[$__rate_interval]),
+              "status", "${1}xx", "%s", "([0-9]).."),
+              "status", "${1}", "%s", "([a-z]+)"))
+          ||| % [selector, statusLabelName, statusLabelName],
         format: 'time_series',
         intervalFactor: 2,
         legendFormat: '{{status}}',
@@ -375,7 +399,7 @@
     nullPointMode: 'null as zero',
     targets: [
       {
-        expr: 'histogram_quantile(0.99, sum(rate(%s_bucket%s[$__interval])) by (le)) * %s' % [metricName, selector, multiplier],
+        expr: 'histogram_quantile(0.99, sum(rate(%s_bucket%s[$__rate_interval])) by (le)) * %s' % [metricName, selector, multiplier],
         format: 'time_series',
         intervalFactor: 2,
         legendFormat: '99th Percentile',
@@ -383,7 +407,7 @@
         step: 10,
       },
       {
-        expr: 'histogram_quantile(0.50, sum(rate(%s_bucket%s[$__interval])) by (le)) * %s' % [metricName, selector, multiplier],
+        expr: 'histogram_quantile(0.50, sum(rate(%s_bucket%s[$__rate_interval])) by (le)) * %s' % [metricName, selector, multiplier],
         format: 'time_series',
         intervalFactor: 2,
         legendFormat: '50th Percentile',
@@ -391,7 +415,7 @@
         step: 10,
       },
       {
-        expr: 'sum(rate(%s_sum%s[$__interval])) * %s / sum(rate(%s_count%s[$__interval]))' % [metricName, selector, multiplier, metricName, selector],
+        expr: 'sum(rate(%s_sum%s[$__rate_interval])) * %s / sum(rate(%s_count%s[$__rate_interval]))' % [metricName, selector, multiplier, metricName, selector],
         format: 'time_series',
         intervalFactor: 2,
         legendFormat: 'Average',

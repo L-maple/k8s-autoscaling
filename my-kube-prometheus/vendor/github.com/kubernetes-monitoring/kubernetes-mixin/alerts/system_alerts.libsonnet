@@ -11,14 +11,15 @@
           {
             alert: 'KubeVersionMismatch',
             expr: |||
-              count(count by (gitVersion) (label_replace(kubernetes_build_info{%(notKubeDnsCoreDnsSelector)s},"gitVersion","$1","gitVersion","(v[0-9]*.[0-9]*.[0-9]*).*"))) > 1
+              count(count by (gitVersion) (label_replace(kubernetes_build_info{%(notKubeDnsCoreDnsSelector)s},"gitVersion","$1","gitVersion","(v[0-9]*.[0-9]*).*"))) > 1
             ||| % $._config,
             'for': '15m',
             labels: {
               severity: 'warning',
             },
             annotations: {
-              message: 'There are {{ $value }} different semantic versions of Kubernetes components running.',
+              description: 'There are {{ $value }} different semantic versions of Kubernetes components running.',
+              summary: 'Different semantic versions of Kubernetes components running.',
             },
           },
           {
@@ -37,7 +38,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: "Kubernetes API server client '{{ $labels.job }}/{{ $labels.instance }}' is experiencing {{ $value | humanizePercentage }} errors.'",
+              description: "Kubernetes API server client '{{ $labels.job }}/{{ $labels.instance }}' is experiencing {{ $value | humanizePercentage }} errors.'",
+              summary: 'Kubernetes API server client is experiencing errors.',
             },
           },
         ],
