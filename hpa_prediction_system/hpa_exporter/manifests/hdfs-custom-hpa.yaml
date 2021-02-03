@@ -29,11 +29,11 @@ spec:
       # stabilizationWindowSeconds: 300
       selectPolicy: Disabled   # 禁止缩容
     scaleUp:
-#      https://kubernetes:io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-custom-metrics:
-      stabilizationWindowSeconds: 0
+#      https://kubernetes:io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-custom-metrics
+      stabilizationWindowSeconds: 30
       policies:
         - type: Pods
           value: 1
-          periodSeconds: 15
-      selectPolicy: Min
+          periodSeconds: 60    # 表示策略的时间长度必须保证有效，该策略中每60s最多增加1个Pod
+      selectPolicy: Min        # 通过设置Min值，HPA将选择副本数量变化最小的策略；
 
