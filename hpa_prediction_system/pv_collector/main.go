@@ -40,7 +40,7 @@ func getPVServiceClient() (pb.PVServiceClient, *grpc.ClientConn) {
 }
 
 func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime * 3) * time.Second)
 	defer cancel()
 	resp, err := pvServiceClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
 	if err != nil {
@@ -54,7 +54,7 @@ func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) 
 }
 
 func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo) (int32, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime) * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime * 3) * time.Second)
 	defer cancel()
 
 	resp, err := pvServiceClient.ReplyPVInfos(ctx, &pb.PVInfosRequest{
@@ -63,6 +63,7 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	})
 	if err != nil {
 		log.Println("pvServiceClient.PVInfosRequest error: ", err)
+		time.Sleep(time.Duration(intervalTime) * time.Second)
 		return -1, err
 	}
 
