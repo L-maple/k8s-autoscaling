@@ -12,11 +12,9 @@ type HPAFiniteStateMachine struct {
 	stateMutex               sync.RWMutex
 	finiteState              int
 	stabilizationWindowTime  int64
-	scaleUpTime              int64
 }
 func (h *HPAFiniteStateMachine) Initialize() {
 	h.finiteState = FreeState
-	h.scaleUpTime = math.MaxInt64
 	h.stabilizationWindowTime = math.MaxInt64
 }
 func (h *HPAFiniteStateMachine) GetState() int {
@@ -33,13 +31,6 @@ func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
 	stabilizationWindowTime := h.stabilizationWindowTime
 	return stabilizationWindowTime
 }
-func (h *HPAFiniteStateMachine) GetScaleUpTime() int64 {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
-
-	scaleUpTime := h.scaleUpTime
-	return scaleUpTime
-}
 
 /*
  * transferFromScaleUpToFreeState: 该方法将使得hpaState的状态从ScaleUp转到Free
@@ -49,19 +40,18 @@ func (h *HPAFiniteStateMachine) transferFromScaleUpToFreeState() {
 	h.stateMutex.Lock()
 	h.stateMutex.Unlock()
 	h.finiteState = FreeState
-	h.scaleUpTime = math.MaxInt64   // TODO: 对这里的-1还需要重新思考, 如何保证状态迁移的正常进行，同时扩容时能将状态转到FreeState
+	h.stabilizationWindowTime = math.MaxInt64   // TODO: 对这里的-1还需要重新思考, 如何保证状态迁移的正常进行，同时扩容时能将状态转到FreeState
 	fmt.Println("transferFromScaleUpToFreeState called: hpaFSM transfer to FreeState.")
 }
 /*
  * transferFromFreeToStressState: 该方法将使得hpaState的状态从Free转到Stress
  * 该方法只能由 cpuTimer, diskIOPSTimer, diskMBPSTimer 和 diskUtilizationTimer 调用
  */
-func (h *HPAFiniteStateMachine) transferFromFreeToStressState(stabilizationWindowTime int64, scaleUpTime int64) {
+func (h *HPAFiniteStateMachine) transferFromFreeToStressState(stabilizationWindowTime int64) {
 	h.stateMutex.Lock()
 	defer h.stateMutex.Unlock()
 	h.finiteState = StressState
 	h.stabilizationWindowTime = stabilizationWindowTime
-	h.scaleUpTime = scaleUpTime
 }
 /*
  * TODO: 该方法该由谁来调用呢?
@@ -72,7 +62,6 @@ func (h *HPAFiniteStateMachine) transferFromStressToFreeState() {
 	defer h.stateMutex.Unlock()
 	h.finiteState = FreeState
 	h.stabilizationWindowTime = math.MaxInt64
-	h.scaleUpTime = math.MaxInt64
 }
 /*
  * transferFromStressToScaleUpState: 该方法将使得hpaState从Stress状态转移至ScaleUp状态
@@ -83,17 +72,28 @@ func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
 	defer h.stateMutex.Unlock()
 	h.finiteState = ScaleUpState
 	h.stabilizationWindowTime = math.MaxInt64
-	h.scaleUpTime = math.MaxInt64
 }
 
 type StateTimer struct {}
 func (s StateTimer) Run() {
+	podNumber := len(stsInfoGlobal.GetPodNames())
+
 	for {
-		if hpaFSM.GetState() == StressState && hpaFSM.GetScaleUpTime() >= time.Now().Unix() {
+		scaleUpFinished := false
+
+		if hpaFSM.GetState() == StressState && hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
 			hpaFSM.transferFromStressToScaleUpState()
 		}
 
-		if hpaFSM.GetState() == ScaleUpState && { // TODO: 如何判定扩容完成了？
+		stsMutex.Lock()
+		currentPodNumber := len(stsInfoGlobal.GetPodNames())
+		stsMutex.Unlock()
+		if podNumber < currentPodNumber {
+			scaleUpFinished = true
+		}
+		podNumber = currentPodNumber
+
+		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true { // TODO: 如何判定扩容完成了？
 			hpaFSM.transferFromScaleUpToFreeState()
 		}
 
@@ -121,12 +121,12 @@ func (d DiskUtilizationTimer) Run() {
 		}
 
 		avgDiskUtilization := getAvgFloat64(diskUtilizationSlice)
-		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.85)
+		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
 
-		if podCounter-aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.85 {
+		if podCounter-aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.5 {
 			if hpaFSM.GetState() == FreeState {
-				stabilizationWindowTime, scaleUpTime := time.Now().Unix(), time.Now().Unix()
-				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, scaleUpTime)
+				stabilizationWindowTime := time.Now().Unix() + 60
+				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime)
 			}
 		}
 		// TODO: 增加从Stress到Free的逻辑
