@@ -73,7 +73,7 @@ metadata:
   name: hdfs-pexport
   namespace: monitoring
   labels:
-    name: hdfs-datanode
+    name: hdfs-datanode-pexport
 spec:
   type: NodePort
   selector:

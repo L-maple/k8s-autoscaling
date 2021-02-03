@@ -5,8 +5,8 @@
         "annotations": {
             "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{},\"name\":\"monitoring\"}}\n"
         },
-        "creationTimestamp": "2021-02-01T13:12:28Z",
-        "deletionTimestamp": "2021-02-01T13:18:00Z",
+        "creationTimestamp": "2021-02-02T06:12:37Z",
+        "deletionTimestamp": "2021-02-02T06:45:30Z",
         "managedFields": [
             {
                 "apiVersion": "v1",
@@ -24,7 +24,7 @@
                 },
                 "manager": "kubectl-client-side-apply",
                 "operation": "Update",
-                "time": "2021-02-01T13:12:28Z"
+                "time": "2021-02-02T06:12:37Z"
             },
             {
                 "apiVersion": "v1",
@@ -78,13 +78,13 @@
                 },
                 "manager": "kube-controller-manager",
                 "operation": "Update",
-                "time": "2021-02-01T13:20:00Z"
+                "time": "2021-02-02T06:46:27Z"
             }
         ],
         "name": "monitoring",
-        "resourceVersion": "9739824",
+        "resourceVersion": "9905504",
         "selfLink": "/api/v1/namespaces/monitoring",
-        "uid": "ece0f1af-6f7a-4c79-acd3-6f13b0ce03ae"
+        "uid": "c7a0fa64-28ae-4570-b371-b7bffa43b807"
     },
     "spec": {
         "finalizers": [
@@ -93,35 +93,35 @@
     "status": {
         "conditions": [
             {
-                "lastTransitionTime": "2021-02-01T13:18:11Z",
-                "message": "All resources successfully discovered",
-                "reason": "ResourcesDiscovered",
-                "status": "False",
+                "lastTransitionTime": "2021-02-02T06:45:42Z",
+                "message": "Discovery failed for some groups, 3 failing: unable to retrieve the complete list of server APIs: custom.metrics.k8s.io/v1beta1: the server is currently unable to handle the request, custom.metrics.k8s.io/v1beta2: the server is currently unable to handle the request, external.metrics.k8s.io/v1beta1: the server is currently unable to handle the request",
+                "reason": "DiscoveryFailed",
+                "status": "True",
                 "type": "NamespaceDeletionDiscoveryFailure"
             },
             {
-                "lastTransitionTime": "2021-02-01T13:18:10Z",
+                "lastTransitionTime": "2021-02-02T06:45:36Z",
                 "message": "All legacy kube types successfully parsed",
                 "reason": "ParsedGroupVersions",
                 "status": "False",
                 "type": "NamespaceDeletionGroupVersionParsingFailure"
             },
             {
-                "lastTransitionTime": "2021-02-01T13:20:00Z",
+                "lastTransitionTime": "2021-02-02T06:46:04Z",
                 "message": "Failed to delete all resource types, 1 remaining: unexpected items still remain in namespace: monitoring for gvr: /v1, Resource=pods",
                 "reason": "ContentDeletionFailed",
                 "status": "True",
                 "type": "NamespaceDeletionContentFailure"
             },
             {
-                "lastTransitionTime": "2021-02-01T13:18:10Z",
-                "message": "Some resources are remaining: pods. has 3 resource instances",
+                "lastTransitionTime": "2021-02-02T06:45:36Z",
+                "message": "Some resources are remaining: pods. has 1 resource instances",
                 "reason": "SomeResourcesRemain",
                 "status": "True",
                 "type": "NamespaceContentRemaining"
             },
             {
-                "lastTransitionTime": "2021-02-01T13:18:10Z",
+                "lastTransitionTime": "2021-02-02T06:46:27Z",
                 "message": "All content-preserving finalizers finished",
                 "reason": "ContentHasNoFinalizers",
                 "status": "False",

@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      name: hdfs-datanode
+      name: hdfs-datanode-pexport
   endpoints:
   - interval: 15s
     port: prometheus

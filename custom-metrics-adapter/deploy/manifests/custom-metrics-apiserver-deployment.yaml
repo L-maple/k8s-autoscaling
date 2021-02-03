@@ -19,18 +19,25 @@ spec:
       serviceAccountName: custom-metrics-apiserver
       containers:
       - name: custom-metrics-apiserver
-        image: directxman12/k8s-prometheus-adapter-amd64
+        image: aliuchangjie/k8s-prometheus-adapter-amd64:v0.5.0
         args:
         - --secure-port=6443
         - --tls-cert-file=/var/run/serving-cert/serving.crt
         - --tls-private-key-file=/var/run/serving-cert/serving.key
         - --logtostderr=true
         - --prometheus-url=http://prometheus-k8s.monitoring.svc:9090/
-        - --metrics-relist-interval=20s
+        - --metrics-relist-interval=10s
         - --v=10
         - --config=/etc/adapter/config.yaml
         ports:
         - containerPort: 6443
+        resources:
+          limits:
+            cpu: 200m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
         volumeMounts:
         - mountPath: /var/run/serving-cert
           name: volume-serving-cert
@@ -46,6 +53,6 @@ spec:
           secretName: cm-adapter-serving-certs
       - name: config
         configMap:
-          name: adapter-config
+          name: custom-adapter-config
       - name: tmp-vol
         emptyDir: {}

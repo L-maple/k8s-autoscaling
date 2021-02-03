@@ -6,10 +6,9 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - namespaces
   - pods
-  - nodes
-  - nodes/stats
+  - services
   verbs:
   - get
   - list
-  - watch

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: adapter-config
+  name: custom-adapter-config
   namespace: monitoring
 data:
   config.yaml: |
@@ -96,22 +96,3 @@ data:
               resource: pod
         containerLabel: container_name
       window: 1m
-    externalRules:
-    - seriesQuery: '{__name__=~"^.*_queue_(length|size)$",namespace!=""}'
-      resources:
-        overrides:
-          namespace:
-            resource: namespace
-      name:
-        matches: ^.*_queue_(length|size)$
-        as: "$0"
-      metricsQuery: max(<<.Series>>{<<.LabelMatchers>>})
-    - seriesQuery: '{__name__=~"^.*_queue$",namespace!=""}'
-      resources:
-        overrides:
-          namespace:
-            resource: namespace
-      name:
-        matches: ^.*_queue$
-        as: "$0"
-      metricsQuery: max(<<.Series>>{<<.LabelMatchers>>})
