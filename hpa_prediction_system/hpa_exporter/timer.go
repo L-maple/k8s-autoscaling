@@ -31,7 +31,6 @@ func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
 	stabilizationWindowTime := h.stabilizationWindowTime
 	return stabilizationWindowTime
 }
-
 /*
  * transferFromScaleUpToFreeState: 该方法将使得hpaState的状态从ScaleUp转到Free
  * 该方法只能由 StateTimer 调用
@@ -39,8 +38,8 @@ func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
 func (h *HPAFiniteStateMachine) transferFromScaleUpToFreeState() {
 	h.stateMutex.Lock()
 	h.stateMutex.Unlock()
-	h.finiteState = FreeState
-	h.stabilizationWindowTime = math.MaxInt64   // TODO: 对这里的-1还需要重新思考, 如何保证状态迁移的正常进行，同时扩容时能将状态转到FreeState
+	h.finiteState             = FreeState
+	h.stabilizationWindowTime = math.MaxInt64
 	fmt.Println("transferFromScaleUpToFreeState called: hpaFSM transfer to FreeState.")
 }
 /*
@@ -81,10 +80,12 @@ func (s StateTimer) Run() {
 	for {
 		scaleUpFinished := false
 
+		// 状态从 Stress 到 ScaleUp
 		if hpaFSM.GetState() == StressState && hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
 			hpaFSM.transferFromStressToScaleUpState()
 		}
 
+		// 状态从 ScaleUp 到 Free
 		stsMutex.Lock()
 		currentPodNumber := len(stsInfoGlobal.GetPodNames())
 		stsMutex.Unlock()
@@ -93,7 +94,7 @@ func (s StateTimer) Run() {
 		}
 		podNumber = currentPodNumber
 
-		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true { // TODO: 如何判定扩容完成了？
+		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true { // TODO: 能否判定扩容完成了？测试验证下
 			hpaFSM.transferFromScaleUpToFreeState()
 		}
 
@@ -104,6 +105,7 @@ func (s StateTimer) Run() {
 type DiskUtilizationTimer struct {}
 func (d DiskUtilizationTimer) Run() {
 	for {
+		// 状态从 Free 到 Stress
 		stsMutex.RLock()
 		podNameAndInfo := stsInfoGlobal.GetPodInfos()
 		stsMutex.RUnlock()
@@ -122,13 +124,13 @@ func (d DiskUtilizationTimer) Run() {
 
 		avgDiskUtilization := getAvgFloat64(diskUtilizationSlice)
 		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
-
-		if podCounter-aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.5 {
+		if podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.5 {
 			if hpaFSM.GetState() == FreeState {
 				stabilizationWindowTime := time.Now().Unix() + 60
 				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime)
 			}
 		}
+
 		// TODO: 增加从Stress到Free的逻辑
 
 		time.Sleep(time.Duration(5) * time.Second)
@@ -138,7 +140,12 @@ func (d DiskUtilizationTimer) Run() {
 type CPUTimer struct {}
 func (c CPUTimer) Run() {
 	for {
-		// TODO: 需要完成逻辑
+		// TODO: 增加从Free到Stress的逻辑
+
+
+		// TODO: 增加从Stress到Free的逻辑
+
+
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
@@ -146,7 +153,10 @@ func (c CPUTimer) Run() {
 type DiskIOPSTimer struct {}
 func (d DiskIOPSTimer) Run() {
 	for {
-		// TODO: 需要完成逻辑
+		// TODO: 增加从Free到Stress的逻辑
+
+		// TODO: 增加从Stress到Free的逻辑
+
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
@@ -154,7 +164,10 @@ func (d DiskIOPSTimer) Run() {
 type DiskMBPSTimer struct {}
 func (d DiskMBPSTimer) Run() {
 	for {
-		// TODO: 需要完成逻辑
+		// TODO: 增加从Free到Stress的逻辑
+
+		// TODO: 增加从Stress到Free的逻辑
+
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
