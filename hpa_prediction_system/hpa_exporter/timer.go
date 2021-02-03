@@ -124,6 +124,7 @@ func (d DiskUtilizationTimer) Run() {
 
 		avgDiskUtilization := getAvgFloat64(diskUtilizationSlice)
 		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
+		// TODO: 增加时间序列预测的支持
 		if podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.5 {
 			if hpaFSM.GetState() == FreeState {
 				stabilizationWindowTime := time.Now().Unix() + 60
