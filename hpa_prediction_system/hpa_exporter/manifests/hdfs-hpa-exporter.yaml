@@ -33,6 +33,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  # hdfs-hpa-exporter-service在 pv_collector的main.go中引用到
   name: hdfs-hpa-exporter-service
   namespace: monitoring
   labels:
