@@ -19,7 +19,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: hdfs-hpa-exporter
-          image: aliuchangjie/hpa_exporter
+          image: aliuchangjie/hpa_exporter:latest
           command: [ "/usr/bin/hpa_exporter" ]
           args: ["-statefulset", "hdfs-datanode", "-namespace", "monitoring"]
           ports:

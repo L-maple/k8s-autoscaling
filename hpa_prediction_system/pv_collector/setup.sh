@@ -11,25 +11,26 @@ git pull
 rm -f pv_collector
 echo "Step1: rm SUCCESS."
 
+# 删除遗留的yaml部署资源
+kubectl delete -f manifests/pv_collector.yaml
+echo "Step2: kubectl delete SUCCESS."
+
 # 编译生成可执行文件
 go build -o pv_collector .
-echo "Step2: go build SUCCESS."
+echo "Step3: go build SUCCESS."
 
 # 构建镜像
-docker build -t aliuchangjie/pv_collector .
-echo "Step3: docker build SUCCESS."
+docker rmi aliuchangjie/pv_collector:latest
+docker build -t aliuchangjie/pv_collector:latest .
+echo "Step4: docker build SUCCESS."
 
 # 登录
 docker login
-echo "Step4: docker login SUCCESS."
+echo "Step5: docker login SUCCESS."
 
 # 将镜像推送到仓库
-docker push aliuchangjie/pv_collector
-echo "Step5: docker push SUCCESS."
-
-# 删除遗留的yaml部署资源
-kubectl delete -f manifests/pv_collector.yaml
-echo "Step6: kubectl delete SUCCESS."
+docker push aliuchangjie/pv_collector:latest
+echo "Step6: docker push SUCCESS."
 
 # 部署yaml文件
 kubectl apply -f manifests/pv_collector.yaml

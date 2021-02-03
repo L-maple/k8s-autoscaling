@@ -18,7 +18,7 @@ go build -o hpa_exporter .
 echo "Step2: go build SUCCESS."
 
 # 构建镜像
-docker build -t aliuchangjie/hpa_exporter .
+docker build -t aliuchangjie/hpa_exporter:latest .
 echo "Step3: docker build SUCCESS."
 
 # 登录
@@ -26,7 +26,7 @@ docker login
 echo "Step4: docker login SUCCESS."
 
 # 将镜像推送到仓库
-docker push aliuchangjie/hpa_exporter
+docker push aliuchangjie/hpa_exporter:latest
 echo "Step5: docker push SUCCESS."
 
 # 删除遗留的yaml部署资源

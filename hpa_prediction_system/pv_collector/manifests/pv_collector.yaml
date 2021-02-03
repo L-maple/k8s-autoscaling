@@ -21,7 +21,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: pv-collector
-          image: aliuchangjie/pv_collector
+          image: aliuchangjie/pv_collector:latest
           command: [ "/usr/bin/pv_collector" ]
           # add privilege, so the container can see the host machine's filesystem
           securityContext:
