@@ -89,23 +89,23 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 
 		for _, pvName := range podInfo.PVNames {
 			fmt.Printf("%-40s \n", pvName)
-			diskIOPS, err        := PVInfos[pvName].GetLastDiskIOPS()
+			diskIOPS, err        := pvInfos.GetStatisticsByPVName(pvName).GetLastDiskIOPS()
 			if err != nil {
 				log.Fatal("getLastDiskIOPS: ", err)
 			}
-			diskReadMBPS, err    := PVInfos[pvName].GetLastDiskReadMBPS()
+			diskReadMBPS, err    := pvInfos.GetStatisticsByPVName(pvName).GetLastDiskReadMBPS()
 			if err != nil {
 				log.Fatal("getLastDiskReadMBPS: ", err)
 			}
-			diskWriteMBPS, err   := PVInfos[pvName].GetLastWriteMBPS()
+			diskWriteMBPS, err   := pvInfos.GetStatisticsByPVName(pvName).GetLastDiskWriteMBPS()
 			if err != nil {
 				log.Fatal("getLastWriteMBPS: ", err)
 			}
-			diskUtilization, err := PVInfos[pvName].GetLastDiskUtilization()
+			diskUtilization, err := pvInfos.GetStatisticsByPVName(pvName).GetLastDiskUtilization()
 			if err != nil {
 				log.Fatal("getLastDiskUtilization: ", err)
 			}
-			fmt.Printf("diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n\n",
+			fmt.Printf("From pv_collector: diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n\n",
 				diskIOPS, diskReadMBPS, diskWriteMBPS, diskUtilization)
 		}
 	}

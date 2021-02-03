@@ -39,7 +39,7 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 		StrWriteMBPS   := strconv.FormatFloat(float64(pvInfo.PVDiskWriteMBPS), 'f', 6, 64)
 
 		// 将PV信息添加到内存数组中
-		pvStatistics := PVInfos[pvName]
+		pvStatistics := pvInfos.GetStatisticsByPVName(pvName)
 		// IOPS
 		pvStatistics.DiskIOPS = append(pvStatistics.DiskIOPS, []string{StrTimestamp, StrIOPS})
 		if len(pvStatistics.DiskIOPS) > DiskInfoInMemoryNumber {
@@ -65,7 +65,7 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 			pvStatistics.DiskWriteMBPS = pvStatistics.DiskWriteMBPS[startIndex:]
 		}
 
-		PVInfos[pvName] = pvStatistics
+		pvInfos.SetStatisticsByPVName(pvName, pvStatistics)
 	}
 	return &pb.PVInfosResponse{Status: 1}, nil
 }

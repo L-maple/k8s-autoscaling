@@ -48,7 +48,7 @@ var (
 	stsInfoGlobal StatefulSetInfo
 
 	pvMutex       sync.RWMutex
-	PVInfos       map[string]rs.PVStatistics
+	pvInfos       rs.PVInfos
 )
 
 const (
@@ -238,7 +238,7 @@ func init() {
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 
-	PVInfos  = make(map[string]rs.PVStatistics)
+	pvInfos.Initialize()
 }
 
 func main() {
