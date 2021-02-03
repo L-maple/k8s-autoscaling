@@ -76,5 +76,6 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 
 		pvInfos.SetStatisticsByPVName(pvName, pvStatistics)
 	}
-	return &pb.PVInfosResponse{Status: 1}, nil
+
+	return &pb.PVInfosResponse{Status: 2}, nil
 }
