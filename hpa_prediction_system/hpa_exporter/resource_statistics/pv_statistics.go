@@ -17,7 +17,7 @@ func (p PVInfos) GetStatisticsByPVName(pvName string) PVStatistics {
 	return p.NameAndStatistics[pvName]
 }
 
-func (p PVInfos) SetStatisticsByPVName(pvName string, statistics PVStatistics) {
+func (p *PVInfos) SetStatisticsByPVName(pvName string, statistics PVStatistics) {
 	p.NameAndStatistics[pvName] = statistics
 }
 
