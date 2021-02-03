@@ -33,6 +33,8 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 
 	pvMutex.Lock()
 	defer pvMutex.Unlock()
+
+	fmt.Println(":::::len(pvInfoRequests.GetPVInfos): ", len(pvInfoRequests.GetPVInfos()))
 	for pvName, pvInfo := range pvInfoRequests.GetPVInfos() {
 		StrIOPS        := strconv.FormatFloat(float64(pvInfo.PVDiskIOPS), 'f', 6, 64)
 		StrUtilization := strconv.FormatFloat(float64(pvInfo.PVDiskUtilization), 'f', 6, 64)
