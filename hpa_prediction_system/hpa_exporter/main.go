@@ -43,6 +43,13 @@ var (
 		Help: "whether add pod, 0 - FreeState; 1 - StressState; 2 - ScaleUpState;",
 	})
 
+	hpaFSM               HPAFiniteStateMachine
+	stateTimer           StateTimer
+	cpuTimer             CPUTimer
+	diskMBPSTimer        DiskMBPSTimer
+	diskIOPSTimer        DiskIOPSTimer
+	diskUtilizationTimer DiskUtilizationTimer
+
 	/* global statefulSet's Pod info */
 	stsMutex      sync.RWMutex
 	stsInfoGlobal StatefulSetInfo
@@ -53,6 +60,11 @@ var (
 
 const (
 	DiskInfoInMemoryNumber = 500  /* 保存在内存中的时序数值数量 */
+
+	/* HPA Finite State*/
+	FreeState      = 0
+	StressState    = 1
+	ScaleUpState   = 2
 )
 
 
@@ -239,6 +251,15 @@ func init() {
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 
 	pvInfos.Initialize()
+
+}
+
+func timerStartUp() {
+	go cpuTimer.Run()
+	go diskIOPSTimer.Run()
+	go stateTimer.Run()
+	go diskMBPSTimer.Run()
+	go diskUtilizationTimer.Run()
 }
 
 func main() {
@@ -247,6 +268,8 @@ func main() {
 	stsMutex.RLock()
 	stsInfoGlobal.Initialized = false
 	stsMutex.RUnlock()
+
+	timerStartUp()
 
 	/* get K8s clientSet */
 	clientSet := getInClusterClientSet()

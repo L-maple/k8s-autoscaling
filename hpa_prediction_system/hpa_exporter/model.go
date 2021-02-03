@@ -10,11 +10,6 @@ import (
 var (
 	/* 副本数量 */
 	ReplicasAmount = 3
-
-	/* HPA Finite State*/
-	FreeState      = 0
-	StressState    = 1
-	ScaleUpState   = 2
 )
 
 func getHpaActivityState() int {
@@ -24,8 +19,15 @@ func getHpaActivityState() int {
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState
 	if stsInfoGlobal.Initialized == false {
 		printStatefulSetState(&stsInfoGlobal)
-		return FreeState
+
+		return hpaFSM.GetState()
 	}
+	printCurrentState()
+
+	return hpaFSM.GetState()
+}
+
+func printCurrentState() {
 	podNameAndInfo  := stsInfoGlobal.GetPodInfos()
 	memoryByteLimit := stsInfoGlobal.GetMemoryByteLimit()
 
@@ -45,7 +47,6 @@ func getHpaActivityState() int {
 		diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 	}
 
-	// TODO: 设置稳定窗口计时器
 	// 得到CPU的平均使用率
 	avgCpuUtilization    := getAvgFloat64(cpuUtilizationSlice)
 
@@ -56,17 +57,6 @@ func getHpaActivityState() int {
 	avgDiskUtilization    := getAvgFloat64(diskUtilizationSlice)
 	aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.85)
 
-	printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization, podCounter, aboveCeilingNumber)
-
-	if podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization > 0.8 {
-		return ScaleUpState
-	}
-
-	return FreeState
-}
-
-func printCurrentState(avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization float64,
-						podCounter, aboveCeilingNumber int) {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
