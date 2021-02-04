@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: hdfs-conf
-  namespace: monitoring
-data:
-  HDFS_MASTER_SERVICE: hdfs-namenode
-  HDFS_REP: "3"
