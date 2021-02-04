@@ -18,6 +18,13 @@ spec:
       - name: hdfs-namenode
         image: jinbozi/hdfs:1.0
         imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "250m"
+          limits:
+            memory: "2048Mi"
+            cpu: "500m"
         ports:
           - containerPort: 9000
           - containerPort: 8032
