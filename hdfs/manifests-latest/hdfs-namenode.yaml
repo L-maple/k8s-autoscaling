@@ -18,6 +18,13 @@ spec:
       - name: hdfs-namenode
         image: jinbozi/hdfs:1.0
         imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "250m"
+          limits:
+            memory: "2048Mi"
+            cpu: "500m"
         ports:
           - containerPort: 9000
           - containerPort: 8032
@@ -29,6 +36,8 @@ spec:
         volumeMounts:
           - name: hdfs
             mountPath: /custom/hdfs_dir
+          - name: hadoop_yarn_yarn_nodemanager_resource_memory_mb # 配置默认节点内存，单位为MB
+              value: 2048
         env:
           - name: image_function
             value: "namenode|resourcemanager"
