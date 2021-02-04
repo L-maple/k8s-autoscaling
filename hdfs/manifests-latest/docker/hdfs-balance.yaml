@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hdfs-balance
+  labels:
+    name: "hdfs-balance"
+spec:
+  containers:
+    - name: hdfs-balance
+      image: jinbozi/hdfs:1.0
+      imagePullPolicy: IfNotPresent
+      securityContext:
+          privileged: true
+      env:
+          - name: hadoop_core_fs_defaultFS
+            value: "hdfs://hdfs-namenode:9000"
+          - name: hadoop_yarn_yarn_resourcemanager_hostname
+            value: "hdfs-namenode"
+          - name: image_function
+            value: "balance"

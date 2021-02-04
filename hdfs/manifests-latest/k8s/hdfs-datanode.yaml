@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hdfs-datanode
+spec:
+  serviceName: "hdfs-datanode"
+  replicas: 4
+  selector:
+    matchLabels:
+      name: hdfs-datanode
+  template:
+    metadata:
+      labels:
+        name: hdfs-datanode
+    spec:
+      containers:
+      - name: hdfs-datanode
+        image: jinbozi/hdfs:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9000
+          - containerPort: 50070
+          - name: pexport
+            containerPort: 10318
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "250m"
+          limits:
+            memory: "2048Mi"
+            cpu: "1000m"
+        volumeMounts:
+          - name: hdfs
+            mountPath: /custom/hdfs_dir
+        securityContext:
+          privileged: true
+        env:
+          - name: image_function
+            value: "datanode|nodemanager|prometheus"
+          - name: hadoop_core_fs_defaultFS
+            value: "hdfs://hdfs-namenode:9000"
+          - name: hadoop_yarn_yarn_resourcemanager_hostname
+            value: "hdfs-namenode"
+  volumeClaimTemplates:
+  - metadata:
+      name: hdfs
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 4Gi
+      storageClassName: csi-lvm

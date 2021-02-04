@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hdfs-client
+  labels:
+    name: "hdfs-client"
+spec:
+  containers:
+    - name: hdfs-client
+      image: jinbozi/hdfs:1.0
+      imagePullPolicy: IfNotPresent
+      securityContext:
+          privileged: true
+      env:
+          - name: hadoop_core_fs_defaultFS
+            value: "hdfs://hdfs-namenode:9000"
+          - name: hadoop_yarn_yarn_resourcemanager_hostname
+            value: "hdfs-namenode"
+          - name: image_function
+            value: "execute"
+          - name: command
+            value: "hadoop jar /custom/hadoop-2.9.0/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0.jar TestDFSIO -write -nrFiles 4 -size 128MB"

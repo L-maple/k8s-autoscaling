@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<configuration>
+    <property>
+        <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+        <value>false</value>
+    </property>
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>hadoop_hdfs_dfs_namenode_name_dir</value>
+    </property>
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>hadoop_hdfs_dfs_datanode_data_dir</value>
+    </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>hadoop_hdfs_dfs_replication</value>
+    </property>
+    <property>
+        <name>dfs.datanode.balance.bandwidthPerSec</name>
+        <value>hadoop_hdfs_dfs_datanode_balance_bandwidthPerSec</value>
+    </property>
+</configuration>
+

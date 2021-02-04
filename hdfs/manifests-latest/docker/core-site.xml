@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<configuration>
+    <property>
+      <name>hadoop.security.token.service.use_ip</name>
+      <value>false</value>
+    </property>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hadoop_core_fs_defaultFS</value>
+    </property>
+    <property>
+      <name>dfs.namenode.rpc-bind-host</name>
+      <value>hadoop_core_dfs_namenode_rpc-bind-host</value>
+    </property>
+    <property>
+      <name>hadoop.tmp.dir</name>
+      <value>hadoop_core_hadoop_tmp_dir</value>
+    </property>
+</configuration>
+
