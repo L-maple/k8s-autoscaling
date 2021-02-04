@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hdfs-namenode
+  namespace: monitoring
 spec:
   type: ClusterIP
   selector:
@@ -26,6 +27,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hdfs-show
+  namespace: monitoring111
 spec:
   type: NodePort
   selector:
@@ -50,6 +52,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hdfs-datanode
+  namespace: monitoring
 spec:
   clusterIP: None
   selector:
@@ -68,12 +71,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hdfs-pexport
+  namespace: monitoring
+  labels:
+    name: hdfs-datanode-pexport
 spec:
   type: NodePort
   selector:
     name: hdfs-datanode
   ports:
-    - name: promethues
+    - name: prometheus
       port: 10318
       targetPort: 10318
       nodePort: 31318
