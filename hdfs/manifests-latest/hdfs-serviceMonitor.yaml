@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hdfs-datanode
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      name: hdfs-datanode-pexport
+  endpoints:
+  - interval: 15s
+    port: prometheus
+    path: /metrics
