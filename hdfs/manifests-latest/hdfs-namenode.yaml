@@ -36,11 +36,11 @@ spec:
         volumeMounts:
           - name: hdfs
             mountPath: /custom/hdfs_dir
-          - name: hadoop_yarn_yarn_nodemanager_resource_memory_mb # 配置默认节点内存，单位为MB
-              value: 2048
         env:
           - name: image_function
             value: "namenode|resourcemanager"
+          - name: hadoop_yarn_yarn_nodemanager_resource_memory_mb # 配置默认节点内存，单位为MB
+            value: 2048
   volumeClaimTemplates:
   - metadata:
       name: hdfs
