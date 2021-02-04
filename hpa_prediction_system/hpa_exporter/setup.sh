@@ -32,6 +32,9 @@ echo "Step5: docker push SUCCESS."
 # 删除遗留的yaml部署资源
 kubectl delete -f manifests/hpa-exporter.yaml
 kubectl delete -f manifests/hdfs-custom-hpa.yaml
+# 删除可执行文件
+rm -f hpa_exporter
+
 echo "Step6: kubectl delete SUCCESS."
 
 # 部署yaml文件

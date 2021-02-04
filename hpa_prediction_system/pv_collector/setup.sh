@@ -32,6 +32,9 @@ echo "Step5: docker login SUCCESS."
 docker push aliuchangjie/pv_collector:latest
 echo "Step6: docker push SUCCESS."
 
+# 删除可执行文件
+rm -f pv_collector
+
 # 部署yaml文件
 kubectl apply -f manifests/pv_collector.yaml
 echo "Step7: kubectl apply SUCCESS."
