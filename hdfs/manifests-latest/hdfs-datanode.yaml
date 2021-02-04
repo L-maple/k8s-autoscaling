@@ -43,7 +43,7 @@ spec:
           - name: hadoop_yarn_yarn_resourcemanager_hostname
             value: "hdfs-namenode"
           - name: hadoop_yarn_yarn_nodemanager_resource_memory_mb # 配置默认节点内存，单位为MB
-            value: 2048
+            value: "2048"
   volumeClaimTemplates:
   - metadata:
       name: hdfs
