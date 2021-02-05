@@ -24,21 +24,21 @@ spec:
       target:
         type: Utilization
         averageUtilization: 90
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+#  - type: Resource
+#    resource:
+#      name: memory
+#      target:
+#        type: Utilization
+#        averageUtilization: 80
   behavior:
     scaleDown:
       # stabilizationWindowSeconds: 300
       selectPolicy: Disabled   # 禁止缩容
     scaleUp:
       stabilizationWindowSeconds: 120  # 2分钟
-#      policies:
-#      - type: Pods
-#        value: 1
-#        periodSeconds: 300
-#      selectPolicy: Min
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 300
+      selectPolicy: Min
 
