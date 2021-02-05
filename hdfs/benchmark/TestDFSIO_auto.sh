@@ -7,7 +7,7 @@
 # command: ./hdfs-TestDFSIO.sh  
 #           <write/read>  write read
 #           <nrFiles>   1-10
-#           <size>      10-1000 step 50
+#           <size>      100-1100 step 100
 #       
   
 #----------------------------TestDFSIO----------------------------#
@@ -15,7 +15,7 @@
 mkdir TestDFSIO_log
 for i in {1..11}
 do
-   for j in {50..1050..50}
+   for j in {100..1100..100}
     do
       hadoop fs -rmr /benchmarks/TestDFSIO
       hadoop jar ${HADOOP_HOME}/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -write -nrFiles $i -size $j"MB" -resFile ./TestDFSIO_log/TestDFSIO-write-$i-$j.log
