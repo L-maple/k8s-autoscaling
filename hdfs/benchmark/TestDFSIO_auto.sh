@@ -13,9 +13,9 @@
 #----------------------------TestDFSIO----------------------------#
 
 mkdir TestDFSIO_log
-for i in {1..10}
+for i in {1..11}
 do
-   for j in {50..1000..50}
+   for j in {50..1050..50}
     do
       hadoop fs -rmr /benchmarks/TestDFSIO
       hadoop jar ${HADOOP_HOME}/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -write -nrFiles $i -size $j"MB" -resFile ./TestDFSIO_log/TestDFSIO-write-$i-$j.log

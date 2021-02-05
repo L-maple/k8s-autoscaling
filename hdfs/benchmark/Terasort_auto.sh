@@ -16,7 +16,7 @@ curdir=`pwd`
 #----------------------------Terasort----------------------------#
 
 mkdir Terasort_log
-for a in {10..1000..50}
+for a in {50..1050..50}
     do
     hadoop fs -rmr /benchmarks/test_data
     hadoop fs -rmr /benchmarks/terasort-output
