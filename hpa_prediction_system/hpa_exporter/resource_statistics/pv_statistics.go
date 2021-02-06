@@ -3,6 +3,7 @@ package statistics
 import (
 	"log"
 	"strconv"
+	"time"
 )
 
 type PVInfos struct {
@@ -80,7 +81,6 @@ type PVStatistics struct {
 }
 
 func (p PVStatistics)GetDiskIOPSs() [][]string {
-
 	return p.DiskIOPS
 }
 
@@ -93,6 +93,37 @@ func (p PVStatistics)GetLastDiskIOPS() (float64, error) {
 	StrDiskIOPS := diskIOPSSlice[len(diskIOPSSlice)-1][1]
 
 	return strconv.ParseFloat(StrDiskIOPS, 32)
+}
+
+func (p PVStatistics)GetTimeDurationAvgDiskIOPS(timeDurationSec int64) float64 {
+	diskIOPSSlice := p.GetDiskIOPSs()
+	if len(diskIOPSSlice) == 0 {
+		return 0.0
+	}
+
+	startTimeStamp := time.Now().Unix() - timeDurationSec
+	totalIOPS, number := 0.0, 0
+	for i := len(diskIOPSSlice)-1; i >= 0; i-- {
+		StrTimeStamp, StrDiskIOPS := diskIOPSSlice[i][0], diskIOPSSlice[i][1]
+		timestamp, err := strconv.ParseInt(StrTimeStamp, 10, 64)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+		diskIOPS, err := strconv.ParseFloat(StrDiskIOPS, 32)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+
+		if timestamp < startTimeStamp {  // 如果该记录的timestamp不在考虑范围内，那么退出循环
+			break
+		}
+
+		totalIOPS += diskIOPS
+		number++
+	}
+	avgIOPS := totalIOPS / float64(number)
+
+	return avgIOPS
 }
 
 func (p PVStatistics)GetDiskWriteMBPSs() [][]string {
@@ -110,6 +141,37 @@ func (p PVStatistics)GetLastDiskWriteMBPS() (float64, error) {
 	return strconv.ParseFloat(StrDiskWriteMBPS, 32)
 }
 
+func (p PVStatistics)GetTimeDurationAvgDiskWriteMBPS(timeDurationSec int64) float64 {
+	writeMBPSSlice := p.GetDiskWriteMBPSs()
+	if len(writeMBPSSlice) == 0 {
+		return 0.0
+	}
+
+	startTimeStamp := time.Now().Unix() - timeDurationSec
+	totalWriteMBPS, number := 0.0, 0
+	for i := len(writeMBPSSlice)-1; i >= 0; i-- {
+		StrTimeStamp, StrDiskWriteMBPS := writeMBPSSlice[i][0], writeMBPSSlice[i][1]
+		timestamp, err := strconv.ParseInt(StrTimeStamp, 10, 64)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+		writeMBPS, err := strconv.ParseFloat(StrDiskWriteMBPS, 32)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+
+		if timestamp < startTimeStamp {  // 如果该记录的timestamp不在考虑范围内，那么退出循环
+			break
+		}
+
+		totalWriteMBPS += writeMBPS
+		number++
+	}
+	avgWriteMBPS := totalWriteMBPS / float64(number)
+
+	return avgWriteMBPS
+}
+
 func (p PVStatistics)GetDiskReadMBPSs() [][]string {
 	return p.DiskReadMBPS
 }
@@ -125,6 +187,37 @@ func (p PVStatistics)GetLastDiskReadMBPS() (float64, error) {
 	return strconv.ParseFloat(StrDiskReadMBPS, 32)
 }
 
+func (p PVStatistics)GetTimeDurationAvgDiskReadMBPS(timeDurationSec int64) float64 {
+	readMBPSSlice := p.GetDiskReadMBPSs()
+	if len(readMBPSSlice) == 0 {
+		return 0.0
+	}
+
+	startTimeStamp := time.Now().Unix() - timeDurationSec
+	totalReadMBPS, number := 0.0, 0
+	for i := len(readMBPSSlice)-1; i >= 0; i-- {
+		StrTimeStamp, StrDiskReadMBPS := readMBPSSlice[i][0], readMBPSSlice[i][1]
+		timestamp, err := strconv.ParseInt(StrTimeStamp, 10, 64)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+		readMBPS, err := strconv.ParseFloat(StrDiskReadMBPS, 32)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+
+		if timestamp < startTimeStamp {  // 如果该记录的timestamp不在考虑范围内，那么退出循环
+			break
+		}
+
+		totalReadMBPS += readMBPS
+		number++
+	}
+	avgReadMBPS := totalReadMBPS / float64(number)
+
+	return avgReadMBPS
+}
+
 func (p PVStatistics)GetDiskUtilizations() [][]string {
 	return p.DiskUtilization
 }
@@ -138,4 +231,35 @@ func (p PVStatistics)GetLastDiskUtilization() (float64, error) {
 	StrDiskUtilization := diskUtilizationSlice[len(diskUtilizationSlice)-1][1]
 
 	return strconv.ParseFloat(StrDiskUtilization, 32)
+}
+
+func (p PVStatistics)GetTimeDurationAvgDiskUtilization(timeDurationSec int64) float64 {
+	diskUtilizationSlice := p.GetDiskUtilizations()
+	if len(diskUtilizationSlice) == 0 {
+		return 0.0
+	}
+
+	startTimeStamp := time.Now().Unix() - timeDurationSec
+	totalDiskUtilization, number := 0.0, 0
+	for i := len(diskUtilizationSlice)-1; i >= 0; i-- {
+		StrTimeStamp, StrDiskUtilization := diskUtilizationSlice[i][0], diskUtilizationSlice[i][1]
+		timestamp, err := strconv.ParseInt(StrTimeStamp, 10, 64)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+		diskUtilization, err := strconv.ParseFloat(StrDiskUtilization, 32)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+
+		if timestamp < startTimeStamp {  // 如果该记录的timestamp不在考虑范围内，那么退出循环
+			break
+		}
+
+		totalDiskUtilization += diskUtilization
+		number++
+	}
+	avgDiskUtilization := totalDiskUtilization / float64(number)
+
+	return avgDiskUtilization
 }
