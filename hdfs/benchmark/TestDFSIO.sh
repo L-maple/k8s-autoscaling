@@ -12,11 +12,11 @@ curdir=`pwd`
   
 #----------------------------TestDFSIO----------------------------#
 
-mkdir testdfsio_log
-hadoop jar "${HADOOP_HOME}"/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -write -nrFiles 1 -size $size"MB" -resFile "$curdir"/testdfsio_log/TestDFSIO-write-$nrFiles-1-$size.log
+mkdir testdfsio_log_"$nrFiles"_"$size"
+hadoop jar "${HADOOP_HOME}"/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -write -nrFiles 1 -size $size"MB" -resFile "$curdir"/testdfsio_log_"$nrFiles"_"$size"/TestDFSIO-write-$nrFiles-1-$size.log
 for ((i=1; i<"$nrFiles"; i++))
 do
-  hadoop jar "${HADOOP_HOME}"/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -append -nrFiles 1 -size $size"MB" -resFile "$curdir"/testdfsio_log/TestDFSIO-append-$nrFiles-$i-$size.log
+  hadoop jar "${HADOOP_HOME}"/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -append -nrFiles 1 -size $size"MB" -resFile "$curdir"/testdfsio_log_"$nrFiles"_"$size"/TestDFSIO-append-$nrFiles-$i-$size.log
 done
 # hadoop jar ${HADOOP_HOME}/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -clean
 
