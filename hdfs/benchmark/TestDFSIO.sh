@@ -12,10 +12,10 @@ curdir=`pwd`
   
 #----------------------------TestDFSIO----------------------------#
 
-mkdir TestDFSIO_log
 
 for ((runs=1; runs<=10; runs++))
 do
+  mkdir testdfsio_log_$runs
   hadoop jar ${HADOOP_HOME}/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -write -nrFiles 1 -size $size"MB" -resFile $curdir/testdfsio_log_$runs/TestDFSIO-write-$nrFiles-1-$size.log
   for ((i=1; i<$nrFiles; i++))
   do
