@@ -17,7 +17,7 @@ spec:
         name: disk_utilization
       target: 
         type: AverageValue
-        averageValue: 0.5
+        averageValue: 0.6
   - type: Resource
     resource:
       name: cpu
