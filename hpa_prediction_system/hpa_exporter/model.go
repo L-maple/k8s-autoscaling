@@ -22,6 +22,7 @@ func getHpaActivityState() int {
 
 		return hpaFSM.GetState()
 	}
+
 	printCurrentState()
 
 	return hpaFSM.GetState()

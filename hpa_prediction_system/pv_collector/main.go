@@ -53,13 +53,13 @@ func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) 
 	return targets, nil
 }
 
-func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo) (int32, error) {
+func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PVInfo, timestamp int64) (int32, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(intervalTime * 3) * time.Second)
 	defer cancel()
 
 	resp, err := pvServiceClient.ReplyPVInfos(ctx, &pb.PVInfosRequest{
 		PVInfos: pvInfos,
-		Timestamp: time.Now().Unix(),
+		Timestamp: timestamp,
 	})
 	if err != nil {
 		log.Println("pvServiceClient.PVInfosRequest error: ", err)
@@ -169,6 +169,7 @@ func main() {
 	pvServiceClient, requestConn:= getPVServiceClient()
 	defer requestConn.Close()
 
+	timestamp := time.Now().Unix()
 	for {
 		targets, err := getTargetsFromServer(pvServiceClient)
 		if err != nil {
@@ -186,14 +187,18 @@ func main() {
 			pvInfos[target] = pvInfo
 		}
 
-		status, err := sendPVMetrics(pvServiceClient, pvInfos)
+		status, err := sendPVMetrics(pvServiceClient, pvInfos, timestamp)
 		if err != nil {
 			log.Println("error: ", err)
 		}
 
 		printCurrentPvInfos(targets, pvInfos, status)
 
-		time.Sleep(time.Duration(intervalTime) * time.Second)
+		nextTimestamp := timestamp + int64(intervalTime)
+		for time.Now().Unix() < nextTimestamp {
+			time.Sleep(time.Duration(100) * time.Millisecond)
+		}
+		timestamp = nextTimestamp
 	}
 }
 
