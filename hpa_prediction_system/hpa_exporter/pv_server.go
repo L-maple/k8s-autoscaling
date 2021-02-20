@@ -13,8 +13,6 @@ type server struct {
 func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
 	var pvNames []string
 
-	stsMutex.RLock()
-	defer stsMutex.RUnlock()
 	if stsInfoGlobal.PodInfos == nil {
 		return &pb.PVResponse{PvNames: pvNames}, nil
 	}
