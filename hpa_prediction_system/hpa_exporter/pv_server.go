@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	pb "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor"
 	"strconv"
 )
@@ -65,12 +64,12 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 			startIndex := len(pvStatistics.DiskWriteMBPS) - DiskInfoInMemoryNumber
 			pvStatistics.DiskWriteMBPS = pvStatistics.DiskWriteMBPS[startIndex:]
 		}
-		fmt.Println("-+-+-+-++++++++++++++++++++++++")
-		fmt.Println(len(pvStatistics.DiskUtilization),
-						len(pvStatistics.DiskWriteMBPS),
-						len(pvStatistics.DiskReadMBPS),
-						len(pvStatistics.DiskIOPS))
-		fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		//fmt.Println("-+-+-+-++++++++++++++++++++++++")
+		//fmt.Println(len(pvStatistics.DiskUtilization),
+		//				len(pvStatistics.DiskWriteMBPS),
+		//				len(pvStatistics.DiskReadMBPS),
+		//				len(pvStatistics.DiskIOPS))
+		//fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 		pvInfos.SetStatisticsByPVName(pvName, pvStatistics)
 	}
