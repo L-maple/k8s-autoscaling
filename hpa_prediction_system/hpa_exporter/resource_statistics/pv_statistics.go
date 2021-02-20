@@ -94,6 +94,10 @@ func (p *PVInfos) GetAvgLastDiskUtilization() float64 {
 		totalLastDiskUtilization += utilization
 		number++
 	}
+	if number == 0 {
+		return 0
+	}
+
 	return totalLastDiskUtilization / float64(number)
 }
 

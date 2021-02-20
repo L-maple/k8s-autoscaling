@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"time"
 )
@@ -78,9 +77,6 @@ func (d *DiskUtilizationTimer) Run() {
 			diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 		}
 		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization()
-		fmt.Println("~~~pvInfos.GetAvgLastDiskUtilization: ", avgDiskUtilization)
-		avgDiskUtilization = getAvgFloat64(diskUtilizationSlice)
-		fmt.Println("~~~getAvgFloat64: ", avgDiskUtilization)
 
 		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
 		// TODO: 增加时间序列预测的支持

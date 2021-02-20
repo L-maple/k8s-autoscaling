@@ -16,6 +16,9 @@ func getAvgFloat64(floatNumbers []float64) float64 {
 		floatSum += floatNumber
 	}
 
+	if len(floatNumbers) == 0 {
+		return 0
+	}
 	return floatSum / float64(len(floatNumbers))
 }
 
