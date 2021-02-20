@@ -16,7 +16,6 @@ import (
 	"net"
 	"net/http"
 	"path/filepath"
-	"sync"
 	"time"
 
 	pb "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor"
@@ -51,11 +50,10 @@ var (
 	diskUtilizationTimer DiskUtilizationTimer
 
 	/* global statefulSet's Pod info */
-	stsMutex      sync.RWMutex
-	stsInfoGlobal StatefulSetInfo
+	stsInfoGlobal       *StatefulSetInfo
 
-	pvMutex       sync.RWMutex
-	pvInfos       rs.PVInfos
+	/* store pvInfos in memory */
+	pvInfos              rs.PVInfos
 )
 
 const (
@@ -216,12 +214,9 @@ func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 			}
 
 			/* Set statefulSet's podInfos */
-			setStatefulSetPodInfos(clientSet, pods, namespaceName, statefulsetName, &stsInfo)
+			setStatefulSetPodInfos(clientSet, pods, namespaceName, statefulsetName, stsInfo)
 
-			//printStatefulSetPodInfos(stsInfo)
-			stsMutex.Lock()
-			stsInfoGlobal = stsInfo
-			stsMutex.Unlock()
+			stsInfoGlobal.setStatefulSetInfoObj(stsInfo)
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 		}
@@ -254,7 +249,7 @@ func init() {
 
 }
 
-func timerStartUp() {
+func timerSetUp() {
 	go cpuTimer.Run()
 	go diskIOPSTimer.Run()
 	go stateTimer.Run()
@@ -265,11 +260,9 @@ func timerStartUp() {
 func main() {
 	flag.Parse()
 
-	stsMutex.RLock()
-	stsInfoGlobal.Initialized = false
-	stsMutex.RUnlock()
+	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)
 
-	timerStartUp()
+	timerSetUp()
 
 	/* get K8s clientSet */
 	clientSet := getInClusterClientSet()

@@ -13,12 +13,10 @@ var (
 )
 
 func getHpaActivityState() int {
-	stsMutex.RLock()
-	defer stsMutex.RUnlock()
-
+	fmt.Println("test the new...")
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState
 	if stsInfoGlobal.Initialized == false {
-		printStatefulSetState(&stsInfoGlobal)
+		printStatefulSetState(stsInfoGlobal)
 
 		return hpaFSM.GetState()
 	}
@@ -61,7 +59,7 @@ func printCurrentState() {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
-	printStatefulSetState(&stsInfoGlobal)
+	printStatefulSetState(stsInfoGlobal)
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)

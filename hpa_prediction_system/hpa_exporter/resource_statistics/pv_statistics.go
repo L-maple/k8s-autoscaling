@@ -3,26 +3,40 @@ package statistics
 import (
 	"log"
 	"strconv"
+	"sync"
 	"time"
 )
 
 type PVInfos struct {
+	pvMutex           sync.RWMutex
 	NameAndStatistics map[string]PVStatistics
 }
 
 func (p *PVInfos) Initialize() {
+	p.pvMutex.Lock()
+	defer p.pvMutex.Unlock()
+
 	p.NameAndStatistics = make(map[string]PVStatistics)
 }
 
-func (p PVInfos) GetStatisticsByPVName(pvName string) PVStatistics {
+func (p *PVInfos) GetStatisticsByPVName(pvName string) PVStatistics {
+	p.pvMutex.RLock()
+	defer p.pvMutex.RUnlock()
+
 	return p.NameAndStatistics[pvName]
 }
 
 func (p *PVInfos) SetStatisticsByPVName(pvName string, statistics PVStatistics) {
+	p.pvMutex.Lock()
+	defer p.pvMutex.Unlock()
+
 	p.NameAndStatistics[pvName] = statistics
 }
 
-func (p PVInfos) GetAvgLastDiskIOPS() float64 {
+func (p *PVInfos) GetAvgLastDiskIOPS() float64 {
+	p.pvMutex.RLock()
+	defer p.pvMutex.RUnlock()
+
 	totalLastDiskIOPS, number := 0.0, 0
 	for _, statistics := range p.NameAndStatistics {
 		iops, err := statistics.GetLastDiskIOPS()
@@ -35,7 +49,10 @@ func (p PVInfos) GetAvgLastDiskIOPS() float64 {
 	return totalLastDiskIOPS / float64(number)
 }
 
-func (p PVInfos) GetAvgLastDiskReadMBPS() float64 {
+func (p *PVInfos) GetAvgLastDiskReadMBPS() float64 {
+	p.pvMutex.RLock()
+	defer p.pvMutex.RUnlock()
+
 	totalLastDiskReadMBPS, number := 0.0, 0
 	for _, statistics := range p.NameAndStatistics {
 		iops, err := statistics.GetLastDiskReadMBPS()
@@ -48,7 +65,10 @@ func (p PVInfos) GetAvgLastDiskReadMBPS() float64 {
 	return totalLastDiskReadMBPS / float64(number)
 }
 
-func (p PVInfos) GetAvgLastDiskWriteMBPS() float64 {
+func (p *PVInfos) GetAvgLastDiskWriteMBPS() float64 {
+	p.pvMutex.RLock()
+	defer p.pvMutex.RUnlock()
+
 	totalLastDiskWriteMBPS, number := 0.0, 0
 	for _, statistics := range p.NameAndStatistics {
 		mbps, err := statistics.GetLastDiskWriteMBPS()
@@ -61,7 +81,10 @@ func (p PVInfos) GetAvgLastDiskWriteMBPS() float64 {
 	return totalLastDiskWriteMBPS / float64(number)
 }
 
-func (p PVInfos) GetAvgLastDiskUtilization() float64 {
+func (p *PVInfos) GetAvgLastDiskUtilization() float64 {
+	p.pvMutex.RLock()
+	defer p.pvMutex.RUnlock()
+
 	totalLastDiskUtilization, number := 0.0, 0
 	for _, statistics := range p.NameAndStatistics {
 		utilization, err := statistics.GetLastDiskUtilization()

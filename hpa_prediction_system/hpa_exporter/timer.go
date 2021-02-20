@@ -86,9 +86,7 @@ func (s StateTimer) Run() {
 		}
 
 		// 状态从 ScaleUp 到 Free
-		stsMutex.Lock()
 		currentPodNumber := len(stsInfoGlobal.GetPodNames())
-		stsMutex.Unlock()
 		if podNumber < currentPodNumber {
 			scaleUpFinished = true
 		}
@@ -106,9 +104,7 @@ type DiskUtilizationTimer struct {}
 func (d DiskUtilizationTimer) Run() {
 	for {
 		// 状态从 Free 到 Stress
-		stsMutex.RLock()
 		podNameAndInfo := stsInfoGlobal.GetPodInfos()
-		stsMutex.RUnlock()
 
 		podCounter := len(podNameAndInfo)
 		var diskUtilizationSlice []float64

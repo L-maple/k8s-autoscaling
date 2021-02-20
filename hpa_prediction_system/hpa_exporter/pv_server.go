@@ -30,9 +30,6 @@ func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVRe
 func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosRequest) (*pb.PVInfosResponse, error) {
 	StrTimestamp := strconv.FormatInt(pvInfoRequests.Timestamp, 10)
 
-	pvMutex.Lock()
-	defer pvMutex.Unlock()
-
 	//fmt.Println(":::::len(pvInfoRequests.GetPVInfos): ", len(pvInfoRequests.GetPVInfos()))
 	for pvName, pvInfo := range pvInfoRequests.GetPVInfos() {
 		StrIOPS        := strconv.FormatFloat(float64(pvInfo.PVDiskIOPS), 'f', 6, 64)
