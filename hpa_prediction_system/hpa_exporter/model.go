@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-var (
-	/* 副本数量 */
-	ReplicasAmount = 3
-)
 
 func getHpaActivityState() int {
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState

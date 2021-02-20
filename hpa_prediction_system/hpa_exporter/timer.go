@@ -3,82 +3,22 @@ package main
 import (
 	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
-	"math"
-	"sync"
 	"time"
 )
 
 const (
-	/* HPA Finite State*/
-	FreeState      = 0
-	StressState    = 1
-	ScaleUpState   = 2
+	NoneTimerFlag            = 0
+	StateTimerFlag           = 1
+	DiskUtilizationTimerFlag = 2
+	CPUTimerFlag             = 3
+	DiskIOPSTimerFlag        = 4
+	DiskMBPSTimerFlag        = 5
 )
 
-
-type HPAFiniteStateMachine struct {
-	stateMutex               sync.RWMutex
-	finiteState              int
-	stabilizationWindowTime  int64
-}
-func (h *HPAFiniteStateMachine) Initialize() {
-	h.finiteState = FreeState
-	h.stabilizationWindowTime = math.MaxInt64
-}
-func (h *HPAFiniteStateMachine) GetState() int {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
-
-	return h.finiteState
-}
-func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
-
-	stabilizationWindowTime := h.stabilizationWindowTime
-	return stabilizationWindowTime
-}
-/*
- * transferFromScaleUpToFreeState: 该方法将使得hpaState的状态从ScaleUp转到Free
- * 该方法只能由 StateTimer 调用
- */
-func (h *HPAFiniteStateMachine) transferFromScaleUpToFreeState() {
-	h.stateMutex.Lock()
-	h.stateMutex.Unlock()
-	h.finiteState             = FreeState
-	h.stabilizationWindowTime = math.MaxInt64
-	fmt.Println("transferFromScaleUpToFreeState called: hpaFSM transfer to FreeState.")
-}
-/*
- * transferFromFreeToStressState: 该方法将使得hpaState的状态从Free转到Stress
- * 该方法只能由 cpuTimer, diskIOPSTimer, diskMBPSTimer 和 diskUtilizationTimer 调用
- */
-func (h *HPAFiniteStateMachine) transferFromFreeToStressState(stabilizationWindowTime int64) {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-	h.finiteState = StressState
-	h.stabilizationWindowTime = stabilizationWindowTime
-}
-/*
- * TODO: 该方法该由谁来调用呢?
- * TODO: 考虑下有2个timer都将状态调整到了stress，那么如何对状态进行正常操作
- */
-func (h *HPAFiniteStateMachine) transferFromStressToFreeState() {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-	h.finiteState = FreeState
-	h.stabilizationWindowTime = math.MaxInt64
-}
-/*
- * transferFromStressToScaleUpState: 该方法将使得hpaState从Stress状态转移至ScaleUp状态
- * 该方法只能由 StateTimer 调用
- */
-func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-	h.finiteState = ScaleUpState
-	h.stabilizationWindowTime = math.MaxInt64
-}
+var (
+	/* 副本数量 */
+	ReplicasAmount = 3
+)
 
 type StateTimer struct {}
 func (s StateTimer) Run() {
@@ -107,13 +47,26 @@ func (s StateTimer) Run() {
 	}
 }
 
-type DiskUtilizationTimer struct {}
-func (d DiskUtilizationTimer) Run() {
+type DiskUtilizationTimer struct {
+	stabilizationWindowTime  int64
+}
+func (d *DiskUtilizationTimer) SetStabilizationWindowTime(time int64) {
+	d.stabilizationWindowTime = time
+}
+func (d *DiskUtilizationTimer) GetStabilizationWindowTime() int64 {
+	return d.stabilizationWindowTime
+}
+func (d *DiskUtilizationTimer) GetStressCondition(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) bool {
+	return podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.7
+}
+func (d *DiskUtilizationTimer) Run() {
+	d.stabilizationWindowTime = 0
+
 	for {
 		// 状态从 Free 到 Stress
 		podNameAndInfo := stsInfoGlobal.GetPodInfos()
-
 		podCounter := len(podNameAndInfo)
+
 		var diskUtilizationSlice []float64
 		for podName, _ := range podNameAndInfo {
 			podStatisticsObj := rs.PodStatistics{
@@ -124,38 +77,73 @@ func (d DiskUtilizationTimer) Run() {
 
 			diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 		}
+		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization()
+		fmt.Println("~~~pvInfos.GetAvgLastDiskUtilization: ", avgDiskUtilization)
+		avgDiskUtilization = getAvgFloat64(diskUtilizationSlice)
+		fmt.Println("~~~getAvgFloat64: ", avgDiskUtilization)
 
-		avgDiskUtilization := getAvgFloat64(diskUtilizationSlice)
 		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
 		// TODO: 增加时间序列预测的支持
-		if podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.5 {
+		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
 			if hpaFSM.GetState() == FreeState {
-				stabilizationWindowTime := time.Now().Unix() + 60
-				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime)
+				stabilizationWindowTime := time.Now().Unix() + 60  // 进入1分钟稳定窗口时间
+				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
+				d.SetStabilizationWindowTime(stabilizationWindowTime)
+			}
+			if hpaFSM.GetState() == StressState {
+				stabilizationWindowTime := time.Now().Unix() + 60  // 进入1分钟稳定窗口时间
+				if hpaFSM.GetStabilizationWindowTime() > stabilizationWindowTime {
+					hpaFSM.resetStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
+					d.SetStabilizationWindowTime(stabilizationWindowTime)
+				}
 			}
 		}
 
-		// TODO: 增加从Stress到Free的逻辑
+		// 从Stress到Free的逻辑
+		if hpaFSM.GetState() == StressState &&
+			hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag &&
+			hpaFSM.GetStabilizationWindowTime() < d.GetStabilizationWindowTime() {
+			if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == false {
+				hpaFSM.transferFromStressToFreeState()
+			}
+		}
 
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
 
-type CPUTimer struct {}
-func (c CPUTimer) Run() {
+type CPUTimer struct {
+	stabilizationWindowTime  int64
+}
+func (c *CPUTimer) GetStabilizationWindowTime() int64 {
+	return c.stabilizationWindowTime
+}
+func (c *CPUTimer) SetStabilizationWindowTime(time int64) {
+	c.stabilizationWindowTime = time
+}
+func (c *CPUTimer) GetStressCondition() bool {
+	// TODO: 添加CPU计时器时间
+	return true
+}
+func (c *CPUTimer) Run() {
+	c.stabilizationWindowTime = 0
+
 	for {
 		// TODO: 增加从Free到Stress的逻辑
 
 
 		// TODO: 增加从Stress到Free的逻辑
 
-
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
 
-type DiskIOPSTimer struct {}
-func (d DiskIOPSTimer) Run() {
+type DiskIOPSTimer struct {
+	stabilizationWindowTime  int
+}
+func (d *DiskIOPSTimer) Run() {
+	d.stabilizationWindowTime = 0
+
 	for {
 		// TODO: 增加从Free到Stress的逻辑
 
@@ -165,8 +153,12 @@ func (d DiskIOPSTimer) Run() {
 	}
 }
 
-type DiskMBPSTimer struct {}
-func (d DiskMBPSTimer) Run() {
+type DiskMBPSTimer struct {
+	stabilizationWindowTime  int
+}
+func (d *DiskMBPSTimer) Run() {
+	d.stabilizationWindowTime = 0
+
 	for {
 		// TODO: 增加从Free到Stress的逻辑
 
