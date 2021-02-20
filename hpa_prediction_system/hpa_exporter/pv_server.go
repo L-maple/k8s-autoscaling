@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	pb "github.com/k8s-autoscaling/hpa_prediction_system/pv_monitor"
 	"strconv"
 )
@@ -34,7 +33,7 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 	pvMutex.Lock()
 	defer pvMutex.Unlock()
 
-	fmt.Println(":::::len(pvInfoRequests.GetPVInfos): ", len(pvInfoRequests.GetPVInfos()))
+	//fmt.Println(":::::len(pvInfoRequests.GetPVInfos): ", len(pvInfoRequests.GetPVInfos()))
 	for pvName, pvInfo := range pvInfoRequests.GetPVInfos() {
 		StrIOPS        := strconv.FormatFloat(float64(pvInfo.PVDiskIOPS), 'f', 6, 64)
 		StrUtilization := strconv.FormatFloat(float64(pvInfo.PVDiskUtilization), 'f', 6, 64)
@@ -67,15 +66,15 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 			startIndex := len(pvStatistics.DiskWriteMBPS) - DiskInfoInMemoryNumber
 			pvStatistics.DiskWriteMBPS = pvStatistics.DiskWriteMBPS[startIndex:]
 		}
-		fmt.Println("--------------------------------------")
-		fmt.Println("len(DiskIOPS): ", len(pvStatistics.DiskIOPS),
-						", len(DiskReadMBPS): ", len(pvStatistics.DiskReadMBPS),
-						", len(DiskWriteMBPS): ", len(pvStatistics.DiskWriteMBPS),
-						", len(DiskUtilization): ", len(pvStatistics.DiskUtilization))
-		fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		//fmt.Println("--------------------------------------")
+		//fmt.Println("len(DiskIOPS): ", len(pvStatistics.DiskIOPS),
+		//				", len(DiskReadMBPS): ", len(pvStatistics.DiskReadMBPS),
+		//				", len(DiskWriteMBPS): ", len(pvStatistics.DiskWriteMBPS),
+		//				", len(DiskUtilization): ", len(pvStatistics.DiskUtilization))
+		//fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 		pvInfos.SetStatisticsByPVName(pvName, pvStatistics)
 	}
 
-	return &pb.PVInfosResponse{Status: 2}, nil
+	return &pb.PVInfosResponse{Status: 1}, nil
 }
