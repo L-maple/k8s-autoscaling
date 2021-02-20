@@ -13,7 +13,6 @@ var (
 )
 
 func getHpaActivityState() int {
-	fmt.Println("test the new...")
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState
 	if stsInfoGlobal.Initialized == false {
 		printStatefulSetState(stsInfoGlobal)

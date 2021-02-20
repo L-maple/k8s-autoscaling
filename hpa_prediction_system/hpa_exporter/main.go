@@ -32,28 +32,26 @@ var (
 	/* port */
 	promPort      = ":30001"     /* For whether_add_pod exporter */
 	pvRequestPort = ":30002"     /* For ReplyPVInfos grpc */
-
 	/* prometheus endpoint: http://ip:port */
 	prometheusUrl    string
-
 	/* metric name to expose */
 	addPodMetric = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "whether_add_pod", // TODO: 命名不规范
 		Help: "whether add pod, 0 - FreeState; 1 - StressState; 2 - ScaleUpState;",
 	})
 
+	/* finite state machine*/
 	hpaFSM               HPAFiniteStateMachine
+	/* global statefulSet's Pod info */
+	stsInfoGlobal       *StatefulSetInfo
+	/* store pvInfos in memory */
+	pvInfos              rs.PVInfos
+
 	stateTimer           StateTimer
 	cpuTimer             CPUTimer
 	diskMBPSTimer        DiskMBPSTimer
 	diskIOPSTimer        DiskIOPSTimer
 	diskUtilizationTimer DiskUtilizationTimer
-
-	/* global statefulSet's Pod info */
-	stsInfoGlobal       *StatefulSetInfo
-
-	/* store pvInfos in memory */
-	pvInfos              rs.PVInfos
 )
 
 const (
@@ -245,8 +243,6 @@ func init() {
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 
-	pvInfos.Initialize()
-
 }
 
 func timerSetUp() {
@@ -260,7 +256,10 @@ func timerSetUp() {
 func main() {
 	flag.Parse()
 
+	/* 初始化系统状态 */
 	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)
+	hpaFSM.Initialize()
+	pvInfos.Initialize()
 
 	timerSetUp()
 

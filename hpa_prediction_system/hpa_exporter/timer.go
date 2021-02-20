@@ -21,8 +21,7 @@ func (h *HPAFiniteStateMachine) GetState() int {
 	h.stateMutex.RLock()
 	defer h.stateMutex.RUnlock()
 
-	currentState := h.finiteState
-	return currentState
+	return h.finiteState
 }
 func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
 	h.stateMutex.RLock()

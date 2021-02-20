@@ -13,7 +13,7 @@ type server struct {
 func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVResponse, error) {
 	var pvNames []string
 
-	if stsInfoGlobal.PodInfos == nil {
+	if stsInfoGlobal.isInitialized() == false {
 		return &pb.PVResponse{PvNames: pvNames}, nil
 	}
 
@@ -28,7 +28,6 @@ func (s *server) RequestPVNames(ctx context.Context, in *pb.PVRequest) (*pb.PVRe
 func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosRequest) (*pb.PVInfosResponse, error) {
 	StrTimestamp := strconv.FormatInt(pvInfoRequests.Timestamp, 10)
 
-	//fmt.Println(":::::len(pvInfoRequests.GetPVInfos): ", len(pvInfoRequests.GetPVInfos()))
 	for pvName, pvInfo := range pvInfoRequests.GetPVInfos() {
 		StrIOPS        := strconv.FormatFloat(float64(pvInfo.PVDiskIOPS), 'f', 6, 64)
 		StrUtilization := strconv.FormatFloat(float64(pvInfo.PVDiskUtilization), 'f', 6, 64)
@@ -61,12 +60,6 @@ func (s *server) ReplyPVInfos(ctx context.Context, pvInfoRequests *pb.PVInfosReq
 			startIndex := len(pvStatistics.DiskWriteMBPS) - DiskInfoInMemoryNumber
 			pvStatistics.DiskWriteMBPS = pvStatistics.DiskWriteMBPS[startIndex:]
 		}
-		//fmt.Println("--------------------------------------")
-		//fmt.Println("len(DiskIOPS): ", len(pvStatistics.DiskIOPS),
-		//				", len(DiskReadMBPS): ", len(pvStatistics.DiskReadMBPS),
-		//				", len(DiskWriteMBPS): ", len(pvStatistics.DiskWriteMBPS),
-		//				", len(DiskUtilization): ", len(pvStatistics.DiskUtilization))
-		//fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 		pvInfos.SetStatisticsByPVName(pvName, pvStatistics)
 	}

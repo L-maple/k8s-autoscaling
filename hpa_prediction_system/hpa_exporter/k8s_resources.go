@@ -50,6 +50,12 @@ func (s *StatefulSetInfo)setStatefulSetInfoObj(info *StatefulSetInfo) {
 	s.PodInfos        = info.GetPodInfos()
 	s.Initialized     = true
 }
+func (s *StatefulSetInfo)isInitialized() bool {
+	s.stsMutex.RLock()
+	defer s.stsMutex.RUnlock()
+
+	return s.Initialized
+}
 func (s *StatefulSetInfo) GetCpuMilliLimit() int64 {
 	s.stsMutex.RLock()
 	defer s.stsMutex.RUnlock()
