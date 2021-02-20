@@ -30,7 +30,7 @@ docker push aliuchangjie/hpa_exporter:latest
 echo "Step5: docker push SUCCESS."
 
 # 删除遗留的yaml部署资源
-kubectl delete -f manifests/hpa-exporter.yaml
+kubectl delete -f manifests/hdfs-hpa-exporter.yaml
 kubectl delete -f manifests/hdfs-custom-hpa.yaml
 # 删除可执行文件
 rm -f hpa_exporter
@@ -38,7 +38,7 @@ rm -f hpa_exporter
 echo "Step6: kubectl delete SUCCESS."
 
 # 部署yaml文件
-kubectl apply -f manifests/hpa-exporter.yaml
+kubectl apply -f manifests/hdfs-hpa-exporter.yaml
 kubectl apply -f manifests/hdfs-custom-hpa.yaml
 echo "Step7: kubectl apply SUCCESS."
 
