@@ -54,15 +54,6 @@ var (
 	diskUtilizationTimer DiskUtilizationTimer
 )
 
-const (
-	DiskInfoInMemoryNumber = 500  /* 保存在内存中的时序数值数量 */
-
-	/* HPA Finite State*/
-	FreeState      = 0
-	StressState    = 1
-	ScaleUpState   = 2
-)
-
 
 func getInClusterClientSet() *kubernetes.Clientset {
 	config, err := rest.InClusterConfig()

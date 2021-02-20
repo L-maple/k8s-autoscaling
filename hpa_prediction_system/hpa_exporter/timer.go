@@ -8,6 +8,14 @@ import (
 	"time"
 )
 
+const (
+	/* HPA Finite State*/
+	FreeState      = 0
+	StressState    = 1
+	ScaleUpState   = 2
+)
+
+
 type HPAFiniteStateMachine struct {
 	stateMutex               sync.RWMutex
 	finiteState              int

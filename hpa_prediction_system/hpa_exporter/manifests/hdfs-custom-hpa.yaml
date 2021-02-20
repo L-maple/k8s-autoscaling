@@ -20,7 +20,7 @@ spec:
         # kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1/namespaces/monitoring/services/*/whether_add_pod" | jq .
         apiVersion: v1
         kind: Service
-        name: hpa-exporter-service
+        name: hdfs-hpa-exporter-service
       target:
         type: Value
         value: 1
