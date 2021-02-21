@@ -104,25 +104,30 @@ func getClientSet() *kubernetes.Clientset {
 /* Set StatefulSet's info */
 func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 							nsName, statefulName string, stsInfo *StatefulSetInfo) {
-	statefulSetClient := clientSet.AppsV1().StatefulSets(nsName)
-	statefulSets, err := statefulSetClient.List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	/* Judge whether the input statefulSet exists */
 	isFound := false
 	matchLabels := make(map[string]string)
-	for _, statefulSet := range statefulSets.Items {
-		stsName, stsLabels := statefulSet.Name, statefulSet.Spec.Selector.MatchLabels
-		if stsName == statefulName {
-			isFound = true
-			matchLabels = stsLabels
+
+	for {
+		statefulSetClient := clientSet.AppsV1().StatefulSets(nsName)
+		statefulSets, err := statefulSetClient.List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			panic(err)
+		}
+
+		/* Judge whether the input statefulSet exists */
+		for _, statefulSet := range statefulSets.Items {
+			stsName, stsLabels := statefulSet.Name, statefulSet.Spec.Selector.MatchLabels
+			if stsName == statefulName {
+				isFound = true
+				matchLabels = stsLabels
+				break
+			}
+		}
+		if isFound == true {
 			break
 		}
-	}
-	if isFound == false {
-		log.Fatal("Error: statefulSetName not found")
+		log.Println("Error: statefulSetName not found: ", statefulsetName)
+		time.Sleep(time.Duration(intervalTime) * time.Second)
 	}
 
 	/* Search all pods' name in this statefulSetName */
