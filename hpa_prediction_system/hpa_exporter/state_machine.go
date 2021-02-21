@@ -31,8 +31,8 @@ func (h *HPAFiniteStateMachine) Initialize() {
 	h.timerFlag               = NoneTimerFlag
 }
 func (h *HPAFiniteStateMachine) GetState() int {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
+	//h.stateMutex.RLock()
+	//defer h.stateMutex.RUnlock()
 
 	return h.finiteState
 }

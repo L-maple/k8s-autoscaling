@@ -17,8 +17,8 @@ func getHpaActivityState() int {
 
 		return hpaFSM.GetState()
 	}
-
-	printCurrentState()
+	fmt.Println("what happened??")
+	//printCurrentState()
 
 	return hpaFSM.GetState()
 }
