@@ -46,7 +46,11 @@ func (s StateTimer) Run() {
 			hpaFSM.transferFromScaleUpToFreeState()
 		}
 
-		time.Sleep(time.Duration(100) * time.Second)
+		time.Sleep(time.Duration(20) * time.Second)
+
+		fsmLog.Println("FSMState:", hpaFSM.GetState(),
+							"stabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime(),
+							"timerFlag: ", hpaFSM.GetTimerFlag())
 	}
 }
 
@@ -85,13 +89,12 @@ func (d *DiskUtilizationTimer) Run() {
 		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
+			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
 			if hpaFSM.GetState() == FreeState {
-				stabilizationWindowTime := time.Now().Unix() + 60  // 进入1分钟稳定窗口时间
 				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
 				d.SetStabilizationWindowTime(stabilizationWindowTime)
 			}
 			if hpaFSM.GetState() == StressState {
-				stabilizationWindowTime := time.Now().Unix() + 60  // 进入1分钟稳定窗口时间
 				if hpaFSM.GetStabilizationWindowTime() > stabilizationWindowTime {
 					hpaFSM.resetStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
 					d.SetStabilizationWindowTime(stabilizationWindowTime)

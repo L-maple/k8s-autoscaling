@@ -74,7 +74,6 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 		}
 
 		for _, pvName := range podInfo.PVNames {
-			//TODO: 检查下为什么这里打印的是len() == 2
 			pvStatistics := pvInfos.GetStatisticsByPVName(pvName)
 			fmt.Println("len(DiskIOPS): ", len(pvStatistics.DiskIOPS),
 							", len(DiskWriteMBPS): ", len(pvStatistics.DiskWriteMBPS),
