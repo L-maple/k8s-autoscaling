@@ -22,7 +22,16 @@ var (
 
 type StateTimer struct {}
 func (s StateTimer) Run() {
-	podNumber := len(stsInfoGlobal.GetPodNames())
+	var podNumber int
+	for {
+		podNumber = len(stsInfoGlobal.GetPodNames())
+		if podNumber <= 0 {
+			fsmLog.Println("##StateTimer## podNumber is zero...")
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+		} else {
+			break
+		}
+	}
 
 	for {
 		scaleUpFinished := false
@@ -46,6 +55,10 @@ func (s StateTimer) Run() {
 
 		// TODO: 能否判定扩容完成了？测试验证下
 		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true {
+			fsmLog.Println("##StateTimer## transferFromScaleUpToFreeState: ",
+								"hpaFSM.GetState: ", hpaFSM.GetState(),
+								"hpaFSM.GetTimerFlag: ", hpaFSM.GetTimerFlag(),
+								"hpaFSM.GetStabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime())
 			hpaFSM.transferFromScaleUpToFreeState()
 		}
 
@@ -76,7 +89,8 @@ func (d *DiskUtilizationTimer) Run() {
 		// 状态从 Free 到 Stress
 		podNameAndInfo := stsInfoGlobal.GetPodInfos()
 		podCounter := len(podNameAndInfo)
-		if podCounter == 0 {
+		if podCounter == 0 {   // 说明stsInfoGlobal中还没有统计信息
+			fsmLog.Println("##DiskUtilizationTimer## podCounter is zero...")
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 			continue
 		}
