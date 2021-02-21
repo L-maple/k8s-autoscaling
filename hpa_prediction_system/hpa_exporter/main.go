@@ -243,6 +243,11 @@ func init() {
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 
+	/* 初始化系统状态 */
+	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)
+	hpaFSM.Initialize()
+	pvInfos.Initialize()
+	initializeFsmLogger()
 }
 
 func timerSetUp() {
@@ -271,13 +276,6 @@ func initializeFsmLogger() {
 
 func main() {
 	flag.Parse()
-
-	initializeFsmLogger()
-
-	/* 初始化系统状态 */
-	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)
-	hpaFSM.Initialize()
-	pvInfos.Initialize()
 
 	timerSetUp()
 
