@@ -51,7 +51,7 @@ func (s StateTimer) Run() {
 			scaleUpFinished = true
 		}
 
-		// TODO: 能否判定扩容完成了？测试验证下
+		// TODO: 能否判定扩容完成了？可以，但貌似一直在扩容
 		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true {
 			fsmLog.Println("##StateTimer## transferFromScaleUpToFreeState: ",
 								"hpaFSM.GetState: ", hpaFSM.GetState(),
@@ -70,7 +70,7 @@ func (s StateTimer) Run() {
 
 		previousPodNumber = currentPodNumber
 
-		time.Sleep(time.Duration(20) * time.Second)
+		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
 

@@ -80,11 +80,11 @@ func (h *HPAFiniteStateMachine) transferFromStressToFreeState() {
  * 该方法只能由 StateTimer 调用
  */
 func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
+	fsmLog.Println(time.Now(), "扩容原因: ", h.GetScaleUpReason())
+
 	h.finiteState             = ScaleUpState
 	h.stabilizationWindowTime = math.MaxInt64
 	h.timerFlag               = NoneTimerFlag
-
-	fsmLog.Println(time.Now(), "扩容原因: ", h.GetScaleUpReason())
 }
 /*
  * 返回稳定窗口
