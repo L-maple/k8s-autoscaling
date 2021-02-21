@@ -56,8 +56,8 @@ func printCurrentState() {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
-	//printStatefulSetState(stsInfoGlobal)
-	fmt.Println("without printStatefulSetState testing...")
+	printStatefulSetState(stsInfoGlobal)
+	//fmt.Println("without printStatefulSetState testing...")
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)

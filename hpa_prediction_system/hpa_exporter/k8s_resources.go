@@ -1,6 +1,8 @@
 package main
 
-import "sync"
+import (
+	"github.com/sasha-s/go-deadlock"
+)
 
 /**************************************************/
 
@@ -27,7 +29,7 @@ func (p PodInfo)GetPVNames() []string {
 /****************************************************/
 
 type StatefulSetInfo struct {
-	stsMutex             sync.RWMutex          /* stsMutex for StatefulSetInfo */
+	stsMutex             deadlock.RWMutex          /* stsMutex for StatefulSetInfo */
 	StatefulSetName      string                /* statefulSet name        */
 	PodInfos             map[string]PodInfo    /* podName --> PodInfo     */
 	Initialized          bool                  /* whether the obj has been initialized */

@@ -9,7 +9,9 @@ require (
 	github.com/google/go-jsonnet v0.17.0 // indirect
 	github.com/idoubi/goz v1.0.0
 	github.com/jsonnet-bundler/jsonnet-bundler v0.4.0 // indirect
+	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/prometheus/client_golang v1.9.0
+	github.com/sasha-s/go-deadlock v0.2.0 // indirect
 	github.com/sercand/kuberesolver v2.4.0+incompatible
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	golang.org/x/sys v0.0.0-20210110051926-789bb1bd4061 // indirect
