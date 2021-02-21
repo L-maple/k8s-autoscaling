@@ -54,5 +54,5 @@ spec:
       volumeMode: Filesystem
       resources:
         requests:
-          storage: 15Gi
+          storage: 1Gi
       storageClassName: csi-lvm
