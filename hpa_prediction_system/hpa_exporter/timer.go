@@ -61,13 +61,15 @@ func (s StateTimer) Run() {
 			scaleUpFinished = false
 		}
 
+		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.finiteState,
+			"stabilizationWindowTime: ", hpaFSM.stabilizationWindowTime,
+			"timerFlag: ", hpaFSM.timerFlag,
+			"previousPodNumber: ", previousPodNumber,
+			"currentPodNumber: ", currentPodNumber)
+
 		previousPodNumber = currentPodNumber
 
 		time.Sleep(time.Duration(20) * time.Second)
-
-		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.finiteState,
-							"stabilizationWindowTime: ", hpaFSM.stabilizationWindowTime,
-							"timerFlag: ", hpaFSM.timerFlag)
 	}
 }
 

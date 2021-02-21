@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/sasha-s/go-deadlock"
 	"math"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -17,7 +17,7 @@ const (
 
 
 type HPAFiniteStateMachine struct {
-	stateMutex               sync.RWMutex
+	stateMutex               deadlock.RWMutex
 
 	finiteState              int
 	stabilizationWindowTime  int64
@@ -29,8 +29,8 @@ func (h *HPAFiniteStateMachine) Initialize() {
 	h.timerFlag               = NoneTimerFlag
 }
 func (h *HPAFiniteStateMachine) GetState() int {
-	//h.stateMutex.RLock()
-	//defer h.stateMutex.RUnlock()
+	h.stateMutex.RLock()
+	defer h.stateMutex.RUnlock()
 
 	return h.finiteState
 }
