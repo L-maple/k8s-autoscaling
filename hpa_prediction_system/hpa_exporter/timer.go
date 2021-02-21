@@ -53,7 +53,7 @@ func (s StateTimer) Run() {
 
 		time.Sleep(time.Duration(20) * time.Second)
 
-		fsmLog.Println("FSMState:", hpaFSM.GetState(),
+		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.GetState(),
 							"stabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime(),
 							"timerFlag: ", hpaFSM.GetTimerFlag())
 	}
@@ -96,11 +96,19 @@ func (d *DiskUtilizationTimer) Run() {
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
 			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
 			if hpaFSM.GetState() == FreeState {
+				fsmLog.Println("##DiskUtilizationTimer## transferFromFreeToStressState: ",
+									"podCounter: ", podCounter,
+									"aboveCeilingNumber: ", aboveCeilingNumber,
+									"avgDiskUtilization: ", avgDiskUtilization)
 				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
 				d.SetStabilizationWindowTime(stabilizationWindowTime)
 			}
 			if hpaFSM.GetState() == StressState {
 				if hpaFSM.GetStabilizationWindowTime() > stabilizationWindowTime {
+					fsmLog.Println("##DiskUtilizationTimer## resetStressState: ",
+						"podCounter: ", podCounter,
+						"aboveCeilingNumber: ", aboveCeilingNumber,
+						"avgDiskUtilization: ", avgDiskUtilization)
 					hpaFSM.resetStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
 					d.SetStabilizationWindowTime(stabilizationWindowTime)
 				}
@@ -112,6 +120,10 @@ func (d *DiskUtilizationTimer) Run() {
 			hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag &&
 			hpaFSM.GetStabilizationWindowTime() < d.GetStabilizationWindowTime() {
 			if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == false {
+				fsmLog.Println("##DiskUtilizationTimer## transferFromStressToFreeState: ",
+					"podCounter: ", podCounter,
+					"aboveCeilingNumber: ", aboveCeilingNumber,
+					"avgDiskUtilization: ", avgDiskUtilization)
 				hpaFSM.transferFromStressToFreeState()
 			}
 		}
