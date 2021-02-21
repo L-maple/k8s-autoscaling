@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
+	"log"
 	"time"
 )
 
@@ -28,7 +29,11 @@ func (s StateTimer) Run() {
 		scaleUpFinished := false
 
 		// 状态从 Stress 到 ScaleUp
-		if hpaFSM.GetState() == StressState && hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
+		if hpaFSM.GetState() == StressState &&
+			hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
+			if hpaFSM.GetTimerFlag() == NoneTimerFlag {
+				log.Fatal("transferFromStressToScaleUpState Error: timerFlag is NoneTimerFlag")
+			}
 			hpaFSM.transferFromStressToScaleUpState()
 		}
 
