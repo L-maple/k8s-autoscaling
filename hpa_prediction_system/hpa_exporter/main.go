@@ -246,10 +246,10 @@ func init() {
 }
 
 func timerSetUp() {
-	go cpuTimer.Run()
-	go diskIOPSTimer.Run()
-	go stateTimer.Run()
-	go diskMBPSTimer.Run()
+	//go cpuTimer.Run()
+	//go diskIOPSTimer.Run()
+	//go stateTimer.Run()
+	//go diskMBPSTimer.Run()
 	go diskUtilizationTimer.Run()
 }
 

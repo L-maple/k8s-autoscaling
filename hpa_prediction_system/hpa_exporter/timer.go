@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"time"
 )
@@ -36,6 +37,8 @@ func (s StateTimer) Run() {
 		if podNumber < currentPodNumber {
 			scaleUpFinished = true
 		}
+		fmt.Println("Pod数量: ", podNumber, currentPodNumber)
+
 		podNumber = currentPodNumber
 
 		// TODO: 能否判定扩容完成了？测试验证下
@@ -43,7 +46,7 @@ func (s StateTimer) Run() {
 			hpaFSM.transferFromScaleUpToFreeState()
 		}
 
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(100) * time.Second)
 	}
 }
 
@@ -57,7 +60,7 @@ func (d *DiskUtilizationTimer) GetStabilizationWindowTime() int64 {
 	return d.stabilizationWindowTime
 }
 func (d *DiskUtilizationTimer) GetStressCondition(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) bool {
-	return podCounter - aboveCeilingNumber < ReplicasAmount || avgDiskUtilization >= 0.7
+	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.7)
 }
 func (d *DiskUtilizationTimer) Run() {
 	d.stabilizationWindowTime = 0
