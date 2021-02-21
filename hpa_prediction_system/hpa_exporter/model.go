@@ -10,7 +10,9 @@ import (
 
 func getHpaActivityState() int {
 	// 如果 stsInfoGlobal还没初始化，那么直接返回 FreeState
-	if stsInfoGlobal.Initialized == false {
+	fmt.Println("stsInfoFlobal.initialize: ", stsInfoGlobal.isInitialized())
+
+	if stsInfoGlobal.isInitialized() == false {
 		printStatefulSetState(stsInfoGlobal)
 
 		return hpaFSM.GetState()

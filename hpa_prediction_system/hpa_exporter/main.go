@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
@@ -177,12 +178,15 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 
 func ExposeAddPodMetric() {
 	go func() {
+		countTest := 1
 		for {
 			// TODO: build the forecast model
+			fmt.Println("countTest: ", time.Now(), countTest)
 			res := getHpaActivityState()
 			addPodMetric.Set(float64(res))
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
+			countTest++
 		}
 	}()
 
