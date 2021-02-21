@@ -33,16 +33,15 @@ func (c *PodStatistics) getUsageQuery(query string, timeRange int64) []interface
 		log.Fatal("json.Unmarshal: ", err)
 	}
 
+	var result []interface{}
 	data := jsonData["data"].(map[string]interface{})
-	values := data["result"].([]interface{})[0].(map[string]interface{})["values"]
-	valuesSlice := values.([]interface{})
-	for _, tsAndUtilization := range valuesSlice {
-		//res := tsAndUtilization.([]interface{})
-		//timestamp, utilization := res[0].(int64), res[1].(string)
-		_ = tsAndUtilization.([]interface{})
+	if len(data["result"].([]interface{})) == 0 {
+		return result
 	}
+	values := data["result"].([]interface{})[0].(map[string]interface{})["values"]
+	result = values.([]interface{})
 
-	return values.([]interface{})
+	return result
 }
 
 func (c *PodStatistics) GetAvgCpuUtilizations(timeRange int64) []interface{} {
@@ -74,6 +73,9 @@ func (c *PodStatistics) GetAvgDiskUtilizations(timeRange int64) []interface{} {
 func (c *PodStatistics) GetLastCpuUtilization() float64 {
 	cpuTimeAndUtilizations := c.GetAvgCpuUtilizations(3600)
 
+	if len(cpuTimeAndUtilizations) == 0 {
+		return 0.0
+	}
 	lastCpuTimeAndUtilization := cpuTimeAndUtilizations[len(cpuTimeAndUtilizations) - 1]
 	utilization := lastCpuTimeAndUtilization.([]interface{})[1].(string)
 
@@ -88,6 +90,9 @@ func (c *PodStatistics) GetLastCpuUtilization() float64 {
 func (c *PodStatistics) GetLastMemoryUsage() int64 {
 	memoryTimeAndUtilizations := c.GetAvgMemoryUsages(3600)
 
+	if len(memoryTimeAndUtilizations) == 0 {
+		return 0
+	}
 	lastMemoryTimeAndUtilization := memoryTimeAndUtilizations[len(memoryTimeAndUtilizations) - 1]
 	utilization := lastMemoryTimeAndUtilization.([]interface{})[1].(string)
 
@@ -102,6 +107,9 @@ func (c *PodStatistics) GetLastMemoryUsage() int64 {
 func (c *PodStatistics) GetLastDiskUtilization() float64 {
 	diskTimeAndUtilizations := c.GetAvgDiskUtilizations(3600)
 
+	if len(diskTimeAndUtilizations) == 0 {
+		return 0.0
+	}
 	lastDiskTimeAndUtilization := diskTimeAndUtilizations[len(diskTimeAndUtilizations) - 1]
 	utilization := lastDiskTimeAndUtilization.([]interface{})[1].(string)
 
