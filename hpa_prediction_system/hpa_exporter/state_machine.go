@@ -17,7 +17,7 @@ const (
 
 
 type HPAFiniteStateMachine struct {
-	stateMutex               deadlock.RWMutex
+	rwLock                   deadlock.RWMutex
 
 	finiteState              int
 	stabilizationWindowTime  int64
@@ -29,18 +29,12 @@ func (h *HPAFiniteStateMachine) Initialize() {
 	h.timerFlag               = NoneTimerFlag
 }
 func (h *HPAFiniteStateMachine) GetState() int {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
-
 	return h.finiteState
 }
 func (h *HPAFiniteStateMachine) GetTimerFlag() int {
 	return h.timerFlag
 }
 func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
-
 	return h.stabilizationWindowTime
 }
 /*
@@ -48,9 +42,6 @@ func (h *HPAFiniteStateMachine) GetStabilizationWindowTime() int64 {
  * 该方法只能由 StateTimer 调用
  */
 func (h *HPAFiniteStateMachine) transferFromScaleUpToFreeState() {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-
 	h.finiteState             = FreeState
 	h.stabilizationWindowTime = math.MaxInt64
 	h.timerFlag               = NoneTimerFlag
@@ -61,9 +52,6 @@ func (h *HPAFiniteStateMachine) transferFromScaleUpToFreeState() {
  * 该方法由 cpuTimer, diskIOPSTimer, diskMBPSTimer 和 diskUtilizationTimer 调用
  */
 func (h *HPAFiniteStateMachine) transferFromFreeToStressState(stabilizationWindowTime int64, timerFlag int) {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-
 	h.finiteState             = StressState
 	h.stabilizationWindowTime = stabilizationWindowTime
 	h.timerFlag               = timerFlag
@@ -73,9 +61,6 @@ func (h *HPAFiniteStateMachine) transferFromFreeToStressState(stabilizationWindo
  * 该方法由 cpuTimer, diskIOPSTimer, diskMBPSTimer 和 diskUtilizationTimer 调用
  */
 func (h *HPAFiniteStateMachine) resetStressState(stabilizationWindowTime int64, timerFlag int) {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Lock()
-
 	h.finiteState             = StressState
 	h.stabilizationWindowTime = stabilizationWindowTime
 	h.timerFlag               = timerFlag
@@ -86,9 +71,6 @@ func (h *HPAFiniteStateMachine) resetStressState(stabilizationWindowTime int64, 
  * TODO: 考虑下有2个timer都将状态调整到了stress，那么如何对状态进行正常操作
  */
 func (h *HPAFiniteStateMachine) transferFromStressToFreeState() {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-
 	h.finiteState             = FreeState
 	h.stabilizationWindowTime = math.MaxInt64
 	h.timerFlag               = NoneTimerFlag
@@ -98,9 +80,6 @@ func (h *HPAFiniteStateMachine) transferFromStressToFreeState() {
  * 该方法只能由 StateTimer 调用
  */
 func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
-	h.stateMutex.Lock()
-	defer h.stateMutex.Unlock()
-
 	h.finiteState             = ScaleUpState
 	h.stabilizationWindowTime = math.MaxInt64
 	h.timerFlag               = NoneTimerFlag
@@ -111,9 +90,6 @@ func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
  * 返回稳定窗口
  */
 func (h *HPAFiniteStateMachine) GetScaleUpReason() string {
-	h.stateMutex.RLock()
-	defer h.stateMutex.RUnlock()
-
 	if h.timerFlag == DiskUtilizationTimerFlag {
 		return "[扩容] DiskUtilization计时器达到稳定窗口时间~"
 	} else if h.timerFlag == DiskIOPSTimerFlag {

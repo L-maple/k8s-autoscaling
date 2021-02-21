@@ -214,7 +214,9 @@ func initializeStsPodInfos(clientSet *kubernetes.Clientset) {
 			/* Set statefulSet's podInfos */
 			setStatefulSetPodInfos(clientSet, pods, namespaceName, statefulsetName, stsInfo)
 
+			stsInfoGlobal.rwLock.Lock()
 			stsInfoGlobal.setStatefulSetInfoObj(stsInfo)
+			stsInfoGlobal.rwLock.Unlock()
 
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 		}

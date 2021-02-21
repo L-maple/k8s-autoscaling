@@ -36,6 +36,7 @@ func (s StateTimer) Run() {
 	scaleUpFinished := false
 	for {
 		// 状态从 Stress 到 ScaleUp
+		hpaFSM.rwLock.Lock()
 		if hpaFSM.GetState() == StressState &&
 			hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
 			if hpaFSM.GetTimerFlag() == NoneTimerFlag {
@@ -51,19 +52,19 @@ func (s StateTimer) Run() {
 		}
 
 		// TODO: 能否判定扩容完成了？测试验证下
-		// TODO: 可能存在协程死锁的问题，需要排查下
 		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true {
 			fsmLog.Println("##StateTimer## transferFromScaleUpToFreeState: ",
-								"hpaFSM.GetState: ", hpaFSM.finiteState,
+								"hpaFSM.GetState: ", hpaFSM.GetState(),
 								"hpaFSM.GetTimerFlag: ", hpaFSM.timerFlag,
-								"hpaFSM.GetStabilizationWindowTime: ", hpaFSM.stabilizationWindowTime)
+								"hpaFSM.GetStabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime())
 			hpaFSM.transferFromScaleUpToFreeState()
 			scaleUpFinished = false
 		}
+		hpaFSM.rwLock.Unlock()
 
-		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.finiteState,
-			"stabilizationWindowTime: ", hpaFSM.stabilizationWindowTime,
-			"timerFlag: ", hpaFSM.timerFlag,
+		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.GetState(),
+			"stabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime(),
+			"timerFlag: ", hpaFSM.GetTimerFlag(),
 			"previousPodNumber: ", previousPodNumber,
 			"currentPodNumber: ", currentPodNumber)
 
@@ -90,7 +91,10 @@ func (d *DiskUtilizationTimer) Run() {
 
 	for {
 		// 状态从 Free 到 Stress
+		stsInfoGlobal.rwLock.Lock()
 		podNameAndInfo := stsInfoGlobal.GetPodInfos()
+		stsInfoGlobal.rwLock.Unlock()
+
 		podCounter := len(podNameAndInfo)
 		if podCounter == 0 {   // 说明stsInfoGlobal中还没有统计信息
 			fsmLog.Println("##DiskUtilizationTimer## podCounter is zero...")
@@ -114,6 +118,8 @@ func (d *DiskUtilizationTimer) Run() {
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
 			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
+
+			hpaFSM.rwLock.Lock()
 			if hpaFSM.GetState() == FreeState {
 				fsmLog.Println("##DiskUtilizationTimer## transferFromFreeToStressState: ",
 									"podCounter: ", podCounter,
@@ -132,9 +138,11 @@ func (d *DiskUtilizationTimer) Run() {
 					d.SetStabilizationWindowTime(stabilizationWindowTime)
 				}
 			}
+			hpaFSM.rwLock.Unlock()
 		}
 
 		// 从Stress到Free的逻辑
+		hpaFSM.rwLock.Lock()
 		if hpaFSM.GetState() == StressState &&
 			hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag &&
 			hpaFSM.GetStabilizationWindowTime() < d.GetStabilizationWindowTime() {
@@ -146,6 +154,7 @@ func (d *DiskUtilizationTimer) Run() {
 				hpaFSM.transferFromStressToFreeState()
 			}
 		}
+		hpaFSM.rwLock.Unlock()
 
 		time.Sleep(time.Duration(5) * time.Second)
 	}

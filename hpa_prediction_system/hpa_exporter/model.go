@@ -13,7 +13,9 @@ func getHpaActivityState() int {
 	fmt.Println("stsInfoFlobal.initialize: ", stsInfoGlobal.isInitialized())
 
 	if stsInfoGlobal.isInitialized() == false {
+		stsInfoGlobal.rwLock.RLock()
 		printStatefulSetState(stsInfoGlobal)
+		stsInfoGlobal.rwLock.RUnlock()
 
 		return hpaFSM.GetState()
 	}
@@ -56,7 +58,9 @@ func printCurrentState() {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
+	stsInfoGlobal.rwLock.RLock()
 	printStatefulSetState(stsInfoGlobal)
+	stsInfoGlobal.rwLock.RUnlock()
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
