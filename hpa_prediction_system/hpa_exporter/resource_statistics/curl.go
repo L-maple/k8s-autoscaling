@@ -3,6 +3,7 @@ package statistics
 import (
 	"github.com/idoubi/goz"
 	"log"
+	"time"
 )
 
 
@@ -22,11 +23,23 @@ func (c *PromCurl) Get(path string, queryParams goz.Options) (goz.ResponseBody, 
 
 	url := c.endpoint + path
 
-	resp, err := c.httpClient.Get(url, queryParams)
-	if err != nil {
-		log.Fatal("c.httpClient.Get error: ", err)
+	waitTime := 1
+	for {
+		resp, err := c.httpClient.Get(url, queryParams)
+		if err != nil {
+			log.Println("c.httpClient.Get error: ", err)
+
+			time.Sleep(time.Duration(waitTime) * time.Second)
+			waitTime <<= 1
+			continue
+		}
+
+		if waitTime > 512 {
+			log.Fatal("The process failed: c.httpClient.Get error:(")
+		}
+
+		return resp.GetBody()
 	}
 
-	return resp.GetBody()
 }
 

@@ -57,7 +57,6 @@ func printCurrentState() {
 	fmt.Printf("[INFO] %v\n", time.Now())
 
 	printStatefulSetState(stsInfoGlobal)
-	//fmt.Println("without printStatefulSetState testing...")
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
@@ -81,7 +80,6 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 							", len(DiskWriteMBPS): ", len(pvStatistics.DiskWriteMBPS),
 							", len(DiskUtilization): ", len(pvStatistics.DiskUtilization),
 							", len(DiskReadMBPS): ", len(pvStatistics.DiskReadMBPS))
-			fmt.Println("@@@@@@@DiskIOPS: ", pvStatistics.DiskIOPS)
 			fmt.Printf("%-40s \n", pvName)
 			diskIOPS, err        := pvStatistics.GetLastDiskIOPS()
 			if err != nil {
