@@ -22,10 +22,10 @@ var (
 
 type StateTimer struct {}
 func (s StateTimer) Run() {
-	var podNumber int
+	var previousPodNumber int
 	for {
-		podNumber = len(stsInfoGlobal.GetPodNames())
-		if podNumber <= 0 {
+		previousPodNumber = len(stsInfoGlobal.GetPodNames())
+		if previousPodNumber <= 0 {
 			fsmLog.Println("##StateTimer## podNumber is zero...")
 			time.Sleep(time.Duration(intervalTime) * time.Second)
 		} else {
@@ -33,9 +33,8 @@ func (s StateTimer) Run() {
 		}
 	}
 
+	scaleUpFinished := false
 	for {
-		scaleUpFinished := false
-
 		// 状态从 Stress 到 ScaleUp
 		if hpaFSM.GetState() == StressState &&
 			hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
@@ -47,26 +46,28 @@ func (s StateTimer) Run() {
 
 		// 状态从 ScaleUp 到 Free
 		currentPodNumber := len(stsInfoGlobal.GetPodNames())
-		if podNumber < currentPodNumber {
+		if previousPodNumber < currentPodNumber {
 			scaleUpFinished = true
 		}
 
-		podNumber = currentPodNumber
-
 		// TODO: 能否判定扩容完成了？测试验证下
+		// TODO: 可能存在协程死锁的问题，需要排查下
 		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true {
 			fsmLog.Println("##StateTimer## transferFromScaleUpToFreeState: ",
-								"hpaFSM.GetState: ", hpaFSM.GetState(),
-								"hpaFSM.GetTimerFlag: ", hpaFSM.GetTimerFlag(),
-								"hpaFSM.GetStabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime())
+								"hpaFSM.GetState: ", hpaFSM.finiteState,
+								"hpaFSM.GetTimerFlag: ", hpaFSM.timerFlag,
+								"hpaFSM.GetStabilizationWindowTime: ", hpaFSM.stabilizationWindowTime)
 			hpaFSM.transferFromScaleUpToFreeState()
+			scaleUpFinished = false
 		}
+
+		previousPodNumber = currentPodNumber
 
 		time.Sleep(time.Duration(20) * time.Second)
 
-		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.GetState(),
-							"stabilizationWindowTime: ", hpaFSM.GetStabilizationWindowTime(),
-							"timerFlag: ", hpaFSM.GetTimerFlag())
+		fsmLog.Println("##StateTimer## FSMState:", hpaFSM.finiteState,
+							"stabilizationWindowTime: ", hpaFSM.stabilizationWindowTime,
+							"timerFlag: ", hpaFSM.timerFlag)
 	}
 }
 
