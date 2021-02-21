@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"log"
 	"time"
@@ -42,7 +41,6 @@ func (s StateTimer) Run() {
 		if podNumber < currentPodNumber {
 			scaleUpFinished = true
 		}
-		fmt.Println("Pod数量: ", podNumber, currentPodNumber)
 
 		podNumber = currentPodNumber
 
@@ -78,6 +76,10 @@ func (d *DiskUtilizationTimer) Run() {
 		// 状态从 Free 到 Stress
 		podNameAndInfo := stsInfoGlobal.GetPodInfos()
 		podCounter := len(podNameAndInfo)
+		if podCounter == 0 {
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
+		}
 
 		var diskUtilizationSlice []float64
 		for podName, _ := range podNameAndInfo {
