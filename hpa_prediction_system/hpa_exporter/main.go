@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
+	"github.com/natefinch/lumberjack"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -16,6 +17,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -43,6 +45,9 @@ var (
 
 	/* finite state machine*/
 	hpaFSM               HPAFiniteStateMachine
+	/* logFile: store scaleUp log info */
+	fsmLog              *log.Logger
+
 	/* global statefulSet's Pod info */
 	stsInfoGlobal       *StatefulSetInfo
 	/* store pvInfos in memory */
@@ -248,8 +253,26 @@ func timerSetUp() {
 	go diskUtilizationTimer.Run()
 }
 
+func initializeFsmLogger() {
+	e, err := os.OpenFile("/state.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		fmt.Printf("error opening file: %v", err)
+		os.Exit(1)
+	}
+	fsmLog = log.New(e, "", log.Ldate|log.Ltime)
+	fsmLog.SetOutput(&lumberjack.Logger{
+		Filename:   "/state.log",
+		MaxSize:    1,  // megabytes after which new file is created
+		MaxBackups: 3,  // number of backups
+		MaxAge:     28, //days
+	})
+}
+
 func main() {
 	flag.Parse()
+
+	initializeFsmLogger()
 
 	/* 初始化系统状态 */
 	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)

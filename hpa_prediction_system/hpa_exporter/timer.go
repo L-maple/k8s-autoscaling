@@ -38,7 +38,8 @@ func (s StateTimer) Run() {
 		}
 		podNumber = currentPodNumber
 
-		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true { // TODO: 能否判定扩容完成了？测试验证下
+		// TODO: 能否判定扩容完成了？测试验证下
+		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true {
 			hpaFSM.transferFromScaleUpToFreeState()
 		}
 

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"math"
 	"strconv"
 	"sync"
@@ -56,7 +54,7 @@ func (h *HPAFiniteStateMachine) transferFromScaleUpToFreeState() {
 	h.finiteState             = FreeState
 	h.stabilizationWindowTime = math.MaxInt64
 	h.timerFlag               = NoneTimerFlag
-	fmt.Println("transferFromScaleUpToFreeState called: hpaFSM transfer to FreeState.")
+	fsmLog.Println("transferFromScaleUpToFreeState called: hpaFSM transfer to FreeState.")
 }
 /*
  * transferFromFreeToStressState: 该方法将使得hpaFSM的状态从Free转到Stress
@@ -107,7 +105,7 @@ func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
 	h.stabilizationWindowTime = math.MaxInt64
 	h.timerFlag               = NoneTimerFlag
 
-	log.Println(time.Now(), "扩容原因: ", h.GetScaleUpReason())
+	fsmLog.Println(time.Now(), "扩容原因: ", h.GetScaleUpReason())
 }
 /*
  * 返回稳定窗口
