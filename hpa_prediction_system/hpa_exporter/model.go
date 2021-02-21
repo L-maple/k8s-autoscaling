@@ -17,8 +17,8 @@ func getHpaActivityState() int {
 
 		return hpaFSM.GetState()
 	}
-	fmt.Println("what happened??")
-	//printCurrentState()
+
+	printCurrentState()
 
 	return hpaFSM.GetState()
 }
@@ -56,7 +56,8 @@ func printCurrentState() {
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
-	printStatefulSetState(stsInfoGlobal)
+	//printStatefulSetState(stsInfoGlobal)
+	fmt.Println("without printStatefulSetState testing...")
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
