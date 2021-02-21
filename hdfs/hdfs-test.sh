@@ -13,7 +13,7 @@ kubectl apply -f manifests-latest/
 echo "Step4: 记得删除worker节点上的无用pv\n"
 
 echo "Step5: 等待，不然hpa可能会做出错误的扩容决定"
-sleep 300
+sleep 30
 
 # 将benchmark相关文件复制到hdfs-client容器内部
 kubectl -n monitoring cp ./benchmark/ hdfs-client:/benchmark/
