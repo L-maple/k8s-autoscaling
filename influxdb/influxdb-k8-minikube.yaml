@@ -33,14 +33,15 @@ spec:
                     name: data
     volumeClaimTemplates:
       - metadata:
-            name: data
-            namespace: influxdb
+          name: data
+          namespace: influxdb
         spec:
-            accessModes:
-              - ReadWriteOnce
-            resources:
-                requests:
-                    storage: 10G
+          accessModes: [ "ReadWriteOnce" ]
+          volumeMode: Filesystem
+          resources:
+            requests:
+              storage: 5Gi
+          storageClassName: csi-lvm
 ---
 apiVersion: v1
 kind: Service
