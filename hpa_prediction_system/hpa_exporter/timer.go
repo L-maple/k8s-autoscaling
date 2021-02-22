@@ -67,6 +67,7 @@ func (s StateTimer) Run() {
 			"timerFlag: ", hpaFSM.GetTimerFlag(),
 			"previousPodNumber: ", previousPodNumber,
 			"currentPodNumber: ", currentPodNumber)
+		fsmLog.Println(getLatestDiskMetricsInfo())
 
 		previousPodNumber = currentPodNumber
 

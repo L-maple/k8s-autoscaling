@@ -101,17 +101,24 @@ func (h *HPAFiniteStateMachine) GetScaleUpReason() string {
 	} else if h.timerFlag == CPUTimerFlag {
 		reason = "[Stress -> ScaleUp 扩容原因] CPU计时器达到稳定窗口时间~\n"
 	} else {
-		reason = "[Stress -> ScaleUp 扩容原因] 扩容原因未知: " + strconv.Itoa(h.timerFlag)
+		reason = "[Stress -> ScaleUp 扩容原因] 扩容原因未知: " + strconv.Itoa(h.timerFlag) + "~\n"
 	}
 
+	return reason
+}
+
+func getLatestDiskMetricsInfo() string {
 	iops := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskIOPS())
 	readMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskReadMBPS())
 	writeMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskWriteMBPS())
 	utilization := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskUtilization())
 
-	reason += "[系统指标信息] {disk_utilizaiton}: " + utilization +
-						"; {disk_readMBPS}: " + readMBPS +
-						"; {disk_writeMBPS}: " + writeMBPS +
-						"; {disk_iops}: " + iops + "; "
-	return reason
+	metricsInfo := "[系统指标信息] {disk_utilizaiton}: " + utilization +
+		"; {disk_readMBPS}: " + readMBPS +
+		"; {disk_writeMBPS}: " + writeMBPS +
+		"; {disk_iops}: " + iops + "; "
+
+	return metricsInfo
 }
+
+// TODO: 补充下CPU和内存的指标信息打印
