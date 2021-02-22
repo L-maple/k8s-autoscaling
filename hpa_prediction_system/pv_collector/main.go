@@ -183,6 +183,7 @@ func main() {
 			// 对target的指标信息进行处理
 			pvInfo := handlePVMetricsWithScripts(target)
 			// TODO: use lvdisplay to map device number(dm-*) to lvm-name
+			// TODO: 目前df命令能正确解析，iostat命令不能正确解析
 			if pvInfo.PVDiskReadMBPS <= 0 && pvInfo.PVDiskWriteMBPS <= 0 &&
 					pvInfo.PVDiskIOPS <= 0 && pvInfo.PVDiskUtilization <= 0 {
 				continue
