@@ -45,7 +45,6 @@ func getTargetsFromServer(pvServiceClient pb.PVServiceClient) ([]string, error) 
 	resp, err := pvServiceClient.RequestPVNames(ctx, &pb.PVRequest{Id: "1"})
 	if err != nil {
 		log.Println("pvServiceClient.RequestPVNames error: ", err)
-		time.Sleep(time.Duration(intervalTime) * time.Second)
 		return []string{}, err
 	}
 	targets := resp.PvNames
@@ -63,7 +62,6 @@ func sendPVMetrics(pvServiceClient pb.PVServiceClient, pvInfos map[string]*pb.PV
 	})
 	if err != nil {
 		log.Println("pvServiceClient.PVInfosRequest error: ", err)
-		time.Sleep(time.Duration(intervalTime) * time.Second)
 		return -1, err
 	}
 
@@ -175,7 +173,9 @@ func main() {
 	for {
 		targets, err := getTargetsFromServer(pvServiceClient)
 		if err != nil {
-			log.Fatal("getTargetsFromGrpc error: ", err)
+			log.Println("getTargetsFromGrpc error: ", err)
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
 		}
 
 		pvInfos := make(map[string]*pb.PVInfo)
@@ -192,6 +192,8 @@ func main() {
 		status, err := sendPVMetrics(pvServiceClient, pvInfos, timestamp)
 		if err != nil {
 			log.Println("error: ", err)
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
 		}
 
 		printCurrentPvInfos(targets, pvInfos, status)
