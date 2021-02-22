@@ -93,15 +93,15 @@ func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
 func (h *HPAFiniteStateMachine) GetScaleUpReason() string {
 	var reason string
 	if h.timerFlag == DiskUtilizationTimerFlag {
-		reason = "[扩容] DiskUtilization计时器达到稳定窗口时间~\n"
+		reason = "[Stress -> ScaleUp 扩容原因] DiskUtilization计时器达到稳定窗口时间~\n"
 	} else if h.timerFlag == DiskIOPSTimerFlag {
-		reason = "[扩容] DiskIOPS计时器达到稳定窗口时间~\n"
+		reason = "[Stress -> ScaleUp 扩容原因] DiskIOPS计时器达到稳定窗口时间~\n"
 	} else if h.timerFlag == DiskMBPSTimerFlag {
-		reason = "[扩容] DiskMBPS计时器达到稳定窗口时间~\n"
+		reason = "[Stress -> ScaleUp 扩容原因] DiskMBPS计时器达到稳定窗口时间~\n"
 	} else if h.timerFlag == CPUTimerFlag {
-		reason = "[扩容] CPU计时器达到稳定窗口时间~\n"
+		reason = "[Stress -> ScaleUp 扩容原因] CPU计时器达到稳定窗口时间~\n"
 	} else {
-		reason = "[扩容] 扩容原因未知: " + strconv.Itoa(h.timerFlag)
+		reason = "[Stress -> ScaleUp 扩容原因] 扩容原因未知: " + strconv.Itoa(h.timerFlag)
 	}
 
 	iops := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskIOPS())
