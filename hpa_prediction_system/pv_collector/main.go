@@ -101,6 +101,8 @@ func handlePVMetricsWithScripts(target string) *pb.PVInfo {
 	if err != nil {
 		log.Fatal("pvCmd.getDiskWriteMBPS: ", err)
 	}
+	fmt.Println("handled-target: ", target)
+	fmt.Println("metrics: ", diskUtilization, diskIOPS, diskReadMbps, diskWriteMbps)
 
 	pvInfo := pb.PVInfo{
 		PVDiskUtilization: float32(diskUtilization),
