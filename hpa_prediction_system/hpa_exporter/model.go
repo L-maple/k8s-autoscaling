@@ -63,9 +63,7 @@ func printCurrentState() {
 
 func printStatefulSetState(stsInfo *StatefulSetInfo) {
 	fmt.Printf("%-40s %-40s %-40s\n", "PodName", "PvcName", "PvName")
-	stsInfo.rwLock.RLock()
 	podInfos := stsInfo.GetPodInfos()
-	stsInfo.rwLock.RUnlock()
 
 	for podName, podInfo := range podInfos {
 		fmt.Printf("%-40s ", podName)
