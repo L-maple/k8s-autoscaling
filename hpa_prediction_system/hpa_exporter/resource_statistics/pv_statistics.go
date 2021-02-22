@@ -34,6 +34,10 @@ func (p *PVInfos) GetAvgLastDiskIOPS() float64 {
 		totalLastDiskIOPS += iops
 		number++
 	}
+
+	if number == 0 {
+		return 0.0
+	}
 	return totalLastDiskIOPS / float64(number)
 }
 
@@ -47,6 +51,9 @@ func (p *PVInfos) GetAvgLastDiskReadMBPS() float64 {
 		totalLastDiskReadMBPS += iops
 		number++
 	}
+	if number == 0 {
+		return 0.0
+	}
 	return totalLastDiskReadMBPS / float64(number)
 }
 
@@ -59,6 +66,9 @@ func (p *PVInfos) GetAvgLastDiskWriteMBPS() float64 {
 		}
 		totalLastDiskWriteMBPS += mbps
 		number++
+	}
+	if number == 0 {
+		return 0.0
 	}
 	return totalLastDiskWriteMBPS / float64(number)
 }
