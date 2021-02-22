@@ -78,9 +78,6 @@ func (s StateTimer) Run() {
 type DiskUtilizationTimer struct {
 	stabilizationWindowTime  int64
 }
-func (d *DiskUtilizationTimer) SetStabilizationWindowTime(time int64) {
-	d.stabilizationWindowTime = time
-}
 func (d *DiskUtilizationTimer) GetStabilizationWindowTime() int64 {
 	return d.stabilizationWindowTime
 }
@@ -127,7 +124,6 @@ func (d *DiskUtilizationTimer) Run() {
 									"aboveCeilingNumber: ", aboveCeilingNumber,
 									"avgDiskUtilization: ", avgDiskUtilization)
 				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
-				d.SetStabilizationWindowTime(stabilizationWindowTime)
 			}
 			if hpaFSM.GetState() == StressState {
 				if hpaFSM.GetStabilizationWindowTime() > stabilizationWindowTime {
@@ -136,7 +132,6 @@ func (d *DiskUtilizationTimer) Run() {
 						"aboveCeilingNumber: ", aboveCeilingNumber,
 						"avgDiskUtilization: ", avgDiskUtilization)
 					hpaFSM.resetStressState(stabilizationWindowTime, DiskUtilizationTimerFlag)
-					d.SetStabilizationWindowTime(stabilizationWindowTime)
 				}
 			}
 			hpaFSM.rwLock.Unlock()
@@ -144,17 +139,15 @@ func (d *DiskUtilizationTimer) Run() {
 
 		// 从Stress到Free的逻辑
 		hpaFSM.rwLock.Lock()
-		if hpaFSM.GetState() == StressState &&
-			hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag &&
-			hpaFSM.GetStabilizationWindowTime() < d.GetStabilizationWindowTime() {
-			if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == false {
+		if (hpaFSM.GetState() == StressState) &&
+			(hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag) &&
+			(d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == false) {
 				fsmLog.Println("##DiskUtilizationTimer## transferFromStressToFreeState: ",
 					"podCounter: ", podCounter,
 					"aboveCeilingNumber: ", aboveCeilingNumber,
 					"avgDiskUtilization: ", avgDiskUtilization)
 				hpaFSM.transferFromStressToFreeState()
 			}
-		}
 		hpaFSM.rwLock.Unlock()
 
 		time.Sleep(time.Duration(5) * time.Second)

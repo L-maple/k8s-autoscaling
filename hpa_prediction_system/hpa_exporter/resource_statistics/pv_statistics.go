@@ -16,6 +16,10 @@ func (p *PVInfos) Initialize() {
 	p.NameAndStatistics = make(map[string]PVStatistics)
 }
 
+func (p *PVInfos) GetPVNumbers() int {
+	return len(p.NameAndStatistics)
+}
+
 func (p *PVInfos) GetStatisticsByPVName(pvName string) PVStatistics {
 	return p.NameAndStatistics[pvName]
 }

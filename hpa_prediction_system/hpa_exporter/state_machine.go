@@ -104,6 +104,9 @@ func (h *HPAFiniteStateMachine) GetScaleUpReason() string {
 		reason = "[Stress -> ScaleUp 扩容原因] 扩容原因未知: " + strconv.Itoa(h.timerFlag) + "~\n"
 	}
 
+	pvNumbers := fmt.Sprintf("~~~~~~~~~~~pvNumbers from pvInfos: %d~~~~~~~~~\n", pvInfos.GetPVNumbers())
+	reason += pvNumbers
+
 	return reason
 }
 
@@ -116,7 +119,7 @@ func getLatestDiskMetricsInfo() string {
 	metricsInfo := "[系统指标信息] {disk_utilizaiton}: " + utilization +
 		"; {disk_readMBPS}: " + readMBPS +
 		"; {disk_writeMBPS}: " + writeMBPS +
-		"; {disk_iops}: " + iops + "; "
+		"; {disk_iops}: " + iops + "; \n"
 
 	return metricsInfo
 }
