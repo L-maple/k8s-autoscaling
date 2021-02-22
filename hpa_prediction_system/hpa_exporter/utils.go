@@ -31,7 +31,7 @@ func getAvgInt64(int64Numbers []int64) int64 {
 	return intSum / int64(len(int64Numbers))
 }
 
-func getGreaterThanStone(floatNumbers []float64, stone float64) int {
+func getAboveBoundaryNumber(floatNumbers []float64, stone float64) int {
 	count := 0
 	for _, floatNumber := range floatNumbers {
 		if floatNumber > stone {

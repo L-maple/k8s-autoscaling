@@ -29,10 +29,8 @@ func printCurrentState() {
 	podNameAndInfo  := stsInfoGlobal.GetPodInfos()
 	memoryByteLimit := stsInfoGlobal.GetMemoryByteLimit()
 
-	podCounter := len(podNameAndInfo)
 	var cpuUtilizationSlice    []float64
 	var memoryUsageSlice       []int64
-	var diskUtilizationSlice   []float64
 	for podName, _ := range podNameAndInfo {
 		podStatisticsObj := rs.PodStatistics{
 			Endpoint:  prometheusUrl,
@@ -42,7 +40,6 @@ func printCurrentState() {
 
 		cpuUtilizationSlice  = append(cpuUtilizationSlice, podStatisticsObj.GetLastCpuUtilization())
 		memoryUsageSlice     = append(memoryUsageSlice, podStatisticsObj.GetLastMemoryUsage())
-		diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 	}
 
 	// 得到CPU的平均使用率
@@ -52,31 +49,32 @@ func printCurrentState() {
 	avgMemoryUsage := getAvgInt64(memoryUsageSlice)
 	avgMemoryUtilization := float64(avgMemoryUsage) / float64(memoryByteLimit)
 
-	avgDiskUtilization    := getAvgFloat64(diskUtilizationSlice)
-	aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.85)
+	avgDiskUtilization    := pvInfos.GetAvgLastDiskUtilization()
 
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
-	stsInfoGlobal.rwLock.RLock()
 	printStatefulSetState(stsInfoGlobal)
-	stsInfoGlobal.rwLock.RUnlock()
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
-	fmt.Printf("pod Numbers: %d, aboveCeilingNumber: %d\n", podCounter, aboveCeilingNumber)
 	fmt.Printf("====================================\n\n")
 }
 
 func printStatefulSetState(stsInfo *StatefulSetInfo) {
 	fmt.Printf("%-40s %-40s %-40s\n", "PodName", "PvcName", "PvName")
-	for podName, podInfo := range stsInfo.GetPodInfos() {
+	stsInfo.rwLock.RLock()
+	podInfos := stsInfo.GetPodInfos()
+	stsInfo.rwLock.RUnlock()
+
+	for podName, podInfo := range podInfos {
 		fmt.Printf("%-40s ", podName)
 
 		for _, pvcName := range podInfo.PVCNames {
 			fmt.Printf("%-40s ", pvcName)
 		}
 
+		var diskUtilizationSlice []float64
 		for _, pvName := range podInfo.PVNames {
 			pvStatistics := pvInfos.GetStatisticsByPVName(pvName)
 			fmt.Println("len(DiskIOPS): ", len(pvStatistics.DiskIOPS),
@@ -100,8 +98,11 @@ func printStatefulSetState(stsInfo *StatefulSetInfo) {
 			if err != nil {
 				log.Fatal("getLastDiskUtilization: ", err)
 			}
+			diskUtilizationSlice = append(diskUtilizationSlice, diskUtilization)
 			fmt.Printf("From pv_collector: diskIOPS: %-10.6f, diskReadMBPS: %-10.6f, diskWriteMBPS: %-10.6f, diskUtilization: %-10.6f\n\n",
 				diskIOPS, diskReadMBPS, diskWriteMBPS, diskUtilization)
 		}
+		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
+		fmt.Printf("pod Numbers: %d, aboveCeilingNumber: %d\n", len(podInfos), aboveCeilingNumber)
 	}
 }

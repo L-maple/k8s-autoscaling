@@ -38,7 +38,7 @@ func (s StateTimer) Run() {
 		// 状态从 Stress 到 ScaleUp
 		hpaFSM.rwLock.Lock()
 		if hpaFSM.GetState() == StressState &&
-			hpaFSM.GetStabilizationWindowTime() >= time.Now().Unix() {
+			hpaFSM.GetStabilizationWindowTime() <= time.Now().Unix() {
 			if hpaFSM.GetTimerFlag() == NoneTimerFlag {
 				log.Fatal("transferFromStressToScaleUpState Error: timerFlag is NoneTimerFlag")
 			}
@@ -114,7 +114,7 @@ func (d *DiskUtilizationTimer) Run() {
 		}
 		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization()
 
-		aboveCeilingNumber := getGreaterThanStone(diskUtilizationSlice, 0.7)
+		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
 			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间

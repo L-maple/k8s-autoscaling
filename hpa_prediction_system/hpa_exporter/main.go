@@ -45,13 +45,15 @@ var (
 
 	/* finite state machine*/
 	hpaFSM               HPAFiniteStateMachine
-	/* logFile: store scaleUp log info */
+	/* fsmLog: store scaleUp log info */
 	fsmLog              *log.Logger
 
 	/* global statefulSet's Pod info */
 	stsInfoGlobal       *StatefulSetInfo
 	/* store pvInfos in memory */
 	pvInfos              rs.PVInfos
+	/* metricsLog: store metrics log info */
+	metricsLog          *log.Logger
 
 	stateTimer           StateTimer
 	cpuTimer             CPUTimer
@@ -242,21 +244,6 @@ func RegisterPVRequestServer() {
 	}()
 }
 
-
-func init() {
-	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
-	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
-	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
-	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
-	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
-
-	/* 初始化系统状态 */
-	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)
-	hpaFSM.Initialize()
-	pvInfos.Initialize()
-	initializeFsmLogger()
-}
-
 func timerSetUp() {
 	//go cpuTimer.Run()
 	//go diskIOPSTimer.Run()
@@ -279,6 +266,38 @@ func initializeFsmLogger() {
 		MaxBackups: 3,  // number of backups
 		MaxAge:     28, //days
 	})
+}
+
+func initializeMetricsLogger() {
+	e, err := os.OpenFile("/metrics.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		fmt.Printf("error opening file: %v", err)
+		os.Exit(1)
+	}
+	metricsLog = log.New(e, "", log.Ldate|log.Ltime)
+	metricsLog.SetOutput(&lumberjack.Logger{
+		Filename:   "/metrics.log",
+		MaxSize:    1,  // megabytes after which new file is created
+		MaxBackups: 3,  // number of backups
+		MaxAge:     28, //days
+	})
+}
+
+
+func init() {
+	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
+	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
+	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
+	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
+	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
+
+	/* 初始化系统状态 */
+	stsInfoGlobal = getStatefulSetInfoObj(statefulsetName)
+	hpaFSM.Initialize()
+	pvInfos.Initialize()
+	initializeFsmLogger()
+	initializeMetricsLogger()
 }
 
 func main() {
