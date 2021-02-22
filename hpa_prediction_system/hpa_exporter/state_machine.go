@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/sasha-s/go-deadlock"
 	"math"
 	"strconv"
@@ -90,15 +91,27 @@ func (h *HPAFiniteStateMachine) transferFromStressToScaleUpState() {
  * 返回稳定窗口
  */
 func (h *HPAFiniteStateMachine) GetScaleUpReason() string {
+	var reason string
 	if h.timerFlag == DiskUtilizationTimerFlag {
-		return "[扩容] DiskUtilization计时器达到稳定窗口时间~"
+		reason = "[扩容] DiskUtilization计时器达到稳定窗口时间~\n"
 	} else if h.timerFlag == DiskIOPSTimerFlag {
-		return "[扩容] DiskIOPS计时器达到稳定窗口时间~"
+		reason = "[扩容] DiskIOPS计时器达到稳定窗口时间~\n"
 	} else if h.timerFlag == DiskMBPSTimerFlag {
-		return "[扩容] DiskMBPS计时器达到稳定窗口时间"
+		reason = "[扩容] DiskMBPS计时器达到稳定窗口时间~\n"
 	} else if h.timerFlag == CPUTimerFlag {
-		return "[扩容] CPU计时器达到稳定窗口时间"
+		reason = "[扩容] CPU计时器达到稳定窗口时间~\n"
+	} else {
+		reason = "[扩容] 扩容原因未知: " + strconv.Itoa(h.timerFlag)
 	}
 
-	return "[扩容] 扩容原因未知: " + strconv.Itoa(h.timerFlag)
+	iops := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskIOPS())
+	readMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskReadMBPS())
+	writeMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskWriteMBPS())
+	utilization := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskUtilization())
+
+	reason += "[系统指标信息] {disk_utilizaiton}: " + utilization +
+						"; {disk_readMBPS}: " + readMBPS +
+						"; {disk_writeMBPS}: " + writeMBPS +
+						"; {disk_iops}: " + iops + "; "
+	return reason
 }
