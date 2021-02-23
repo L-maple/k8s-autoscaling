@@ -23,7 +23,7 @@ spec:
         name: hdfs-hpa-exporter-service
       target:
         type: Value
-        value: 1
+        value: 100
   behavior:
     scaleDown:
       selectPolicy: Disabled  # 禁止缩容

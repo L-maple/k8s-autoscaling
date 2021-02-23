@@ -13,7 +13,7 @@ const (
 	/* HPA Finite State*/
 	FreeState      = 0
 	StressState    = 10
-	ScaleUpState   = 100
+	ScaleUpState   = 101
 )
 
 
