@@ -82,7 +82,7 @@ func (d *DiskUtilizationTimer) GetStabilizationWindowTime() int64 {
 	return d.stabilizationWindowTime
 }
 func (d *DiskUtilizationTimer) GetStressCondition(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) bool {
-	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.8)
+	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.7)
 }
 func (d *DiskUtilizationTimer) Run() {
 	d.stabilizationWindowTime = 0
