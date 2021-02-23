@@ -30,7 +30,7 @@ func (c *PodStatistics) getUsageQuery(query string, timeRange int64) []interface
 	jsonData := make(map[string]interface{})
 	err = json.Unmarshal(responseBody, &jsonData)
 	if err != nil {
-		log.Fatal("json.Unmarshal: ", err)
+		log.Fatal("json.Unmarshal: ", err, "responseBody: ", responseBody)
 	}
 
 	var result []interface{}
