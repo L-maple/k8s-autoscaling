@@ -14,23 +14,29 @@ type PodStatistics struct {
 }
 
 func (c *PodStatistics) getUsageQuery(query string, timeRange int64) []interface{}  {
-	curl := PromCurl{c.Endpoint, nil}
-	responseBody, err := curl.Get("/api/v1/query_range", goz.Options{
-		Query: map[string]interface{}{
-			"query": query,
-			"start": strconv.FormatInt(time.Now().Unix() - timeRange, 10),
-			"end": strconv.FormatInt(time.Now().Unix(), 10),
-			"step": "14",
-		},
-	})
-	if err != nil {
-		log.Fatal("curl.Get error")
-	}
-
 	jsonData := make(map[string]interface{})
-	err = json.Unmarshal(responseBody, &jsonData)
-	if err != nil {
-		log.Fatal("json.Unmarshal: ", err, "responseBody: ", responseBody)
+
+	for {
+		curl := PromCurl{c.Endpoint, nil}
+		responseBody, err := curl.Get("/api/v1/query_range", goz.Options{
+			Query: map[string]interface{}{
+				"query": query,
+				"start": strconv.FormatInt(time.Now().Unix()-timeRange, 10),
+				"end":   strconv.FormatInt(time.Now().Unix(), 10),
+				"step":  "14",
+			},
+		})
+		if err != nil {
+			log.Fatal("curl.Get error")
+		}
+
+		err = json.Unmarshal(responseBody, &jsonData)
+		if err != nil {
+			log.Println("json.Unmarshal: ", err, "responseBody: ", responseBody)
+			time.Sleep(time.Duration(10) * time.Second)
+			continue
+		}
+		break
 	}
 
 	var result []interface{}
