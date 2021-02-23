@@ -26,7 +26,7 @@ spec:
         value: 1
   behavior:
     scaleDown:
-      selectPolicy: Disabled  # 发现直接Disabled会出现问题
+      selectPolicy: Disabled  # 禁止缩容
     scaleUp:
 #      https://kubernetes:io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-custom-metrics
       stabilizationWindowSeconds: 30
