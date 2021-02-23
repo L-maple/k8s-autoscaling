@@ -58,6 +58,8 @@ func printCurrentState() {
 
 	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
 					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
+	fmt.Printf("test diskUtilizationSlice: %v", cpuUtilizationSlice)
+
 	fmt.Printf("====================================\n\n")
 }
 

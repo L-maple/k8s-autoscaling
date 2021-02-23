@@ -33,7 +33,7 @@ spec:
       stabilizationWindowSeconds: 30
       policies:
         - type: Pods
-          value: 1
+          value: 0
           periodSeconds: 120    # 表示策略的时间长度必须保证有效，该策略中每120s最多增加1个Pod
       selectPolicy: Min        # 通过设置Min值，HPA将选择副本数量变化最小的策略；
 
