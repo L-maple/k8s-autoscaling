@@ -26,12 +26,12 @@ spec:
         value: 1
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 120
-      policies:
-        - type: Pods
-          value: 0   # 禁止缩容
-          periodSeconds: 120
-      selectPolicy: Min  # 发现直接Disable会出现问题
+#      stabilizationWindowSeconds: 120
+#      policies:
+#        - type: Pods
+#          value: 0   # 禁止缩容
+#          periodSeconds: 120
+      selectPolicy: Disable  # 发现直接Disable会出现问题
     scaleUp:
 #      https://kubernetes:io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-custom-metrics
       stabilizationWindowSeconds: 30
