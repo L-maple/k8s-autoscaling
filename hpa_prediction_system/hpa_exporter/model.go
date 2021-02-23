@@ -31,6 +31,7 @@ func printCurrentState() {
 
 	var cpuUtilizationSlice    []float64
 	var memoryUsageSlice       []int64
+	var diskUtilizationSlice   []float64
 	for podName, _ := range podNameAndInfo {
 		podStatisticsObj := rs.PodStatistics{
 			Endpoint:  prometheusUrl,
@@ -40,6 +41,7 @@ func printCurrentState() {
 
 		cpuUtilizationSlice  = append(cpuUtilizationSlice, podStatisticsObj.GetLastCpuUtilization())
 		memoryUsageSlice     = append(memoryUsageSlice, podStatisticsObj.GetLastMemoryUsage())
+		diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 	}
 
 	// 得到CPU的平均使用率
@@ -49,16 +51,18 @@ func printCurrentState() {
 	avgMemoryUsage := getAvgInt64(memoryUsageSlice)
 	avgMemoryUtilization := float64(avgMemoryUsage) / float64(memoryByteLimit)
 
-	avgDiskUtilization    := pvInfos.GetAvgLastDiskUtilization()
+	pvInfosAvgDiskUtilization    := pvInfos.GetAvgLastDiskUtilization()
+	promAvgDiskUtilization       := getAvgFloat64(diskUtilizationSlice)
 
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")
 	fmt.Printf("[INFO] %v\n", time.Now())
 
 	printStatefulSetState(stsInfoGlobal)
 
-	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, avgDiskUtilization: %-30.6f\n",
-					avgCpuUtilization, avgMemoryUtilization, avgDiskUtilization)
-	fmt.Printf("test diskUtilizationSlice: %v", cpuUtilizationSlice)
+	fmt.Printf("avgCpuUtilization: %-30.6f, avgMemoryUtilization: %-30.6f, " +
+		"				pvInfoAvgDiskUtilization: %-30.6f, promAvgDiskUtilization: %-30.6f\n",
+					avgCpuUtilization, avgMemoryUtilization, pvInfosAvgDiskUtilization, promAvgDiskUtilization)
+	fmt.Printf("test diskUtilizationSlice: %v", promAvgDiskUtilization)
 
 	fmt.Printf("====================================\n\n")
 }
