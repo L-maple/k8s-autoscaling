@@ -62,11 +62,11 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+
+	diskUtilization = strings.Replace(diskUtilization, "\n", "", -1)
 	if diskUtilization == "" {
 		return -1.0, nil
 	}
-
-	diskUtilization = strings.Replace(diskUtilization, "\n", "", -1)
 	utilization, err := strconv.ParseFloat(diskUtilization, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
@@ -81,11 +81,11 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+
+	diskIOPS = strings.Replace(diskIOPS, "\n", "", -1)
 	if diskIOPS == "" {
 		return -1.0, nil
 	}
-
-	diskIOPS = strings.Replace(diskIOPS, "\n", "", -1)
 	iops, err := strconv.ParseFloat(diskIOPS, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
@@ -100,11 +100,11 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+
+	diskReadKbps = strings.Replace(diskReadKbps, "\n", "", -1)
 	if diskReadKbps == "" {
 		return -1.0, nil
 	}
-
-	diskReadKbps = strings.Replace(diskReadKbps, "\n", "", -1)
 	readKbps, err := strconv.ParseFloat(diskReadKbps, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
