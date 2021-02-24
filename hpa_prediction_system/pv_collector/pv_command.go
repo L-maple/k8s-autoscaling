@@ -120,11 +120,11 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
 		return 0.0, err
 	}
+
+	diskWriteKbps = strings.Replace(diskWriteKbps, "\n", "", -1)
 	if diskWriteKbps == "" {
 		return -1.0, nil
 	}
-
-	diskWriteKbps = strings.Replace(diskWriteKbps, "\n", "", -1)
 	writeKbps, err := strconv.ParseFloat(diskWriteKbps, 64)
 	if err != nil {
 		log.Println("strconv.Atoi error: ", err)
