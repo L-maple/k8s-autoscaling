@@ -242,7 +242,23 @@ func (c *CPUTimer) Run() {
 			hpaFSM.rwLock.Unlock()
 		}
 
-		// TODO: 增加从Stress到Free的逻辑
+		// 从 Stress 到 Free 的逻辑
+		hpaFSM.rwLock.Lock()
+		if (hpaFSM.GetState() == StressState) &&
+			(hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag) &&
+			(c.GetStressCondition(avgCpuUtilizationFor10Min,
+								  avgCpuUtilizationFor20Min,
+								  avgCpuUtilizationFor30Min,
+								  diskUtilization) == false) {
+			fsmLog.Println("##CPUTimer## transferFromStressToFreeState: ",
+				"podCounter: ", podCounter,
+				"avgCpuUtilizationFor10Min: ", avgCpuUtilizationFor10Min,
+				"avgCpuUtilizationFor20Min: ", avgCpuUtilizationFor20Min,
+				"avgCpuUtilizationFor30Min: ", avgCpuUtilizationFor30Min,
+				"avgDiskUtilization: ", diskUtilization)
+			hpaFSM.transferFromStressToFreeState()
+		}
+		hpaFSM.rwLock.Unlock()
 
 		time.Sleep(time.Duration(5) * time.Second)
 	}

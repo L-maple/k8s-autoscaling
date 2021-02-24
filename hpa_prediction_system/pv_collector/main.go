@@ -172,8 +172,8 @@ func main() {
 			// 对target的指标信息进行处理
 			pvInfo := handlePVMetricsWithScripts(target)
 			// use lvdisplay to map device number(dm-*) to lvm-name
-			if pvInfo.PVDiskReadMBPS <= 0 || pvInfo.PVDiskWriteMBPS <= 0 ||
-					pvInfo.PVDiskIOPS <= 0 || pvInfo.PVDiskUtilization <= 0 {
+			if pvInfo.PVDiskReadMBPS < 0 || pvInfo.PVDiskWriteMBPS < 0 ||
+					pvInfo.PVDiskIOPS < 0 || pvInfo.PVDiskUtilization < 0 {
 				continue
 			}
 			pvInfos[target] = pvInfo
