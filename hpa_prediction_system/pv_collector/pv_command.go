@@ -69,7 +69,7 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 	}
 	utilization, err := strconv.ParseFloat(diskUtilization, 64)
 	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
+		log.Println("strconv.Atoi error: diskUtilization: ", diskUtilization,  err)
 		return 0.0, err
 	}
 
@@ -88,7 +88,7 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 	}
 	iops, err := strconv.ParseFloat(diskIOPS, 64)
 	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
+		log.Println("strconv.Atoi error: diskIOPS: ", diskIOPS, err)
 		return 0.0, err
 	}
 
@@ -107,7 +107,7 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 	}
 	readKbps, err := strconv.ParseFloat(diskReadKbps, 64)
 	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
+		log.Println("strconv.Atoi error: diskReadKbps: ", diskReadKbps, err)
 		return 0.0, err
 	}
 	readMbps := readKbps / 1024
@@ -127,7 +127,7 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 	}
 	writeKbps, err := strconv.ParseFloat(diskWriteKbps, 64)
 	if err != nil {
-		log.Println("strconv.Atoi error: ", err)
+		log.Println("strconv.Atoi error: diskWriteKbps: ", diskWriteKbps, err)
 		return 0.0, err
 	}
 	writeMbps := writeKbps / 1024
