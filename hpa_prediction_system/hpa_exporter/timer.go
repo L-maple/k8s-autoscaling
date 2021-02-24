@@ -74,18 +74,11 @@ func (s StateTimer) Run() {
 	}
 }
 
-type DiskUtilizationTimer struct {
-	stabilizationWindowTime  int64
-}
-func (d *DiskUtilizationTimer) GetStabilizationWindowTime() int64 {
-	return d.stabilizationWindowTime
-}
+type DiskUtilizationTimer struct {}
 func (d *DiskUtilizationTimer) GetStressCondition(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) bool {
-	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.8)
+	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.75)
 }
 func (d *DiskUtilizationTimer) Run() {
-	d.stabilizationWindowTime = 0
-
 	for {
 		// 状态从 Free 到 Stress
 		stsInfoGlobal.rwLock.Lock()
@@ -115,7 +108,7 @@ func (d *DiskUtilizationTimer) Run() {
 		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
-			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
+			stabilizationWindowTime := time.Now().Unix() + 30  // 30秒稳定窗口时间
 
 			hpaFSM.rwLock.Lock()
 			if hpaFSM.GetState() == FreeState {
@@ -154,22 +147,14 @@ func (d *DiskUtilizationTimer) Run() {
 	}
 }
 
-type CPUTimer struct {
-	stabilizationWindowTime  int64
-}
-func (c *CPUTimer) GetStabilizationWindowTime() int64 {
-	return c.stabilizationWindowTime
-}
-func (c *CPUTimer) SetStabilizationWindowTime(time int64) {
-	c.stabilizationWindowTime = time
-}
+type CPUTimer struct {}
 func (c *CPUTimer) GetStressCondition(avgCpuUtilizationFor10Min,
 	avgCpuUtilizationFor20Min,
 	avgCpuUtilizationFor30Min,
 	diskUtilization float64) bool {
 
-	if avgCpuUtilizationFor10Min >= 0.8 && diskUtilization >= 0.75 ||
-		avgCpuUtilizationFor20Min >= 0.8 && diskUtilization >= 0.70 ||
+	if avgCpuUtilizationFor10Min >= 0.8 && diskUtilization >= 0.70 ||
+		avgCpuUtilizationFor20Min >= 0.8 && diskUtilization >= 0.65 ||
 		avgCpuUtilizationFor30Min >= 0.8 && diskUtilization >= 0.60 {
 	    	return true
 	}
@@ -178,8 +163,6 @@ func (c *CPUTimer) GetStressCondition(avgCpuUtilizationFor10Min,
 }
 
 func (c *CPUTimer) Run() {
-	c.stabilizationWindowTime = 0
-
 	for {
 		// 状态从 Free 到 Stress
 		stsInfoGlobal.rwLock.Lock()
@@ -264,27 +247,80 @@ func (c *CPUTimer) Run() {
 	}
 }
 
-type DiskIOPSTimer struct {
-	stabilizationWindowTime  int
+type DiskIOPSTimer struct {}
+func (d *DiskIOPSTimer)GetStressCondition() bool {
+	// TODO: 对disk_iops设置stress条件
+	return true
 }
 func (d *DiskIOPSTimer) Run() {
-	d.stabilizationWindowTime = 0
-
 	for {
-		// TODO: 增加从Free到Stress的逻辑
+		// 状态从 Free 到 Stress
+		stsInfoGlobal.rwLock.Lock()
+		podNameAndInfo := stsInfoGlobal.GetPodInfos()
+		stsInfoGlobal.rwLock.Unlock()
 
-		// TODO: 增加从Stress到Free的逻辑
+		podCounter := len(podNameAndInfo)
+		if podCounter == 0 {   // 说明stsInfoGlobal中还没有统计信息
+			fsmLog.Println("##DiskUtilizationTimer## podCounter is zero...")
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
+		}
+
+		// TODO:完善 pvInfos.GetAvgLastRangeDiskIOPS(int64)
+		avgDiskIOPSFor10Min := pvInfos.GetAvgLastRangeDiskIOPS(10 * 60)
+		avgDiskIOPSFor20Min := pvInfos.GetAvgLastRangeDiskIOPS(20 * 60)
+		avgDiskIOPSFor30Min := pvInfos.GetAvgLastRangeDiskIOPS(30 * 60)
+		diskUtilization := pvInfos.GetAvgLastDiskUtilization()
+
+		// TODO: 增加时间序列预测的支持
+		if d.GetStressCondition() == true {
+			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
+
+			hpaFSM.rwLock.Lock()
+			if hpaFSM.GetState() == FreeState {
+				fsmLog.Println("##CPUTimer## transferFromFreeToStressState: ",
+					"podCounter: ", podCounter,
+					"avgDiskIOPSFor10Min: ", avgDiskIOPSFor10Min,
+					"avgDiskIOPSFor20Min: ", avgDiskIOPSFor20Min,
+					"avgDiskIOPSFor30Min: ", avgDiskIOPSFor30Min,
+					"avgDiskUtilization: ", diskUtilization)
+				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, CPUTimerFlag)
+			}
+			if hpaFSM.GetState() == StressState {
+				if hpaFSM.GetStabilizationWindowTime() > stabilizationWindowTime {
+					fsmLog.Println("##CPUTimer## resetStressState: ",
+						"podCounter: ", podCounter,
+						"avgDiskIOPSFor10Min: ", avgDiskIOPSFor10Min,
+						"avgDiskIOPSFor20Min: ", avgDiskIOPSFor20Min,
+						"avgDiskIOPSFor30Min: ", avgDiskIOPSFor30Min,
+						"avgDiskUtilization: ", diskUtilization)
+					hpaFSM.resetStressState(stabilizationWindowTime, CPUTimerFlag)
+				}
+			}
+			hpaFSM.rwLock.Unlock()
+		}
+
+		// 从 Stress 到 Free 的逻辑
+		hpaFSM.rwLock.Lock()
+		if (hpaFSM.GetState() == StressState) &&
+			(hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag) &&
+			(d.GetStressCondition() == false) {
+			fsmLog.Println("##CPUTimer## transferFromStressToFreeState: ",
+				"podCounter: ", podCounter,
+				"avgDiskIOPSFor10Min: ", avgDiskIOPSFor10Min,
+				"avgDiskIOPSFor20Min: ", avgDiskIOPSFor20Min,
+				"avgDiskIOPSFor30Min: ", avgDiskIOPSFor30Min,
+				"avgDiskUtilization: ", diskUtilization)
+			hpaFSM.transferFromStressToFreeState()
+		}
+		hpaFSM.rwLock.Unlock()
 
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
 
-type DiskMBPSTimer struct {
-	stabilizationWindowTime  int
-}
+type DiskMBPSTimer struct {}
 func (d *DiskMBPSTimer) Run() {
-	d.stabilizationWindowTime = 0
-
 	for {
 		// TODO: 增加从Free到Stress的逻辑
 
