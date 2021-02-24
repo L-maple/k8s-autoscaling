@@ -74,31 +74,20 @@ func handlePVMetricsWithScripts(target string) *pb.PVInfo {
 
 	// get disk utilization
 	pvCmd.cmd.initializeCmdPath(diskUtilizationScript)
-	diskUtilization, err := pvCmd.getDiskUtilization()
-	if err != nil {
-		log.Fatal("pvCmd.getDiskUtilization: ", err)
-	}
+	diskUtilization, _ := pvCmd.getDiskUtilization()
 
 	// get disk iops
 	pvCmd.cmd.initializeCmdPath(diskIOPSScript)
-	diskIOPS, err := pvCmd.getDiskIOPS()
-	if err != nil {
-		log.Fatal("pvCmd.getDiskIOPS: ", err)
-	}
+	diskIOPS, _ := pvCmd.getDiskIOPS()
 
 	// get disk read mbps
 	pvCmd.cmd.initializeCmdPath(diskReadKbpsScript)
-	diskReadMbps, err := pvCmd.getDiskReadMBPS()
-	if err != nil {
-		log.Fatal("pvCmd.getDiskReadMBPS: ", err)
-	}
+	diskReadMbps, _ := pvCmd.getDiskReadMBPS()
 
 	// get disk write mbps
 	pvCmd.cmd.initializeCmdPath(diskWriteKbpsScript)
-	diskWriteMbps, err := pvCmd.getDiskWriteMBPS()
-	if err != nil {
-		log.Fatal("pvCmd.getDiskWriteMBPS: ", err)
-	}
+	diskWriteMbps, _ := pvCmd.getDiskWriteMBPS()
+
 	fmt.Println("handled-target: ", target)
 	fmt.Println("metrics: ", diskUtilization, diskIOPS, diskReadMbps, diskWriteMbps)
 

@@ -60,7 +60,7 @@ func (p *PVCommand) getDiskUtilization() (float64, error) {
 	diskUtilization, err := p.cmd.execute(p.args)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
-		return 0.0, err
+		return -1.0, err
 	}
 
 	diskUtilization = strings.Replace(diskUtilization, "\n", "", -1)
@@ -79,7 +79,7 @@ func (p *PVCommand) getDiskIOPS() (float64, error) {
 	diskIOPS, err := p.cmd.execute(p.args)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
-		return 0.0, err
+		return -1.0, err
 	}
 
 	diskIOPS = strings.Replace(diskIOPS, "\n", "", -1)
@@ -98,7 +98,7 @@ func (p *PVCommand) getDiskReadMBPS() (float64, error) {
 	diskReadKbps, err := p.cmd.execute(p.args)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
-		return 0.0, err
+		return -1.0, err
 	}
 
 	diskReadKbps = strings.Replace(diskReadKbps, "\n", "", -1)
@@ -118,7 +118,7 @@ func (p *PVCommand) getDiskWriteMBPS() (float64, error) {
 	diskWriteKbps, err := p.cmd.execute(p.args)
 	if err != nil {
 		log.Println("grepFileWithTarget warn: ", p.args, " not found!")
-		return 0.0, err
+		return -1.0, err
 	}
 
 	diskWriteKbps = strings.Replace(diskWriteKbps, "\n", "", -1)
