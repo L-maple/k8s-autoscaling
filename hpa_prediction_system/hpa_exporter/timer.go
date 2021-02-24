@@ -110,7 +110,7 @@ func (d *DiskUtilizationTimer) Run() {
 			diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
 		}
 
-		// TODO: 等将内存数据保存到influxdb后，换掉这里从disk_utilization获取数据
+		// TODO: 等将内存数据保存到influxdb后，换掉这里从pvInfos获取数据
 		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization()
 		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
 		// TODO: 增加时间序列预测的支持
@@ -163,16 +163,84 @@ func (c *CPUTimer) GetStabilizationWindowTime() int64 {
 func (c *CPUTimer) SetStabilizationWindowTime(time int64) {
 	c.stabilizationWindowTime = time
 }
-func (c *CPUTimer) GetStressCondition() bool {
-	// TODO: 添加CPU计时器时间
-	return true
+func (c *CPUTimer) GetStressCondition(avgCpuUtilizationFor10Min,
+	avgCpuUtilizationFor20Min,
+	avgCpuUtilizationFor30Min,
+	diskUtilization float64) bool {
+
+	if avgCpuUtilizationFor10Min >= 0.8 && diskUtilization >= 0.75 ||
+		avgCpuUtilizationFor20Min >= 0.8 && diskUtilization >= 0.70 ||
+		avgCpuUtilizationFor30Min >= 0.8 && diskUtilization >= 0.60 {
+	    	return true
+	}
+
+	return false
 }
+
 func (c *CPUTimer) Run() {
 	c.stabilizationWindowTime = 0
 
 	for {
-		// TODO: 增加从Free到Stress的逻辑
+		// 状态从 Free 到 Stress
+		stsInfoGlobal.rwLock.Lock()
+		podNameAndInfo := stsInfoGlobal.GetPodInfos()
+		stsInfoGlobal.rwLock.Unlock()
 
+		podCounter := len(podNameAndInfo)
+		if podCounter == 0 {   // 说明stsInfoGlobal中还没有统计信息
+			fsmLog.Println("##DiskUtilizationTimer## podCounter is zero...")
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+			continue
+		}
+
+		var cpuUtilizationSliceFor10Min, cpuUtilizationSliceFor20Min, cpuUtilizationSliceFor30Min []float64
+		for podName, _ := range podNameAndInfo {
+			podStatisticsObj := rs.PodStatistics{
+				Endpoint:  prometheusUrl,
+				PodName:   podName,
+				Namespace: namespaceName,
+			}
+
+			cpuUtilizationSliceFor10Min = append(cpuUtilizationSliceFor10Min, podStatisticsObj.GetAvgLastRangeCPUUtilization(10 * 60))
+			cpuUtilizationSliceFor20Min = append(cpuUtilizationSliceFor20Min, podStatisticsObj.GetAvgLastRangeCPUUtilization(20 * 60))
+			cpuUtilizationSliceFor30Min = append(cpuUtilizationSliceFor30Min, podStatisticsObj.GetAvgLastRangeCPUUtilization(30 * 60))
+		}
+
+		avgCpuUtilizationFor10Min := getAvgFloat64(cpuUtilizationSliceFor10Min)
+		avgCpuUtilizationFor20Min := getAvgFloat64(cpuUtilizationSliceFor20Min)
+		avgCpuUtilizationFor30Min := getAvgFloat64(cpuUtilizationSliceFor30Min)
+		diskUtilization := pvInfos.GetAvgLastDiskUtilization()
+
+		// TODO: 增加时间序列预测的支持
+		if c.GetStressCondition(avgCpuUtilizationFor10Min,
+								avgCpuUtilizationFor20Min,
+								avgCpuUtilizationFor30Min,
+								diskUtilization) == true {
+			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
+
+			hpaFSM.rwLock.Lock()
+			if hpaFSM.GetState() == FreeState {
+				fsmLog.Println("##CPUTimer## transferFromFreeToStressState: ",
+					"podCounter: ", podCounter,
+					"avgCpuUtilizationFor10Min: ", avgCpuUtilizationFor10Min,
+					"avgCpuUtilizationFor20Min: ", avgCpuUtilizationFor20Min,
+					"avgCpuUtilizationFor30Min: ", avgCpuUtilizationFor30Min,
+					"avgDiskUtilization: ", diskUtilization)
+				hpaFSM.transferFromFreeToStressState(stabilizationWindowTime, CPUTimerFlag)
+			}
+			if hpaFSM.GetState() == StressState {
+				if hpaFSM.GetStabilizationWindowTime() > stabilizationWindowTime {
+					fsmLog.Println("##CPUTimer## resetStressState: ",
+						"podCounter: ", podCounter,
+						"avgCpuUtilizationFor10Min: ", avgCpuUtilizationFor10Min,
+						"avgCpuUtilizationFor20Min: ", avgCpuUtilizationFor20Min,
+						"avgCpuUtilizationFor30Min: ", avgCpuUtilizationFor30Min,
+						"avgDiskUtilization: ", diskUtilization)
+					hpaFSM.resetStressState(stabilizationWindowTime, CPUTimerFlag)
+				}
+			}
+			hpaFSM.rwLock.Unlock()
+		}
 
 		// TODO: 增加从Stress到Free的逻辑
 

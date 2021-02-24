@@ -77,7 +77,7 @@ func (c *PodStatistics) GetAvgDiskUtilizations(timeRange int64) []interface{} {
 }
 
 func (c *PodStatistics) GetLastCpuUtilization() float64 {
-	cpuTimeAndUtilizations := c.GetAvgCpuUtilizations(3600)
+	cpuTimeAndUtilizations := c.GetAvgCpuUtilizations(600)
 
 	if len(cpuTimeAndUtilizations) == 0 {
 		return 0.0
@@ -91,6 +91,26 @@ func (c *PodStatistics) GetLastCpuUtilization() float64 {
 	}
 
 	return floatVal
+}
+
+func (c *PodStatistics) GetAvgLastRangeCPUUtilization(timeRange int64) float64 {
+	cpuTimeAndUtilizations := c.GetAvgCpuUtilizations(timeRange)
+
+	if len(cpuTimeAndUtilizations) == 0 {
+		return 0.0
+	}
+	var totalFloatVal = 0.0
+	for _, cpuTimeAndUtilization := range cpuTimeAndUtilizations {
+		utilization := cpuTimeAndUtilization.([]interface{})[1].(string)
+		floatVal, err := strconv.ParseFloat(utilization, 64)
+		if err != nil {
+			log.Fatal("strconv.ParseFloat: ", err)
+		}
+
+		totalFloatVal += floatVal
+	}
+
+	return totalFloatVal / float64(len(cpuTimeAndUtilizations))
 }
 
 func (c *PodStatistics) GetLastMemoryUsage() int64 {
