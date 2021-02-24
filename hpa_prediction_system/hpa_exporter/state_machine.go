@@ -11,7 +11,7 @@ import (
 
 const (
 	/* HPA Finite State*/
-	FreeState      = 0
+	FreeState      = 99
 	StressState    = 100
 	ScaleUpState   = 200
 )
