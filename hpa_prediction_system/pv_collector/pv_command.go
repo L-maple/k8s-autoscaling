@@ -45,7 +45,6 @@ func (c *Command) execute(args string) (string, error) {
 	}
 
 	if err := cmd.Wait(); err != nil {
-		log.Println("execute: execute: cmd.Wait error: ", err)
 		return "", err
 	}
 
