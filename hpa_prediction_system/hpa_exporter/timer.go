@@ -116,7 +116,7 @@ func (d *DiskUtilizationTimer) Run() {
 		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
-			stabilizationWindowTime := time.Now().Unix() + 30  // 1分钟稳定窗口时间
+			stabilizationWindowTime := time.Now().Unix() + 60  // 1分钟稳定窗口时间
 
 			hpaFSM.rwLock.Lock()
 			if hpaFSM.GetState() == FreeState {
