@@ -117,7 +117,7 @@ func getLatestDiskMetricsInfo() string {
 	utilization := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskUtilization())
 
 	_, utilizations := pvInfos.GetAvgLastDiskUtilizationTest()
-	fmt.Println("utilizations: ", utilizations)
+	fmt.Printf("utilizations: %v", utilizations)
 
 	metricsInfo := "[系统指标信息] {disk_utilizaiton}: " + utilization +
 		"; {disk_readMBPS}: " + readMBPS +
