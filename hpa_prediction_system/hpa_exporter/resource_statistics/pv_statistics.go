@@ -98,6 +98,25 @@ func (p *PVInfos) GetAvgLastDiskUtilization() float64 {
 	return totalLastDiskUtilization / float64(number)
 }
 
+func (p *PVInfos) GetAvgLastDiskUtilizationTest() (float64,[]float64) {
+	totalLastDiskUtilization, number := 0.0, 0
+	var utilizations []float64
+	for _, statistics := range p.NameAndStatistics {
+		utilization, err := statistics.GetLastDiskUtilization()
+		if err != nil {
+			log.Fatal("statistics.GetLastUtilization: ", err)
+		}
+		utilizations = append(utilizations, utilization)
+		totalLastDiskUtilization += utilization
+		number++
+	}
+	if number == 0 {
+		return 0, []float64{}
+	}
+
+	return totalLastDiskUtilization / float64(number), utilizations
+}
+
 /************************************************/
 
 type PVStatistics struct {
