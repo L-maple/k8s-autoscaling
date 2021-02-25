@@ -44,6 +44,10 @@ func (p *PVInfos) GetAvgLastDiskIOPS() float64 {
 	}
 	return totalLastDiskIOPS / float64(number)
 }
+func (p *PVInfos) GetAvgLastRangeDiskIOPS(timeRange int64) float64 {
+	// TODO: 添加函数
+	return 0.0
+}
 
 func (p *PVInfos) GetAvgLastDiskReadMBPS() float64 {
 	totalLastDiskReadMBPS, number := 0.0, 0
