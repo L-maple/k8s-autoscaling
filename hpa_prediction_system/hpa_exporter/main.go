@@ -284,6 +284,20 @@ func initializeMetricsLogger() {
 	})
 }
 
+func updatePVInfos() {
+	go func() {
+		pvNames := stsInfoGlobal.GetPVs()
+
+		for pvName, _ := range pvInfos.NameAndStatistics {
+			if _, res := Find(pvNames, pvName); res == false {
+				delete(pvInfos.NameAndStatistics, pvName)
+			}
+		}
+
+		time.Sleep(time.Duration(intervalTime) * time.Second)
+	}()
+}
+
 
 func init() {
 	flag.IntVar(&intervalTime, "interval", 15, "exporter interval")
@@ -304,6 +318,8 @@ func main() {
 	flag.Parse()
 
 	timerSetUp()
+
+	updatePVInfos()
 
 	/* get K8s clientSet */
 	clientSet := getInClusterClientSet()
