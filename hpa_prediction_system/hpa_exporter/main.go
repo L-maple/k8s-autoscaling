@@ -287,6 +287,10 @@ func initializeMetricsLogger() {
 func updatePVInfos() {
 	go func() {
 		for {
+			if stsInfoGlobal.isInitialized() == false {
+				time.Sleep(time.Duration(5) * time.Second)
+				continue
+			}
 			pvNames := stsInfoGlobal.GetPVs()
 
 			for pvName, _ := range pvInfos.NameAndStatistics {
@@ -295,7 +299,7 @@ func updatePVInfos() {
 				}
 			}
 
-			time.Sleep(time.Duration(intervalTime) * time.Second)
+			time.Sleep(time.Duration(60) * time.Second)
 		}
 	}()
 }
