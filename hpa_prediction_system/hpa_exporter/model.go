@@ -51,7 +51,7 @@ func printCurrentState() {
 	avgMemoryUsage := getAvgInt64(memoryUsageSlice)
 	avgMemoryUtilization := float64(avgMemoryUsage) / float64(memoryByteLimit)
 
-	pvInfosAvgDiskUtilization    := pvInfos.GetAvgLastDiskUtilization()
+	pvInfosAvgDiskUtilization    := pvInfos.GetAvgLastDiskUtilization(stsInfoGlobal.GetPVs())
 	promAvgDiskUtilization       := getAvgFloat64(diskUtilizationSlice)
 
 	fmt.Printf("++++++++++++++++++++++++++++++++++++\n")

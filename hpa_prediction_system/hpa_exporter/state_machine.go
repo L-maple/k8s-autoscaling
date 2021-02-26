@@ -111,12 +111,13 @@ func (h *HPAFiniteStateMachine) GetScaleUpReason() string {
 }
 
 func getLatestDiskMetricsInfo() string {
-	iops := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskIOPS())
-	readMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskReadMBPS())
-	writeMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskWriteMBPS())
-	utilization := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskUtilization())
+	pvs := stsInfoGlobal.GetPVs()
+	iops := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskIOPS(pvs))
+	readMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskReadMBPS(pvs))
+	writeMBPS := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskWriteMBPS(pvs))
+	utilization := fmt.Sprintf("%f", pvInfos.GetAvgLastDiskUtilization(pvs))
 
-	_, utilizations := pvInfos.GetAvgLastDiskUtilizationTest()
+	_, utilizations := pvInfos.GetAvgLastDiskUtilizationTest(pvs)
 	testInfo := fmt.Sprintf("utilizations: %v", utilizations)
 
 	metricsInfo := "[系统指标信息] {disk_utilizaiton}: " + utilization +

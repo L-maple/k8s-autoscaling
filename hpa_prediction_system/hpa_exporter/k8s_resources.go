@@ -74,6 +74,14 @@ func (s *StatefulSetInfo) GetMemoryByteLimit() int64 {
 	}
 	return memoryByteLimit
 }
+func (s *StatefulSetInfo) GetPVs() []string {
+	var pvs []string
+	for _, podInfo := range s.PodInfos {
+		pvs = append(pvs, podInfo.PVNames...)
+	}
+
+	return pvs
+}
 func (s *StatefulSetInfo) GetStatefulSetName() string {
 	return s.StatefulSetName
 }

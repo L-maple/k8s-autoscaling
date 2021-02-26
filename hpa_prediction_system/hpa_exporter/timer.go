@@ -104,7 +104,7 @@ func (d *DiskUtilizationTimer) Run() {
 		}
 
 		// TODO: 等将内存数据保存到influxdb后，换掉这里从pvInfos获取数据
-		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization()
+		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization(stsInfoGlobal.GetPVs())
 		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
@@ -192,7 +192,7 @@ func (c *CPUTimer) Run() {
 		avgCpuUtilizationFor10Min := getAvgFloat64(cpuUtilizationSliceFor10Min)
 		avgCpuUtilizationFor20Min := getAvgFloat64(cpuUtilizationSliceFor20Min)
 		avgCpuUtilizationFor30Min := getAvgFloat64(cpuUtilizationSliceFor30Min)
-		diskUtilization := pvInfos.GetAvgLastDiskUtilization()
+		diskUtilization := pvInfos.GetAvgLastDiskUtilization(stsInfoGlobal.GetPVs())
 
 		// TODO: 增加时间序列预测的支持
 		if c.GetStressCondition(avgCpuUtilizationFor10Min,
@@ -270,7 +270,7 @@ func (d *DiskIOPSTimer) Run() {
 		avgDiskIOPSFor10Min := pvInfos.GetAvgLastRangeDiskIOPS(10 * 60)
 		avgDiskIOPSFor20Min := pvInfos.GetAvgLastRangeDiskIOPS(20 * 60)
 		avgDiskIOPSFor30Min := pvInfos.GetAvgLastRangeDiskIOPS(30 * 60)
-		diskUtilization := pvInfos.GetAvgLastDiskUtilization()
+		diskUtilization := pvInfos.GetAvgLastDiskUtilization(stsInfoGlobal.GetPVs())
 
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition() == true {

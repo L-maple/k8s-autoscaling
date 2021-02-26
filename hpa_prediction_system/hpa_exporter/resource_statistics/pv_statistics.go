@@ -28,9 +28,12 @@ func (p *PVInfos) SetStatisticsByPVName(pvName string, statistics PVStatistics) 
 	p.NameAndStatistics[pvName] = statistics
 }
 
-func (p *PVInfos) GetAvgLastDiskIOPS() float64 {
+func (p *PVInfos) GetAvgLastDiskIOPS(PVNames []string) float64 {
 	totalLastDiskIOPS, number := 0.0, 0
-	for _, statistics := range p.NameAndStatistics {
+	for pvName, statistics := range p.NameAndStatistics {
+		if _, res := Find(PVNames, pvName); res == false {
+			continue
+		}
 		iops, err := statistics.GetLastDiskIOPS()
 		if err != nil {
 			log.Fatal("statistics.GetLastDiskIOPS: ", err)
@@ -49,9 +52,12 @@ func (p *PVInfos) GetAvgLastRangeDiskIOPS(timeRange int64) float64 {
 	return 0.0
 }
 
-func (p *PVInfos) GetAvgLastDiskReadMBPS() float64 {
+func (p *PVInfos) GetAvgLastDiskReadMBPS(PVNames []string) float64 {
 	totalLastDiskReadMBPS, number := 0.0, 0
-	for _, statistics := range p.NameAndStatistics {
+	for pvName, statistics := range p.NameAndStatistics {
+		if _, res := Find(PVNames, pvName); res == false {
+			continue
+		}
 		iops, err := statistics.GetLastDiskReadMBPS()
 		if err != nil {
 			log.Fatal("statistics.GetLastDiskMBPS: ", err)
@@ -65,9 +71,12 @@ func (p *PVInfos) GetAvgLastDiskReadMBPS() float64 {
 	return totalLastDiskReadMBPS / float64(number)
 }
 
-func (p *PVInfos) GetAvgLastDiskWriteMBPS() float64 {
+func (p *PVInfos) GetAvgLastDiskWriteMBPS(PVNames []string) float64 {
 	totalLastDiskWriteMBPS, number := 0.0, 0
-	for _, statistics := range p.NameAndStatistics {
+	for pvName, statistics := range p.NameAndStatistics {
+		if _, res := Find(PVNames, pvName); res == false {
+			continue
+		}
 		mbps, err := statistics.GetLastDiskWriteMBPS()
 		if err != nil {
 			log.Fatal("statistics.GetLastDiskWriteMBPS: ", err)
@@ -81,9 +90,12 @@ func (p *PVInfos) GetAvgLastDiskWriteMBPS() float64 {
 	return totalLastDiskWriteMBPS / float64(number)
 }
 
-func (p *PVInfos) GetAvgLastDiskUtilization() float64 {
+func (p *PVInfos) GetAvgLastDiskUtilization(PVNames []string) float64 {
 	totalLastDiskUtilization, number := 0.0, 0
-	for _, statistics := range p.NameAndStatistics {
+	for pvName, statistics := range p.NameAndStatistics {
+		if _, res := Find(PVNames, pvName); res == false {
+			continue
+		}
 		utilization, err := statistics.GetLastDiskUtilization()
 		if err != nil {
 			log.Fatal("statistics.GetLastUtilization: ", err)
@@ -98,10 +110,13 @@ func (p *PVInfos) GetAvgLastDiskUtilization() float64 {
 	return totalLastDiskUtilization / float64(number)
 }
 
-func (p *PVInfos) GetAvgLastDiskUtilizationTest() (float64,[]float64) {
+func (p *PVInfos) GetAvgLastDiskUtilizationTest(PVNames []string) (float64,[]float64) {
 	totalLastDiskUtilization, number := 0.0, 0
 	var utilizations []float64
-	for _, statistics := range p.NameAndStatistics {
+	for pvName, statistics := range p.NameAndStatistics {
+		if _, res := Find(PVNames, pvName); res == false {
+			continue
+		}
 		utilization, err := statistics.GetLastDiskUtilization()
 		if err != nil {
 			log.Fatal("statistics.GetLastUtilization: ", err)
