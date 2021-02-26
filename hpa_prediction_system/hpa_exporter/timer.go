@@ -93,18 +93,8 @@ func (d *DiskUtilizationTimer) Run() {
 		}
 
 		var diskUtilizationSlice []float64
-		for podName, _ := range podNameAndInfo {
-			podStatisticsObj := rs.PodStatistics{
-				Endpoint:  prometheusUrl,
-				PodName:   podName,
-				Namespace: namespaceName,
-			}
-
-			diskUtilizationSlice = append(diskUtilizationSlice, podStatisticsObj.GetLastDiskUtilization())
-		}
-
 		// TODO: 等将内存数据保存到influxdb后，换掉这里从pvInfos获取数据
-		avgDiskUtilization := pvInfos.GetAvgLastDiskUtilization(stsInfoGlobal.GetPVs())
+		avgDiskUtilization, diskUtilizationSlice := pvInfos.GetAvgLastDiskUtilizationTest(stsInfoGlobal.GetPVs())
 		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
 		// TODO: 增加时间序列预测的支持
 		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
