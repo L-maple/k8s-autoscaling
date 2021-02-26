@@ -286,15 +286,17 @@ func initializeMetricsLogger() {
 
 func updatePVInfos() {
 	go func() {
-		pvNames := stsInfoGlobal.GetPVs()
+		for {
+			pvNames := stsInfoGlobal.GetPVs()
 
-		for pvName, _ := range pvInfos.NameAndStatistics {
-			if _, res := Find(pvNames, pvName); res == false {
-				delete(pvInfos.NameAndStatistics, pvName)
+			for pvName, _ := range pvInfos.NameAndStatistics {
+				if _, res := Find(pvNames, pvName); res == false {
+					delete(pvInfos.NameAndStatistics, pvName)
+				}
 			}
-		}
 
-		time.Sleep(time.Duration(intervalTime) * time.Second)
+			time.Sleep(time.Duration(intervalTime) * time.Second)
+		}
 	}()
 }
 
