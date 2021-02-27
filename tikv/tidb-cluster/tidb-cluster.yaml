@@ -257,7 +257,7 @@ spec:
     ## when TLS cluster feature is enabled, TiDB Operator will automatically mount the cluster client certificates if mountClusterClientSecret is set to true
     ## Defaults to false
     ## Ref: https://docs.pingcap.com/tidb-in-kubernetes/stable/configure-a-tidb-cluster#mountclusterclientsecret
-    mountClusterClientSecret: true
+    mountClusterClientSecret: false
 
     ## The storageClassName of the persistent volume for PD data storage.
     storageClassName: "csi-lvm"
@@ -328,7 +328,7 @@ spec:
       level = "info"
       enable-timestamp = true
     ## The desired replicas
-    replicas: 3
+    replicas: 2
 
     ## max inprogress failover TiDB pod counts
     # maxFailoverCount: 3
@@ -340,7 +340,7 @@ spec:
       memory: 200Mi
     limits:
       cpu: 500m
-      memory: 300Mi
+      memory: 200Mi
 
     ## defines Kubernetes service for tidb-server
     ## If you are in a public cloud environment, you can use cloud LoadBalancer to access the TiDB service
@@ -450,7 +450,7 @@ spec:
     ## when enabled, TiDB will accept TLS encrypted connections from MySQL client
     ## Ref: https://docs.pingcap.com/tidb-in-kubernetes/stable/enable-tls-for-mysql-client
     # tlsClient:
-    #   enabled: true
+    ## enabled: false
 
     ## binlogEnabled will automatically be true if Pump is enabled, otherwise false
     ## set this manually only if you really know what you are doing
@@ -548,11 +548,11 @@ spec:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
     requests:
       cpu: 500m
-      memory: 500Mi
+      memory: 600Mi
       storage: 10Gi
     limits:
       cpu: 500m
-      memory: 1000Mi
+      memory: 600Mi
     #   # settings `storage` here will add `--capacity` arg to tikv-server
     #   storage: 10Gi
 
@@ -561,13 +561,13 @@ spec:
     ###############################
 
     ## The following block overwrites TiDB cluster-level configurations in `spec`
-    version: "v4.0.10"
-    imagePullPolicy: IfNotPresent
-    #imagePullSecrets: secretName
-    #hostNetwork: false
-    #serviceAccount: advanced-tidb-tikv
-    #priorityClassName: system-cluster-critical
-    #schedulerName: tidb-scheduler
+    # version: "v4.0.10"
+    # imagePullPolicy: IfNotPresent
+    # imagePullSecrets: secretName
+    # hostNetwork: false
+    # serviceAccount: advanced-tidb-tikv
+    # priorityClassName: system-cluster-critical
+    # schedulerName: tidb-scheduler
     # nodeSelector:
     #   app.kubernetes.io/component: tikv
     # annotations:
@@ -640,7 +640,7 @@ spec:
     ## when TLS cluster feature is enabled, TiDB Operator will automatically mount the cluster client certificates if mountClusterClientSecret is set to true
     ## Defaults to false
     ## Ref: https://docs.pingcap.com/tidb-in-kubernetes/stable/configure-a-tidb-cluster#mountclusterclientsecret
-    mountClusterClientSecret: true
+    mountClusterClientSecret: false
 
     ## if enabled, the RocksDB log will be shown in a separate sidecar container
     separateRocksDBLog: false
@@ -678,7 +678,7 @@ spec:
     # privileged: false
 
     ## if set to true, TiDB Operator will recover newly created TiKV pods due to automatic failover
-    recoverFailover: false
+    # recoverFailover: true
 
     ## Subdirectory within the volume to store TiKV Data. By default, the data
     ## is stored in the root directory of volume which is mounted at /var/lib/tikv.
