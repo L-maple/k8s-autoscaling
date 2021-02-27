@@ -154,7 +154,7 @@ spec:
       lease = 3
       enable-prevote = true
     ## The desired replicas
-    replicas: 3
+    replicas: 1
 
     ## max inprogress failover PD pod counts
     # maxFailoverCount: 3
@@ -163,11 +163,11 @@ spec:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
     requests:
       cpu: 500m
-      memory: 500Mi
+      memory: 200Mi
       storage: 10Gi
     limits:
       cpu: 500m
-      memory: 500Mi
+      memory: 200Mi
 
     ## defines Kubernetes service for pd-server
     ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/
@@ -337,10 +337,10 @@ spec:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
     requests:
       cpu: 500m
-      memory: 500Mi
+      memory: 200Mi
     limits:
       cpu: 500m
-      memory: 500Mi
+      memory: 300Mi
 
     ## defines Kubernetes service for tidb-server
     ## If you are in a public cloud environment, you can use cloud LoadBalancer to access the TiDB service
@@ -458,7 +458,7 @@ spec:
     # binlogEnabled: false
 
     ## if enabled, the slow log will be shown in a separate sidecar container
-    # separateSlowLog: true
+    separateSlowLog: false
     # slowLogVolumeName: ""
     ## configures separate sidecar container, where `image` & `imagePullPolicy` will be overwritten by
     ## the same field in `TidbCluster.helper`
@@ -548,11 +548,11 @@ spec:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
     requests:
       cpu: 500m
-      memory: 1000Mi
+      memory: 500Mi
       storage: 10Gi
     limits:
       cpu: 500m
-      memory: 2000Mi
+      memory: 1000Mi
     #   # settings `storage` here will add `--capacity` arg to tikv-server
     #   storage: 10Gi
 
@@ -561,13 +561,13 @@ spec:
     ###############################
 
     ## The following block overwrites TiDB cluster-level configurations in `spec`
-    # version: "v4.0.10"
-    # imagePullPolicy: IfNotPresent
-    # imagePullSecrets: secretName
-    # hostNetwork: false
-    # serviceAccount: advanced-tidb-tikv
-    # priorityClassName: system-cluster-critical
-    # schedulerName: tidb-scheduler
+    version: "v4.0.10"
+    imagePullPolicy: IfNotPresent
+    #imagePullSecrets: secretName
+    #hostNetwork: false
+    #serviceAccount: advanced-tidb-tikv
+    #priorityClassName: system-cluster-critical
+    #schedulerName: tidb-scheduler
     # nodeSelector:
     #   app.kubernetes.io/component: tikv
     # annotations:
@@ -643,10 +643,10 @@ spec:
     mountClusterClientSecret: true
 
     ## if enabled, the RocksDB log will be shown in a separate sidecar container
-    separateRocksDBLog: true
+    separateRocksDBLog: false
 
     ## if enabled, the Raft log will be shown in a separate sidecar container
-    separateRaftLog: true
+    separateRaftLog: false
 
     ## configures RocksDB/Raft log sidecar container resource requirements
     # logTailer:
@@ -678,7 +678,7 @@ spec:
     # privileged: false
 
     ## if set to true, TiDB Operator will recover newly created TiKV pods due to automatic failover
-    # recoverFailover: true
+    recoverFailover: false
 
     ## Subdirectory within the volume to store TiKV Data. By default, the data
     ## is stored in the root directory of volume which is mounted at /var/lib/tikv.

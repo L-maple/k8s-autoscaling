@@ -14,5 +14,9 @@ sed -i 's?k8s.gcr.io?registry.cn-hangzhou.aliyuncs.com/google_containers?g' tidb
 
 echo "STEP4 deploy the tidb-operator"
 kubectl create namespace tidb-admin
-helm install tidb-operator pingcap/tidb-operator --namespace=tidb-admin --version=${chart_version} -f tidb-operator/values-tidb-operator.yaml && kubectl get po -n tidb-admin -l app.kubernetes.io/name=tidb-operator
+helm install tidb-operator pingcap/tidb-operator --namespace=tidb-admin --version=${chart_version} -f tidb-operator/values-tidb-operator.yaml 
+
+sleep 5
+
+kubectl get po -n tidb-admin -l app.kubernetes.io/name=tidb-operator
 
