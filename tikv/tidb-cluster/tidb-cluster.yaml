@@ -449,8 +449,8 @@ spec:
 
     ## when enabled, TiDB will accept TLS encrypted connections from MySQL client
     ## Ref: https://docs.pingcap.com/tidb-in-kubernetes/stable/enable-tls-for-mysql-client
-    # tlsClient:
-    ## enabled: false
+    tlsClient:
+      enabled: false
 
     ## binlogEnabled will automatically be true if Pump is enabled, otherwise false
     ## set this manually only if you really know what you are doing
