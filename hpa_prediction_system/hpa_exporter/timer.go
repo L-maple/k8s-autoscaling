@@ -82,7 +82,7 @@ func (s StateTimer) Run() {
 
 type DiskUtilizationTimer struct {}
 func (d *DiskUtilizationTimer) GetStressCondition(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) bool {
-	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.75)
+	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.7)
 }
 func (d *DiskUtilizationTimer) Run() {
 	for {
