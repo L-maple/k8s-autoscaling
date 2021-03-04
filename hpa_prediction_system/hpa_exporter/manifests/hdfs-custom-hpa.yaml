@@ -33,9 +33,9 @@ spec:
       policies:
         - type: Pods
           value: 1
-          periodSeconds: 120    # 表示策略的时间长度必须保证有效，该策略中每120s最多增加1个Pod
+          periodSeconds: 60    # 表示策略的时间长度必须保证有效，该策略中每30s最多增加1个Pod
         - type: Percent
           value: 10
-          periodSeconds: 120
+          periodSeconds: 60
       selectPolicy: Min        # 通过设置Min值，HPA将选择副本数量变化最小的策略；
 
