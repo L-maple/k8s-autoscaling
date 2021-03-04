@@ -141,7 +141,7 @@ func printCurrentPvInfos(targets []string, pvInfos map[string]*pb.PVInfo, status
 }
 
 func init() {
-	flag.IntVar(&intervalTime, "s", 10, "collector interval")
+	flag.IntVar(&intervalTime, "s", 5, "collector interval")
 	flag.IntVar(&timeout, "timeout", 5, "rpc request timeout")
 	//flag.StringVar(&serverAddress, "serverAddress", "localhost:30002", "hpa-exporter comm address")
 	// https://pkg.go.dev/github.com/sercand/kuberesolver@v2.4.0+incompatible

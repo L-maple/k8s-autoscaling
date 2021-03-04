@@ -46,12 +46,13 @@ func (s StateTimer) Run() {
 		}
 
 		// 状态从 ScaleUp 到 Free
+		_, PVUtilizations := pvInfos.GetAvgLastDiskUtilizationTest(stsInfoGlobal.GetPVs())
 		currentPodNumber := len(stsInfoGlobal.GetPodNames())
-		if previousPodNumber < currentPodNumber {
+		if (previousPodNumber < currentPodNumber) && (previousPodNumber < len(PVUtilizations)) {
 			scaleUpFinished = true
 		}
 
-		if hpaFSM.GetState() == ScaleUpState && scaleUpFinished == true {
+		if (hpaFSM.GetState() == ScaleUpState) && (scaleUpFinished == true) {
 			fsmLog.Println("##StateTimer## transferFromScaleUpToFreeState: ",
 								"hpaFSM.GetState: ", hpaFSM.GetState(),
 								"hpaFSM.GetTimerFlag: ", hpaFSM.timerFlag,
@@ -102,6 +103,9 @@ func (d *DiskUtilizationTimer) Run() {
 
 			hpaFSM.rwLock.Lock()
 			if hpaFSM.GetState() == FreeState {
+				if podCounter - aboveCeilingNumber < ReplicasAmount {
+					stabilizationWindowTime -= 30
+				}
 				fsmLog.Println("##DiskUtilizationTimer## transferFromFreeToStressState: ",
 									"podCounter: ", podCounter,
 									"aboveCeilingNumber: ", aboveCeilingNumber,
@@ -133,7 +137,7 @@ func (d *DiskUtilizationTimer) Run() {
 			}
 		hpaFSM.rwLock.Unlock()
 
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 }
 
@@ -233,7 +237,7 @@ func (c *CPUTimer) Run() {
 		}
 		hpaFSM.rwLock.Unlock()
 
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 }
 
@@ -305,7 +309,7 @@ func (d *DiskIOPSTimer) Run() {
 		}
 		hpaFSM.rwLock.Unlock()
 
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 }
 
