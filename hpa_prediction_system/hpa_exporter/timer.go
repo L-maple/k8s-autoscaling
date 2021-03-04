@@ -52,6 +52,11 @@ func (s StateTimer) Run() {
 			scaleUpFinished = true
 		}
 
+		// 分布式系统重启
+		if previousPodNumber > currentPodNumber {
+			scaleUpFinished = true
+		}
+
 		if (hpaFSM.GetState() == ScaleUpState) && (scaleUpFinished == true) {
 			fsmLog.Println("##StateTimer## transferFromScaleUpToFreeState: ",
 								"hpaFSM.GetState: ", hpaFSM.GetState(),
