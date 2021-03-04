@@ -47,13 +47,8 @@ func (s StateTimer) Run() {
 
 		// 状态从 ScaleUp 到 Free
 		_, PVUtilizations := pvInfos.GetAvgLastDiskUtilizationTest(stsInfoGlobal.GetPVs())
-		currentPodNumber := len(stsInfoGlobal.GetPodNames())
-		if (previousPodNumber < currentPodNumber) && (previousPodNumber < len(PVUtilizations)) {
-			scaleUpFinished = true
-		}
-
-		// 分布式系统重启
-		if previousPodNumber > currentPodNumber {
+		currentPodNumber := len(PVUtilizations)
+		if previousPodNumber != currentPodNumber {
 			scaleUpFinished = true
 		}
 
