@@ -45,7 +45,7 @@ spec:
           - name: hadoop_yarn_yarn_nodemanager_resource_memory_mb # 配置默认节点内存，单位为MB
             value: "2048"
           - name: hadoop_hdfs_dfs_datanode_balance_bandwidthPerSec
-            value: "1000m"
+            value: "40m"
   volumeClaimTemplates:
   - metadata:
       name: hdfs
