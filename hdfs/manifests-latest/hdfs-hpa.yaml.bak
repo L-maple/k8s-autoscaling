@@ -39,6 +39,6 @@ spec:
       policies:
       - type: Pods
         value: 1
-        periodSeconds: 300
+        periodSeconds: 30
       selectPolicy: Min
 
