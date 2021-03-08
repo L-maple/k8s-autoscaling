@@ -9,7 +9,7 @@ spec:
     kind: StatefulSet
     name: hdfs-datanode
   minReplicas: 3
-  maxReplicas: 8
+  maxReplicas: 10
   metrics:
   - type: Pods
     pods:
