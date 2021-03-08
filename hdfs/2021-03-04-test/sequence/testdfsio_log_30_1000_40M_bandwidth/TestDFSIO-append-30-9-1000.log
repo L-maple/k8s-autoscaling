@@ -1,0 +1,9 @@
+----- TestDFSIO ----- : append
+            Date & time: Fri Mar 05 01:35:39 UTC 2021
+        Number of files: 1
+ Total MBytes processed: 1000
+      Throughput mb/sec: 79.56
+ Average IO rate mb/sec: 79.56
+  IO rate std deviation: 0
+     Test exec time sec: 60.52
+
