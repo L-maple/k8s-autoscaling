@@ -164,10 +164,10 @@ spec:
     requests:
       cpu: 500m
       memory: 200Mi
-      storage: 10Gi
+      storage: 5Gi
     limits:
       cpu: 500m
-      memory: 200Mi
+      # memory: 200Mi
 
     ## defines Kubernetes service for pd-server
     ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/
@@ -328,7 +328,7 @@ spec:
       level = "info"
       enable-timestamp = true
     ## The desired replicas
-    replicas: 2
+    replicas: 1
 
     ## max inprogress failover TiDB pod counts
     # maxFailoverCount: 3
@@ -340,7 +340,7 @@ spec:
       memory: 200Mi
     limits:
       cpu: 500m
-      memory: 200Mi
+      # memory: 200Mi
 
     ## defines Kubernetes service for tidb-server
     ## If you are in a public cloud environment, you can use cloud LoadBalancer to access the TiDB service
@@ -548,11 +548,11 @@ spec:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
     requests:
       cpu: 500m
-      memory: 600Mi
+      memory: 1000Mi
       storage: 10Gi
     limits:
       cpu: 500m
-      memory: 600Mi
+      # memory: 1000Mi
     #   # settings `storage` here will add `--capacity` arg to tikv-server
     #   storage: 10Gi
 
