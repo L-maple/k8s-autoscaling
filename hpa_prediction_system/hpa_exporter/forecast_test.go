@@ -26,7 +26,7 @@ func getForecastServiceClient() (pb.ForecastServiceClient, *grpc.ClientConn) {
 }
 
 
-func TestRun(t *testing.T) {
+func TestForecastClient(t *testing.T) {
 	client, conn := getForecastServiceClient()
 	defer conn.Close()
 
