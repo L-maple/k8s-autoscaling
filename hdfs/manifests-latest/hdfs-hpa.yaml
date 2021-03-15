@@ -35,7 +35,7 @@ spec:
       # stabilizationWindowSeconds: 300
       selectPolicy: Disabled   # 禁止缩容
     scaleUp:
-      stabilizationWindowSeconds: 60  # 2分钟
+      stabilizationWindowSeconds: 60  # 分钟
       policies:
       - type: Pods
         value: 1
