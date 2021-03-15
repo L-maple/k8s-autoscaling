@@ -18,10 +18,6 @@ const (
 	TimerSleep               = 5
 )
 
-var (
-	/* 副本数量 */
-	ReplicasAmount = 3
-)
 
 type StateTimer struct {}
 func (s StateTimer) Run() {

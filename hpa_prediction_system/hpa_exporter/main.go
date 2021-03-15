@@ -31,6 +31,7 @@ var (
 	intervalTime     int
 	namespaceName    string
 	statefulsetName  string
+	ReplicasAmount   int
 
 	/* port */
 	promPort      = ":30001"     /* For whether_add_pod exporter */
@@ -310,6 +311,7 @@ func init() {
 	flag.StringVar(&namespaceName, "namespace", "default", "statefulset's namespace")
 	flag.StringVar(&statefulsetName, "statefulset", "default", "statefulset's name")
 	flag.StringVar(&prometheusUrl, "prometheus-url", "http://prometheus-k8s.monitoring.svc:9090/", "promethues url")
+	flag.IntVar(&ReplicasAmount, "replicas", 3, "distributed system replica number")
 	//flag.StringVar(&prometheusUrl, "prometheus-url", "http://127.0.0.1:9090/", "promethues url")
 
 	/* 初始化系统状态 */
