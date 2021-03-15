@@ -3,6 +3,7 @@ package main
 import (
 	rs "github.com/k8s-autoscaling/hpa_prediction_system/hpa_exporter/resource_statistics"
 	"log"
+	"math"
 	"time"
 )
 
@@ -13,6 +14,8 @@ const (
 	CPUTimerFlag             = 3
 	DiskIOPSTimerFlag        = 4
 	DiskMBPSTimerFlag        = 5
+
+	TimerSleep               = 5
 )
 
 var (
@@ -71,15 +74,28 @@ func (s StateTimer) Run() {
 
 		previousPodNumber = currentPodNumber
 
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(TimerSleep) * time.Second)
 	}
 }
 
-type DiskUtilizationTimer struct {}
-func (d *DiskUtilizationTimer) GetStressCondition(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) bool {
-	return (podCounter - aboveCeilingNumber < ReplicasAmount) || (avgDiskUtilization >= 0.7)
+type DiskUtilizationTimer struct {
+	avgDiskUtilizationBoundary float64
+	availabilityBoundary       float64
+}
+func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) (bool, int64) {
+	if podCounter - aboveCeilingNumber < ReplicasAmount {
+		d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.availabilityBoundary - avgDiskUtilization)
+		return true, time.Now().Unix()
+	} else if avgDiskUtilization >= d.avgDiskUtilizationBoundary {
+		d.avgDiskUtilizationBoundary += 1 / 2.0 * math.Abs(d.availabilityBoundary - avgDiskUtilization)
+		return true, time.Now().Unix() + 30
+	}
+	return false, -1
 }
 func (d *DiskUtilizationTimer) Run() {
+	d.avgDiskUtilizationBoundary = 0.6
+	d.availabilityBoundary = 0.90
+
 	for {
 		// 状态从 Free 到 Stress
 		stsInfoGlobal.rwLock.Lock()
@@ -96,16 +112,12 @@ func (d *DiskUtilizationTimer) Run() {
 		var diskUtilizationSlice []float64
 		// TODO: 等将内存数据保存到influxdb后，换掉这里从pvInfos获取数据
 		avgDiskUtilization, diskUtilizationSlice := pvInfos.GetAvgLastDiskUtilizationTest(stsInfoGlobal.GetPVs())
-		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, 0.85)
+		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, d.availabilityBoundary)
 		// TODO: 增加时间序列预测的支持
-		if d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == true {
-			stabilizationWindowTime := time.Now().Unix() + 30  // 30秒稳定窗口时间
-
+		isStress, stabilizationWindowTime := d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization)
+		if isStress {
 			hpaFSM.rwLock.Lock()
 			if hpaFSM.GetState() == FreeState {
-				if podCounter - aboveCeilingNumber < ReplicasAmount {
-					stabilizationWindowTime -= 30
-				}
 				fsmLog.Println("##DiskUtilizationTimer## transferFromFreeToStressState: ",
 									"podCounter: ", podCounter,
 									"aboveCeilingNumber: ", aboveCeilingNumber,
@@ -126,9 +138,10 @@ func (d *DiskUtilizationTimer) Run() {
 
 		// 从Stress到Free的逻辑
 		hpaFSM.rwLock.Lock()
+		isStress, _ = d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization)
 		if (hpaFSM.GetState() == StressState) &&
 			(hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag) &&
-			(d.GetStressCondition(podCounter, aboveCeilingNumber, avgDiskUtilization) == false) {
+			 isStress == false {
 				fsmLog.Println("##DiskUtilizationTimer## transferFromStressToFreeState: ",
 					"podCounter: ", podCounter,
 					"aboveCeilingNumber: ", aboveCeilingNumber,
@@ -137,7 +150,7 @@ func (d *DiskUtilizationTimer) Run() {
 			}
 		hpaFSM.rwLock.Unlock()
 
-		time.Sleep(time.Duration(1) * time.Second)
+		time.Sleep(time.Duration(TimerSleep) * time.Second)
 	}
 }
 
@@ -237,7 +250,7 @@ func (c *CPUTimer) Run() {
 		}
 		hpaFSM.rwLock.Unlock()
 
-		time.Sleep(time.Duration(1) * time.Second)
+		time.Sleep(time.Duration(TimerSleep) * time.Second)
 	}
 }
 
@@ -309,7 +322,7 @@ func (d *DiskIOPSTimer) Run() {
 		}
 		hpaFSM.rwLock.Unlock()
 
-		time.Sleep(time.Duration(1) * time.Second)
+		time.Sleep(time.Duration(TimerSleep) * time.Second)
 	}
 }
 
@@ -320,6 +333,6 @@ func (d *DiskMBPSTimer) Run() {
 
 		// TODO: 增加从Stress到Free的逻辑
 
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(TimerSleep) * time.Second)
 	}
 }
