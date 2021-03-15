@@ -83,7 +83,7 @@ type DiskUtilizationTimer struct {
 	availabilityBoundary       float64
 }
 func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) (bool, int64) {
-	if podCounter - aboveCeilingNumber < ReplicasAmount {
+	if podCounter - aboveCeilingNumber < ReplicasAmount + 1 {
 		d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.availabilityBoundary - avgDiskUtilization)
 		return true, time.Now().Unix()
 	} else if avgDiskUtilization >= d.avgDiskUtilizationBoundary {
