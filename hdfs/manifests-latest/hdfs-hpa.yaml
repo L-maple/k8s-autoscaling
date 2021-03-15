@@ -17,7 +17,7 @@ spec:
         name: disk_utilization
       target: 
         type: AverageValue
-        averageValue: 0.5
+        averageValue: 0.7
   - type: Resource
     resource:
       name: cpu
@@ -35,7 +35,7 @@ spec:
       # stabilizationWindowSeconds: 300
       selectPolicy: Disabled   # 禁止缩容
     scaleUp:
-      stabilizationWindowSeconds: 60  # 分钟
+      stabilizationWindowSeconds: 60  # 1分钟
       policies:
       - type: Pods
         value: 1
