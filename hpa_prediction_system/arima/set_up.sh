@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # 构建镜像
-docker build -t aliuchangjie/arima:latest
+docker build -t aliuchangjie/arima:latest .
 echo "STEP1 docker build successfully."
 
 # 登录docker
