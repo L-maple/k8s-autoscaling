@@ -76,21 +76,23 @@ func (s StateTimer) Run() {
 
 type DiskUtilizationTimer struct {
 	avgDiskUtilizationBoundary float64
-	availabilityBoundary       float64
+	availabilityBottomBoundary float64
+	availabilityUpperBoundary  float64
 }
 func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) (bool, int64) {
-	if podCounter - aboveCeilingNumber < ReplicasAmount + 1 {
-		d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.availabilityBoundary - avgDiskUtilization)
+	if podCounter - aboveCeilingNumber < ReplicasAmount {
+		d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.avgDiskUtilizationBoundary - d.availabilityBottomBoundary)
 		return true, time.Now().Unix()
 	} else if avgDiskUtilization >= d.avgDiskUtilizationBoundary {
-		d.avgDiskUtilizationBoundary += 1 / 2.0 * math.Abs(d.availabilityBoundary - avgDiskUtilization)
+		d.avgDiskUtilizationBoundary += 1 / 2.0 * math.Abs(d.avgDiskUtilizationBoundary - d.availabilityBottomBoundary)
 		return true, time.Now().Unix() + 30
 	}
 	return false, -1
 }
 func (d *DiskUtilizationTimer) Run() {
 	d.avgDiskUtilizationBoundary = 0.6
-	d.availabilityBoundary = 0.90
+	d.availabilityBottomBoundary = 0.6
+	d.availabilityUpperBoundary = 0.90
 
 	for {
 		// 状态从 Free 到 Stress
