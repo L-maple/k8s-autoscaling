@@ -148,7 +148,8 @@ func (d *DiskUtilizationTimer) Run() {
 			}
 		hpaFSM.rwLock.Unlock()
 
-		fsmLog.Println("availabilityBoundary: ", d.availabilityBoundary,
+		fsmLog.Println("Dynamic Boundary: availabilityBottomBoundary: ", d.availabilityBottomBoundary,
+						"availabilityUpperBoundary: ", d.availabilityUpperBoundary,
 			"avgDiskUtilizationBoundary: ", d.avgDiskUtilizationBoundary)
 		time.Sleep(time.Duration(TimerSleep) * time.Second)
 	}
