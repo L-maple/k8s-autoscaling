@@ -1,0 +1,17 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  # arima-service在hpa_exporter的main.go中引用到
+  name: arima-service
+  namespace: monitoring
+  labels:
+    name: arima-service
+spec:
+  type: NodePort
+  ports:
+    - name: server-port
+      port: 50000
+      targetPort: 50000
+  selector:
+    k8s-app: arima-deployment

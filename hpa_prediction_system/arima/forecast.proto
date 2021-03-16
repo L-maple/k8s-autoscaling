@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package time_series_forecast;
+
+option go_package = "github.com/k8s-autoscaling/hpa_prediction_system/time_series_forecast";
+
+service ForecastService {
+  rpc GetForeCastValue(ForecastRequest) returns (ForecastResponse) {}
+}
+
+message ForecastRequest {
+  string data    = 1;
+  int32  minutes = 2;
+}
+
+message ForecastResponse {
+  float  value   = 1;
+}

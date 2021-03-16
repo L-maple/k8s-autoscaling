@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arima-deployment
+  namespace: monitoring
+  labels:
+    k8s-app: arima-deployment
+spec:
+  selector:
+    matchLabels:
+      k8s-app: arima-deployment
+  template:
+    metadata:
+      labels:
+        k8s-app: arima-deployment
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: arima
+          image: aliuchangjie/arima:latest
+#          command: [ "/usr/bin/hpa_exporter" ]
+#          args: []
+          ports:
+            - containerPort: 50000  # 用于暴露arima_server的接口
+              protocol: TCP
