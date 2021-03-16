@@ -110,7 +110,7 @@ func (d *DiskUtilizationTimer) Run() {
 		var diskUtilizationSlice []float64
 		// TODO: 等将内存数据保存到influxdb后，换掉这里从pvInfos获取数据
 		avgDiskUtilization, diskUtilizationSlice := pvInfos.GetAvgLastDiskUtilizationTest(stsInfoGlobal.GetPVs())
-		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, d.availabilityBoundary)
+		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, d.availabilityUpperBoundary)
 		// TODO: 增加时间序列预测的支持
 		isStress, stabilizationWindowTime := d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization)
 		if isStress {
