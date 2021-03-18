@@ -92,9 +92,9 @@ func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, 
 	} else if state == StressState {
 		if podCounter - aboveCeilingNumber < ReplicasAmount {
 			return true, time.Now().Unix()
-		} else if avgDiskUtilization >= d.avgDiskUtilizationBoundary {
-			return true, time.Now().Unix() + 30
 		}
+
+		return true, time.Now().Unix() + 30
 	}
 	return false, -1
 }
