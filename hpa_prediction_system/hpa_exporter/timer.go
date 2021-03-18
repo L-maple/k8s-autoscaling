@@ -18,7 +18,6 @@ const (
 	TimerSleep               = 5
 )
 
-
 type StateTimer struct {}
 func (s StateTimer) Run() {
 	var previousPodNumber int
@@ -83,24 +82,13 @@ type DiskUtilizationTimer struct {
 }
 func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64, state int) (bool, int64) {
 	if state == FreeState {
-		if (podCounter - aboveCeilingNumber < ReplicasAmount) && (time.Now().Unix() > d.adjustTime)  {
+		if podCounter - aboveCeilingNumber < ReplicasAmount {
 			d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.avgDiskUtilizationBoundary-d.availabilityBottomBoundary)
-			d.adjustTime = time.Now().Unix() + 60
 			return true, time.Now().Unix()
-		} else if (avgDiskUtilization >= d.avgDiskUtilizationBoundary) && (time.Now().Unix() > d.adjustTime) {
+		} else if avgDiskUtilization >= d.avgDiskUtilizationBoundary {
 			d.avgDiskUtilizationBoundary += 1 / 2.0 * math.Abs(d.availabilityUpperBoundary-d.avgDiskUtilizationBoundary)
-			d.adjustTime = time.Now().Unix() + 60
 			return true, time.Now().Unix() + 30
 		}
-	} else if state == StressState {
-		if podCounter - aboveCeilingNumber < ReplicasAmount {
-			if time.Now().Unix() > d.adjustTime {
-				d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.avgDiskUtilizationBoundary-d.availabilityBottomBoundary)
-				d.adjustTime = time.Now().Unix() + 60
-			}
-			return true, time.Now().Unix()
-		}
-		return true, time.Now().Unix() + 30
 	}
 	return false, -1
 }
