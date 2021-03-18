@@ -79,12 +79,16 @@ type DiskUtilizationTimer struct {
 	availabilityBottomBoundary float64
 	availabilityUpperBoundary  float64
 }
-func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64) (bool, int64) {
+func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, avgDiskUtilization float64, state int) (bool, int64) {
 	if podCounter - aboveCeilingNumber < ReplicasAmount {
-		d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.avgDiskUtilizationBoundary - d.availabilityBottomBoundary)
+		if state == FreeState {
+			d.avgDiskUtilizationBoundary -= 1 / 2.0 * math.Abs(d.avgDiskUtilizationBoundary-d.availabilityBottomBoundary)
+		}
 		return true, time.Now().Unix()
 	} else if avgDiskUtilization >= d.avgDiskUtilizationBoundary {
-		d.avgDiskUtilizationBoundary += 1 / 2.0 * math.Abs(d.availabilityUpperBoundary- d.avgDiskUtilizationBoundary)
+		if state == FreeState {
+			d.avgDiskUtilizationBoundary += 1 / 2.0 * math.Abs(d.availabilityUpperBoundary-d.avgDiskUtilizationBoundary)
+		}
 		return true, time.Now().Unix() + 30
 	}
 	return false, -1
@@ -112,7 +116,7 @@ func (d *DiskUtilizationTimer) Run() {
 		avgDiskUtilization, diskUtilizationSlice := pvInfos.GetAvgLastDiskUtilizationTest(stsInfoGlobal.GetPVs())
 		aboveCeilingNumber := getAboveBoundaryNumber(diskUtilizationSlice, d.availabilityUpperBoundary)
 		// TODO: 增加时间序列预测的支持
-		isStress, stabilizationWindowTime := d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization)
+		isStress, stabilizationWindowTime := d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization, hpaFSM.GetState())
 		if isStress {
 			hpaFSM.rwLock.Lock()
 			if hpaFSM.GetState() == FreeState {
@@ -136,7 +140,7 @@ func (d *DiskUtilizationTimer) Run() {
 
 		// 从Stress到Free的逻辑
 		hpaFSM.rwLock.Lock()
-		isStress, _ = d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization)
+		isStress, _ = d.IsStress(podCounter, aboveCeilingNumber, avgDiskUtilization, hpaFSM.GetState())
 		if (hpaFSM.GetState() == StressState) &&
 			(hpaFSM.GetTimerFlag() == DiskUtilizationTimerFlag) &&
 			 isStress == false {
