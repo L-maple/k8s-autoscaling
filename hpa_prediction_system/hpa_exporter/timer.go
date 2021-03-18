@@ -92,7 +92,7 @@ func (d *DiskUtilizationTimer) IsStress(podCounter int, aboveCeilingNumber int, 
 func (d *DiskUtilizationTimer) Run() {
 	d.avgDiskUtilizationBoundary = 0.6
 	d.availabilityBottomBoundary = 0.6
-	d.availabilityUpperBoundary = 0.90
+	d.availabilityUpperBoundary = 0.85
 
 	for {
 		// 状态从 Free 到 Stress
