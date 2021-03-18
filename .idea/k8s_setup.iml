@@ -7,7 +7,7 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.8 (k8s-autoscaling)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (pythonProject1)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Python 3.8 (k8s-autoscaling) interpreter library" level="application" />
   </component>
