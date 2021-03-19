@@ -23,7 +23,6 @@ spec:
           command: [ "/usr/bin/hpa_exporter" ]
 #          args: ["-statefulset", "hdfs-datanode", "-namespace", "monitoring"]
           args: ["-statefulset", "advanced-tidb-tikv", "-namespace", "tidb-cluster"]
-
           ports:
             - containerPort: 30001  # 用于暴露监控的指标数据
               protocol: TCP
