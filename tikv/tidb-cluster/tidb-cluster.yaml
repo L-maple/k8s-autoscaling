@@ -549,7 +549,7 @@ spec:
     requests:
       cpu: 500m
       memory: 1000Mi
-      storage: 10Gi
+      storage: 5Gi
     limits:
       cpu: 500m
       # memory: 1000Mi
