@@ -8,7 +8,7 @@ spec:
   image: tnir/mysqlclient
   # imagePullPolicy: IfNotPresent
   cluster:
-    namespace: tidb-cluster
+    namespace: monitoring
     name: advanced-tidb
   initSql: |-
     create database app;
