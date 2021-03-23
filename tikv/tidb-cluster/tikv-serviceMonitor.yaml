@@ -9,5 +9,5 @@ spec:
       app.kubernetes.io/component: tikv
   endpoints:
   - interval: 15s
-    targetPort: 20160
+    targetPort: 20180
     path: /metrics
