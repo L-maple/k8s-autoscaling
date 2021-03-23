@@ -1,0 +1,41 @@
+# https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.12/#objectmetricsource-v2beta2-autoscaling
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tidb-custom-hpa
+  namespace: monitoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: advanced-tidb-tikv
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Object
+      object:
+        metric:
+          name: whether_add_pod
+        describedObject:
+          # kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1/namespaces/monitoring/services/*/whether_add_pod" | jq .
+          apiVersion: v1
+          kind: Service
+          name: tidb-hpa-exporter-service
+        target:
+          type: Value
+          value: 100
+  behavior:
+    scaleDown:
+      selectPolicy: Disabled  # 禁止缩容
+    scaleUp:
+      #      https://kubernetes:io/zh/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-custom-metrics
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 30    # 表示策略的时间长度必须保证有效，该策略中每30s最多增加1个Pod
+        - type: Percent
+          value: 10
+          periodSeconds: 30
+      selectPolicy: Min        # 通过设置Min值，HPA将选择副本数量变化最小的策略；
+
