@@ -138,7 +138,11 @@ func setStatefulSetPodInfos(clientSet *kubernetes.Clientset, pods *v1.PodList,
 		cpuMilliLimit, memoryByteLimit := int64(0), int64(0)  /* sum the pod's cpu & memory limit */
 		podName, podLabels, found, podInfo := pod.Name, pod.Labels, false, PodInfo{}
 		for podLabelKey, podLabelValue := range podLabels {
-			if matchLabels[podLabelKey] == podLabelValue {
+			res, err := isMatched(statefulsetName, podName)
+			if err != nil {
+				log.Fatal(statefulsetName, podName, err)
+			}
+			if (matchLabels[podLabelKey] == podLabelValue) && res {
 				// TODO: judge all the status is True;
 				// fmt.Println(pod.Status.Conditions)
 				found = true

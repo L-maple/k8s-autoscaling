@@ -1,5 +1,6 @@
 package main
 
+import "regexp"
 
 func Find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
@@ -40,4 +41,8 @@ func getAboveBoundaryNumber(floatNumbers []float64, stone float64) int {
 	}
 
 	return count
+}
+
+func isMatched(pattern, s string) (bool, error) {
+	return regexp.MatchString(pattern, s)
 }
