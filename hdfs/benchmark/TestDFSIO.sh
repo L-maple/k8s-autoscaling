@@ -15,6 +15,7 @@ curdir=`pwd`
 # shellcheck disable=SC2046
 start_time=$(date +%s)
 echo "start time: " "$start_time"
+echo "start time: " "$start_time" >> time.log
 mkdir testdfsio_log_"$nrFiles"_"$size"
 hadoop jar "${HADOOP_HOME}"/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.9.0-tests.jar TestDFSIO -write -nrFiles 1 -size $size"MB" -resFile "$curdir"/testdfsio_log_"$nrFiles"_"$size"/TestDFSIO-write-$nrFiles-1-$size.log
 # shellcheck disable=SC2005
